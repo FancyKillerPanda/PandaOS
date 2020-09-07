@@ -4,4 +4,4 @@
 prjRoot=..
 
 mkdir -p $prjRoot/bin/
-nasm -f bin $prjRoot/src/boot/BootPandaOS.asm -o $prjRoot/bin/BootPandaOS.bin
+nasm -i $prjRoot/src/boot/ -f bin $prjRoot/src/boot/bootPandaOS.asm -o $prjRoot/bin/bootPandaOS.bin
