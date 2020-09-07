@@ -2,7 +2,9 @@
 bits 16							; We are working in 16-bit real mode
 org 0x7c00						; Where all absolute addresses start
 
-STAGE_TWO_LOAD_SEGMENT: equ 0x1000
+ENTRY_CLUSTER_NUMBER_OFFSET: equ 0x1a
+DIRECTORY_LOAD_SEGMENT: equ 0x1000
+MAX_READ_ATTEMPTS: equ 4
 CR: equ 0x0d
 LF: equ 0x0a
 	
@@ -14,11 +16,11 @@ main:
 
 boot_sector:
 	; BIOS parameter block
-	OEMName					db "PandaOS " ; TODO(fkp): Do we need a null-terminator?
+	OEMName					db "PandaOS "
 	BytesPerSector			dw 512
 	SectorsPerCluster		db 1
 	ReservedSectors			dw 1
-	FATTables				db 2
+	FATCount				db 2
 	RootDirectoryEntries	dw 224
 	SectorsCount			dw 2880
 	MediaDescriptor			db 0xf0
@@ -33,8 +35,8 @@ boot_sector:
 	Reserved				db 0
 	BootSignature			db 0x29
 	VolumeID				dd 0
-	VolumeLabel				db "PandaOSVolume"
-	FilesystemType			db "FAT16   " ; TODO(fkp): Why the spaces?
+	VolumeLabel				db "PandaVolume"
+	FilesystemType			db "FAT16   "
 
 print_string:
 	lodsb						; Loads byte in si into al (and advances si)
@@ -50,7 +52,7 @@ print_string:
 .done:
 	ret
 
-failed_to_boot:
+boot_failed:
 	mov si, disk_error_msg		; Loads the message
 	call print_string
 	call reboot
@@ -89,6 +91,161 @@ move_cursor:
 
 	ret
 
+read_sector:
+	xor cx, cx					; Resets the "try" count
+
+.read:
+	; Stores the logical block, try count, and data buffer offset
+	push ax
+	push cx
+	push bx
+
+	; Cylinder = (LBA / sectors per track) / number of heads
+	; Sector = (LBA % sectors per track) + 1
+	; Head = (LBA / sectors per track) % number of heads
+	mov bx, [SectorsPerTrack]
+	xor dx, dx
+	div bx						; Quotient: ax (LBA / sectors per track)
+								; Remainder: dx (LBA % sectors per track)
+	inc dx
+	mov cl, dl
+
+	mov bx, [HeadsCount]
+	xor dx, dx
+	div bx						; Quotient: ax (cylinder)
+								; Remainder: dx (head)
+	mov ch, al					; ch is the cylinder
+	xchg dl, dh					; dh is the head number
+
+	; Calls the interrupt to read the sector
+	mov ah, 0x02				; Subfunction two
+	mov al, 0x01				; Reads one sector
+	mov dl, [BootDriveNumber]
+	pop bx						; Restores the data buffer offset
+	int 0x13
+	jc .read_failed
+
+	; On success...
+	pop cx
+	pop ax
+	ret
+
+.read_failed:
+	; Check if we should try again (up to a certain number of tries)
+	pop cx
+	inc cx
+	cmp cx, [MAX_READ_ATTEMPTS]
+	je boot_failed
+
+	; Reset the disk system
+	xor ax, ax
+	int 0x13
+
+	; Retry
+	pop ax
+	jmp .read
+
+read_next_sector:
+	push cx
+	push ax
+	xor bx, bx
+	call read_sector
+
+check_next_entry:
+	mov cx, 11					; Filenames are eleven bytes long
+	mov di, bx					; Address of directory entry
+	; lea si, filename			; TODO(fkp): Don't need this?
+	repz cmpsb					; Compares the filename to memory
+	je found_file
+
+	add bx, word 32				; Entries are 32 bytes, move to the next one
+	cmp bx, word [BytesPerSector]
+	jne check_next_entry
+
+	pop ax
+	inc ax						; Check the next sector next time
+	pop cx
+	loopnz read_next_sector		; Try find another sector
+	jmp boot_failed
+
+found_file:
+	; bx is still pointing to the start of the entry
+	mov ax, [es:bx + ENTRY_CLUSTER_NUMBER_OFFSET]
+	mov [file_starting_cluster_number], ax
+
+load_fat:
+	mov ax, DIRECTORY_LOAD_SEGMENT
+	mov es, ax
+
+	; Calculates the offset of the FAT
+	mov ax, word [ReservedSectors]
+	add ax, word [HiddenSectors]
+	adc ax, word [HiddenSectors + 2]
+
+	; Read all the FAT sectors into memory
+	mov cx, word [SectorsPerFAT]
+	xor bx, bx
+
+.read_next_fat_sector:
+	push cx
+	push ax
+	call read_sector
+
+	pop cx
+	pop ax
+	inc ax
+
+	add bx, word [BytesPerSector]
+	loopnz .read_next_fat_sector ; Continues with the next sector
+
+read_file_from_disk:
+	; Sets the segment that will receive the file
+	mov ax, DIRECTORY_LOAD_SEGMENT
+	mov es, ax
+	xor bx, bx					; Memory offset of loading = 0
+
+	; The start of the FAT
+	mov cx, [file_starting_cluster_number]
+
+.read_next_sector:
+	; Locates the sector
+	; Sector to read = current FAT entry + root directory - 2
+	mov ax, cx
+	add ax, [root_directory_sector]
+	add ax, [root_directory_size]
+	sub ax, 2
+
+	; Reads the sector
+	push cx
+	call read_sector
+	pop cx
+	add bx, [BytesPerSector]	; Moves pointer to the next sector
+
+	; Gets the next sector from the FAT
+	push ds
+	mov dx, DIRECTORY_LOAD_SEGMENT
+	mov ds, dx
+
+	mov si, cx					; Source index is the current FAT entry
+	mov dx, cx					; Offset = entry * 1.5 bytes
+	shr dx, 1					; Shifts right
+	add si, dx
+
+	mov dx, [ds:si]				; Reads the entry from memory
+	test cx, 1					; Checks which way to shift
+	jnz .read_next_cluster_odd
+	and dx, 0x0fff				; Masks out the top four bits
+	jmp .read_next
+
+.read_next_cluster_odd:
+	shr dx, 4					; Shifts the new cluster to the right
+
+.read_next:
+	pop ds						; Restores to the normal data segment
+	mov cx, dx					; Stores the new FAT entry in cx
+	cmp cx, 0x0ff8				; Magic value signalling that this is the last segment
+	jl .read_next_sector
+	
 start:
 	cli							; Disables interrupts
 	mov [BootDriveNumber], dl	; Save the drive we booted from
@@ -111,7 +268,27 @@ start:
 	xor ax, ax					; Interrupt subfunction 0
 	int 0x13					; Calls the interrupt
 								; It will set the carry flag on error
-	jc failed_to_boot
+	jc boot_failed
+
+	; Calculates the number of sectors the root directory occupies
+	; (number of sectors in root directory * 32) / 512
+	mov ax, 32
+	xor dx, dx
+	mul word [RootDirectoryEntries]
+	div word [BytesPerSector]
+	mov cx, ax
+	mov [root_directory_size], cx
+
+	; Calculates the starting sector of the root directory
+	; (number of FATs * sectors per FAT) + number of hidden and reserved sectors
+	xor ax, ax
+	mov al, [FATCount]
+	mov bx, [SectorsPerFAT]
+	mul bx
+	add ax, word [HiddenSectors]
+	add ax, word [HiddenSectors + 2]
+	add ax, word [ReservedSectors]
+	mov [root_directory_sector], ax
 
 	call reboot					; Just for now...
 
@@ -119,6 +296,10 @@ loading_msg: db "Loading PandaOS...", CR, LF, 0
 disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
 reboot_msg: db "Press any key to reboot...", CR, LF, 0
 
+root_directory_size: dw 0
+root_directory_sector: dw 0
+file_starting_cluster_number: dw 0
+	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes
 	db 0x55, 0xaa
