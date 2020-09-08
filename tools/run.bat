@@ -8,7 +8,7 @@ if not exist %prjRoot%\bin\ (
 	echo There is nothing to run...
 ) else (
 	cd %prjRoot%\bin\
-	qemu-system-x86_64 --drive format=raw,file=bootPandaOS.bin
+	qemu-system-x86_64 -cdrom pandaOS.iso
 	cd %startingDirectory%
 )
 
