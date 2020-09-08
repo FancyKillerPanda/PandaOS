@@ -5,3 +5,4 @@ prjRoot=..
 
 mkdir -p $prjRoot/bin/
 nasm -i $prjRoot/src/boot/ -f bin $prjRoot/src/boot/bootPandaOS.asm -o $prjRoot/bin/bootPandaOS.bin
+nasm -i $prjRoot/src/boot/ -f bin $prjRoot/src/boot/loadPandaOS.asm -o $prjRoot/bin/stage2.bin

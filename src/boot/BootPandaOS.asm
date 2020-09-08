@@ -10,7 +10,6 @@ main:
 
 %include "biosParameterBlock-inl.asm"
 %include "macros-inl.asm"
-%include "utility-inl.asm"
 	
 start:
 	cli							; Disables interrupts
@@ -26,21 +25,40 @@ start:
 	sti							; Re-enables interrupts
 
 	call clear_screen
-	mov si, loading_msg
-	call print_string
+;	mov si, loading_msg
+;	call print_string
 	
 	; Resets the disk system
 	mov dl, [BootDriveNumber]
 	call reset_disk_system
 	jc boot_failed
 
-	call reboot					; Just for now...
+	; Finds the second-stage bootloader file
+	mov si, bootloader_file
+	find_file: find_file_on_disk
+	mov [bootloader_cluster], ax
+
+	fat: load_fat
+
+	; Reads the second-stage bootloader file
+	mov cx, [bootloader_cluster]
+	mov ax, BOOTLOADER_SEGMENT
+	mov es, ax
+	read_file: read_file_from_disk
+
+	; Loads the second-stage bootloader
+	mov ax, BOOTLOADER_SEGMENT
+	mov es, ax
+	mov ds, ax
+	jmp BOOTLOADER_SEGMENT:0x00
 
 	
+%include "utility-inl.asm"
+
 root_directory_size: dw 0
 root_directory_sector: dw 0
 file_starting_cluster_number: dw 0
-
+bootloader_cluster: dw 0
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes

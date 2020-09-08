@@ -9,6 +9,7 @@ BYTES_PER_DIRECTORY_ENTRY: equ 32
 ENTRY_CLUSTER_NUMBER_OFFSET: equ 0x1a
 DIRECTORY_LOAD_SEGMENT: equ 0x1000
 FAT_LOAD_SEGMENT: equ 0x0ee0
+BOOTLOADER_SEGMENT: equ 0x1000
 MAX_READ_ATTEMPTS: equ 4
 	
 CR: equ 0x0d
@@ -76,16 +77,16 @@ LF: equ 0x0a
 	mov di, bx					; Address of directory entry
 	; lea si, filename			; TODO(fkp): Don't need this?
 	repz cmpsb					; Compares the filename to memory
-	je found_file
+	je .found_file
 
 	add bx, word 32				; Entries are 32 bytes, move to the next one
 	cmp bx, word [BytesPerSector]
-	jne check_next_entry
+	jne .check_next_entry
 
 	pop ax
 	inc ax						; Check the next sector next time
 	pop cx
-	loopnz read_next_sector		; Try find another sector
+	loopnz .read_next_sector		; Try find another sector
 	jmp boot_failed
 
 .found_file:

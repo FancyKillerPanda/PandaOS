@@ -22,7 +22,7 @@ print_string:
 .done:
 	ret
 
-	
+
 clear_screen:
 	; Clears the screen
 	
@@ -35,12 +35,19 @@ clear_screen:
 
 	int 0x10
 
+	; Moves the cursor to the top-left
 	mov dx, 0x0000
-	call move_cursor
+	; call move_cursor
+	mov ah, 0x02
+	mov bh, 0x00
+	int 0x10
 	
 	ret
 
-	
+
+; NOTE(fkp): This takes too much space. It has been
+; inlined in the clear_screen function.
+%if 0
 move_cursor:
 	; Moves the cursor to the (row, col) specified in dx
 	
@@ -48,7 +55,8 @@ move_cursor:
 	mov bh, 0x00				; Default page
 	int 0x10
 	ret
-
+%endif
+	
 	
 boot_failed:
 	mov si, disk_error_msg		; Loads the message
@@ -120,14 +128,21 @@ read_sector:
 	cmp cx, [MAX_READ_ATTEMPTS]
 	je boot_failed
 
+	mov si, loading_msg
+	call print_string
+
 	; Retry
 	call reset_disk_system
 	pop ax
 	jmp .read
 
 	
-loading_msg: db "Loading PandaOS...", CR, LF, 0
-disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
-reboot_msg: db "Press any key to reboot...", CR, LF, 0
+; loading_msg: db "Loading PandaOS...", CR, LF, 0
+loading_msg: db "PandaOS!", CR, LF, 0
+; disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
+disk_error_msg: db "Disk error!", CR, LF, 0
+; reboot_msg: db "Press any key to reboot...", CR, LF, 0
+reboot_msg: db "Reboot?", CR, LF, 0
+bootloader_file: db "stage2bin"
 
 %endif
