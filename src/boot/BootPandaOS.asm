@@ -49,9 +49,8 @@ start:
 	
 %include "commonUtility-inl.asm"
 
-root_directory_size: dw 0
-root_directory_sector: dw 0
 kernel_loader_cluster: dw 0
+kernel_loader_file: db "pkLoaderbin"
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes

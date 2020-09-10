@@ -1,7 +1,7 @@
 ; ===== Date Created: 07 September, 2020 ===== 
 
-%ifndef UTILITY_INL_ASM
-%define UTILITY_INL_ASM
+%ifndef COMMON_UTILITY_INL_ASM
+%define COMMON_UTILITY_INL_ASM
 	
 %include "macros-inl.asm"
 	
@@ -144,6 +144,7 @@ loading_msg: db "PandaOS", CR, LF, 0
 disk_error_msg: db "Disk error", CR, LF, 0
 ; reboot_msg: db "Press any key to reboot...", CR, LF, 0
 reboot_msg: db "Reboot?", CR, LF, 0
-kernel_loader_file: db "pkLoaderbin"
+root_directory_size: dw 0
+root_directory_sector: dw 0
 
 %endif
