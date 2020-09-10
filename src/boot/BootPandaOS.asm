@@ -4,8 +4,7 @@ org 0x7c00						; Where all absolute addresses start
 
 main:
 	; Two bytes (jmp) plus one byte (nop)
-	; jmp short start				; Out of range...
-	jmp start
+	jmp short start
 	nop
 
 %include "biosParameterBlock-inl.asm"
@@ -25,8 +24,7 @@ start:
 	sti							; Re-enables interrupts
 
 	call clear_screen
-	mov si, loading_msg
-	call print_string
+	print loading_msg
 	
 	; Resets the disk system
 	mov dl, [BootDriveNumber]
@@ -34,31 +32,26 @@ start:
 	jc boot_failed
 
 	; Finds the second-stage bootloader file
-	mov si, bootloader_file
-	find_file: find_file_on_disk
-	mov [bootloader_cluster], ax
+	find_file_on_disk kernel_loader_file, KERNEL_LOADER_SEGMENT
+	mov [kernel_loader_cluster], ax
 
-	fat: load_fat
+	load_fat
 
 	; Reads the second-stage bootloader file
-	mov cx, [bootloader_cluster]
-	mov ax, BOOTLOADER_SEGMENT
-	mov es, ax
-	read_file: read_file_from_disk
+	read_file_from_disk [kernel_loader_cluster], KERNEL_LOADER_SEGMENT
 
 	; Loads the second-stage bootloader
-	mov ax, BOOTLOADER_SEGMENT
+	mov ax, KERNEL_LOADER_SEGMENT
 	mov es, ax
 	mov ds, ax
-	jmp BOOTLOADER_SEGMENT:0x00
+	jmp KERNEL_LOADER_SEGMENT:0x00
 
 	
 %include "utility-inl.asm"
 
 root_directory_size: dw 0
 root_directory_sector: dw 0
-file_starting_cluster_number: dw 0
-bootloader_cluster: dw 0
+kernel_loader_cluster: dw 0
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes

@@ -3,18 +3,23 @@
 %ifndef MACROS_INL_ASM
 %define MACROS_INL_ASM
 
-%include "utility-inl.asm"
-	
 BYTES_PER_DIRECTORY_ENTRY: equ 32
 ENTRY_CLUSTER_NUMBER_OFFSET: equ 0x1a
 DIRECTORY_LOAD_SEGMENT: equ 0x1000
 FAT_LOAD_SEGMENT: equ 0x0ee0
-BOOTLOADER_SEGMENT: equ 0x1000
+KERNEL_LOADER_SEGMENT: equ 0x1000
 MAX_READ_ATTEMPTS: equ 4
 	
 CR: equ 0x0d
 LF: equ 0x0a
 	
+; void print(text)
+%macro print 1
+	mov si, %1
+	call print_string
+%endmacro
+	
+; void load_fat()
 %macro load_fat 0
 	mov ax, FAT_LOAD_SEGMENT
 	mov es, ax
@@ -28,7 +33,7 @@ LF: equ 0x0a
 	mov cx, word [SectorsPerFAT]
 	xor bx, bx
 
-.read_next_fat_sector:
+%%.read_next_fat_sector:
 	push cx
 	push ax
 	call read_sector
@@ -38,12 +43,13 @@ LF: equ 0x0a
 	inc ax
 
 	add bx, word [BytesPerSector]
-	loopnz .read_next_fat_sector ; Continues with the next sector
+	loopnz %%.read_next_fat_sector ; Continues with the next sector
 %endmacro
 
 	
-%macro find_file_on_disk 0
-	mov ax, DIRECTORY_LOAD_SEGMENT
+; ax find_file_on_disk(filename, read_segment)
+%macro find_file_on_disk 2
+	mov ax, %2
 	mov es, ax
 	
 	; Calculates the number of sectors the root directory occupies
@@ -66,46 +72,46 @@ LF: equ 0x0a
 	add ax, word [ReservedSectors]
 	mov [root_directory_sector], ax
 
-.read_next_sector:
+%%.read_next_sector:
 	push cx
 	push ax
 	xor bx, bx
 	call read_sector
 
-.check_next_entry:
+%%.check_next_entry:
 	mov cx, 11					; Filenames are eleven bytes long
 	mov di, bx					; Address of directory entry
-	; lea si, filename			; TODO(fkp): Don't need this?
+	mov si, %1
 	repz cmpsb					; Compares the filename to memory
-	je .found_file
+	je %%.found_file
 
 	add bx, word 32				; Entries are 32 bytes, move to the next one
 	cmp bx, word [BytesPerSector]
-	jne .check_next_entry
+	jne %%.check_next_entry
 
 	pop ax
 	inc ax						; Check the next sector next time
 	pop cx
-	loopnz .read_next_sector		; Try find another sector
+	loopnz %%.read_next_sector		; Try find another sector
 	jmp boot_failed
 
-.found_file:
+%%.found_file:
 	; bx is still pointing to the start of the entry
 	mov ax, [es:bx + ENTRY_CLUSTER_NUMBER_OFFSET]
-	mov [file_starting_cluster_number], ax
 %endmacro
 
 	
-%macro read_file_from_disk 0
+; void read_file_from_disk(cluster, load_into)
+%macro read_file_from_disk 2
 	; Sets the segment that will receive the file
-	mov ax, DIRECTORY_LOAD_SEGMENT
+	mov ax, %2
 	mov es, ax
 	xor bx, bx					; Memory offset of loading = 0
 
 	; The start of the FAT
-	mov cx, [file_starting_cluster_number]
+	mov cx, %1
 
-.read_next_sector:
+%%.read_next_sector:
 	; Locates the sector
 	; Sector to read = current FAT entry + root directory - 2
 	mov ax, cx
@@ -131,18 +137,18 @@ LF: equ 0x0a
 
 	mov dx, [ds:si]				; Reads the entry from memory
 	test cx, 1					; Checks which way to shift
-	jnz .read_next_cluster_odd
+	jnz %%.read_next_cluster_odd
 	and dx, 0x0fff				; Masks out the top four bits
-	jmp .read_next
+	jmp %%.read_next
 
-.read_next_cluster_odd:
+%%.read_next_cluster_odd:
 	shr dx, 4					; Shifts the new cluster to the right
 
-.read_next:
+%%.read_next:
 	pop ds						; Restores to the normal data segment
 	mov cx, dx					; Stores the new FAT entry in cx
 	cmp cx, 0x0ff8				; Magic value signalling that this is the last segment
-	jl .read_next_sector
+	jl %%.read_next_sector
 %endmacro
 	
 %endif

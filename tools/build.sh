@@ -8,16 +8,16 @@ mkdir -p $prjRoot/bin
 pushd $prjRoot/bin > /dev/null
 
 echo "Cleaning..."
-rm *.bin *.img *.iso
+rm *.bin *.img *.iso 2> /dev/null
 
 echo
 echo "Building binaries..."
 nasm -i $srcDir/boot $srcDir/boot/bootPandaOS.asm -o bootPandaOS.bin
-nasm -i $srcDir/boot $srcDir/boot/loadPandaOS.asm -o 2ndstage.bin
+nasm -i $srcDir/boot $srcDir/boot/loadPandaOS.asm -o pkLoader.bin
 
 echo
 echo "Building floppies..."
-../tools/ffc_linux -b bootPandaOS.bin -s 2ndstage.bin -o pandaFloppy.img --ls-fat
+../tools/ffc_linux -b bootPandaOS.bin -s pkLoader.bin -o pandaFloppy.img --ls-fat
 
 echo
 echo "Building ISO image..."

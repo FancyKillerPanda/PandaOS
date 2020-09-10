@@ -5,9 +5,8 @@
 	
 %include "macros-inl.asm"
 	
+; void print_string(ds:si text)
 print_string:
-	; Prints a (null-terminated) string from ds:si to the screen
-	
 	lodsb						; Loads byte in si into al (and advances si)
 	or al, al					; Checks if al is 0
 	jz .done
@@ -23,9 +22,8 @@ print_string:
 	ret
 
 
+; void clear_screen()
 clear_screen:
-	; Clears the screen
-	
 	; mov ah, 0x07				; Subfunction to clear the screen
 	; mov al, 0x00				; Clears the entire screen
 	mov ax, 0x0700
@@ -50,25 +48,24 @@ clear_screen:
 ; NOTE(fkp): This takes too much space. It has been
 ; inlined in the clear_screen function.
 %if 0
+; void move_cursor(dh row, dl col)
 move_cursor:
-	; Moves the cursor to the (row, col) specified in dx
-	
 	mov ah, 0x02				; Subfunction to move the cursor
 	mov bh, 0x00				; Default page
 	int 0x10
 	ret
 %endif
 	
-	
+
+; void boot_failed()
 boot_failed:
-	mov si, disk_error_msg		; Loads the message
-	call print_string
+	print disk_error_msg
 	call reboot
 
 	
+; void reboot()
 reboot:
-	mov si, reboot_msg			; Loads the message
-	call print_string
+	print reboot_msg
 
 	; Waits for a key to be pressed
 	xor ax, ax
@@ -77,6 +74,7 @@ reboot:
 	jmp word 0xffff:0x0000
 
 	
+; void reset_disk_system(dl disk)
 reset_disk_system:
 	xor ax, ax					; Interrupt subfunction 0
 	int 0x13					; Calls the interrupt
@@ -84,6 +82,7 @@ reset_disk_system:
 	ret
 
 	
+; void read_sector(es:bx into, ax LBA)
 read_sector:
 	xor cx, cx					; Resets the "try" count
 
@@ -131,8 +130,7 @@ read_sector:
 	cmp cx, [MAX_READ_ATTEMPTS]
 	je boot_failed
 
-	mov si, loading_msg
-	call print_string
+	print loading_msg
 
 	; Retry
 	call reset_disk_system
@@ -146,6 +144,6 @@ loading_msg: db "PandaOS", CR, LF, 0
 disk_error_msg: db "Disk error", CR, LF, 0
 ; reboot_msg: db "Press any key to reboot...", CR, LF, 0
 reboot_msg: db "Reboot?", CR, LF, 0
-bootloader_file: db "2ndstagebin"
+kernel_loader_file: db "pkLoaderbin"
 
 %endif
