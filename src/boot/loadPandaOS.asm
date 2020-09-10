@@ -87,7 +87,6 @@ main:
 	mov esp, 0x00030000			; Stack grows downwards from 0x00030000
 
 	; Jumps to the kernel
-	jmp $						; Temporary: there's no kernel yet
 	db 0x66
 	db 0xea
 	dd KERNEL_FLAT_ADDRESS
@@ -114,5 +113,5 @@ a20_failed_msg: db "Error: Failed to enable A20 line!", CR, LF, 0
 a20_success_msg: db "Info: Enabled A20 line!", CR, LF, 0
 jumping_msg: db "Info: Jumping to the kernel!", CR, LF, 0
 
-kernel_file: db "pkernel bin"
+kernel_file: db "pKernelAbin"
 kernel_file_cluster: dw 0

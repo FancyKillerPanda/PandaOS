@@ -14,10 +14,11 @@ echo
 echo "Building binaries..."
 nasm -i $srcDir/boot $srcDir/boot/bootPandaOS.asm -o bootPandaOS.bin
 nasm -i $srcDir/boot $srcDir/boot/loadPandaOS.asm -o pkLoader.bin
+nasm -i $srcDir/boot $srcDir/boot/kernel.asm -o pKernelA.bin
 
 echo
 echo "Building floppies..."
-../tools/ffc_linux -b bootPandaOS.bin -s pkLoader.bin -o pandaFloppy.img --ls-fat
+../tools/ffc_linux -b bootPandaOS.bin -s pkLoader.bin pKernelA.bin -o pandaFloppy.img --ls-fat
 
 echo
 echo "Building ISO image..."
