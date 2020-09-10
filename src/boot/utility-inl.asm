@@ -26,12 +26,14 @@ print_string:
 clear_screen:
 	; Clears the screen
 	
-	mov ah, 0x07				; Subfunction to clear the screen
-	mov al, 0x00				; Clears the entire screen
+	; mov ah, 0x07				; Subfunction to clear the screen
+	; mov al, 0x00				; Clears the entire screen
+	mov ax, 0x0700
 	mov bh, 0x07				; Screen colours
 	mov cx, 0x00				; Top-left of the screen is (0, 0)
-	mov dh, 0x18				; Screen size: 24 rows
-	mov dl, 0x4f				; Screen size: 79 cols
+	; mov dh, 0x18				; Screen size: 24 rows
+	; mov dl, 0x4f				; Screen size: 79 cols
+	mov dx, 0x184f
 
 	int 0x10
 
@@ -109,8 +111,9 @@ read_sector:
 	xchg dl, dh					; dh is the head number
 
 	; Calls the interrupt to read the sector
-	mov ah, 0x02				; Subfunction two
-	mov al, 0x01				; Reads one sector
+	; mov ah, 0x02				; Subfunction two
+	; mov al, 0x01				; Reads one sector
+	mov ax, 0x0201
 	mov dl, [BootDriveNumber]
 	pop bx						; Restores the data buffer offset
 	int 0x13
@@ -138,11 +141,11 @@ read_sector:
 
 	
 ; loading_msg: db "Loading PandaOS...", CR, LF, 0
-loading_msg: db "PandaOS!", CR, LF, 0
+loading_msg: db "PandaOS", CR, LF, 0
 ; disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
-disk_error_msg: db "Disk error!", CR, LF, 0
+disk_error_msg: db "Disk error", CR, LF, 0
 ; reboot_msg: db "Press any key to reboot...", CR, LF, 0
 reboot_msg: db "Reboot?", CR, LF, 0
-bootloader_file: db "stage2bin"
+bootloader_file: db "2ndstagebin"
 
 %endif

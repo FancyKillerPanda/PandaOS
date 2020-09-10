@@ -1,6 +1,5 @@
 ; ===== Date Created: 07 September, 2020 ===== 
 bits 16
-org 0x7c00
 
 main:
 	mov si, second_stage_loader_msg

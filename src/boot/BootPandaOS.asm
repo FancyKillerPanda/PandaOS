@@ -25,8 +25,8 @@ start:
 	sti							; Re-enables interrupts
 
 	call clear_screen
-;	mov si, loading_msg
-;	call print_string
+	mov si, loading_msg
+	call print_string
 	
 	; Resets the disk system
 	mov dl, [BootDriveNumber]
