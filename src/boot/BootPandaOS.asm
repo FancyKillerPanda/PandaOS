@@ -47,7 +47,7 @@ start:
 	jmp KERNEL_LOADER_SEGMENT:0x00
 
 	
-%include "utility-inl.asm"
+%include "commonUtility-inl.asm"
 
 root_directory_size: dw 0
 root_directory_sector: dw 0

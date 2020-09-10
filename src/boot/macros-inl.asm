@@ -150,5 +150,86 @@ LF: equ 0x0a
 	cmp cx, 0x0ff8				; Magic value signalling that this is the last segment
 	jl %%.read_next_sector
 %endmacro
+
+	
+; void try_set_a20_bios()
+%macro try_set_a20_bios 0
+	mov ax, 0x2401
+	int 0x15
+%endmacro
+
+; void try_set_a20_keyboard()
+%macro try_set_a20_keyboard 0
+	; Disables interrupts
+	cli
+
+	; Disables the keyboard
+	call wait_for_8042_command
+	mov al, 0xad
+	out 0x64, al
+
+	; Asks for input
+	call wait_for_8042_command
+	mov al, 0xd0
+	out 0x64, al
+
+	; Reads the input
+	call wait_for_8042_data
+	in al, 0x60
+	push eax
+
+	; Writes to the output
+	call wait_for_8042_command
+	mov al, 0xd1
+	out 0x64, al
+	
+	; Write input back, with bit 2 set
+	call wait_for_8042_command
+	pop eax
+	or al, 2
+	out 0x60, al
+
+	; Re-enables the keyboard
+	call wait_for_8042_command
+	mov al, 0xae
+	out 0x64, al
+
+	call wait_for_8042_command
+	sti
+%endmacro
+
+; void try_set_a20_fast()
+%macro try_set_a20_fast 0
+	; Reads, sets bit 2, writes
+	in al, 0x92
+	or al, 2
+	out 0x92, al
+%endmacro
+	
+; void is_a20_done()
+%macro is_a20_done 0
+	call test_a20
+	cmp ax, 0
+	jne .done
+%endmacro
+	
+; void try_enable_a20()
+%macro try_enable_a20 0
+try_enable:
+	is_a20_done
+	try_set_a20_bios
+	is_a20_done
+	try_set_a20_keyboard
+	is_a20_done
+	try_set_a20_fast
+	is_a20_done
+
+.fail:
+	print a20_failed_msg
+	call reboot
+
+.done:
+	print a20_success_msg
+%endmacro
 	
 %endif
