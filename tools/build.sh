@@ -8,21 +8,25 @@ mkdir -p $prjRoot/bin
 pushd $prjRoot/bin > /dev/null
 
 echo "Cleaning..."
-rm *.bin *.img *.iso 2> /dev/null
+rm *.bin *.img *.iso *.o 2> /dev/null
 
 echo
 echo "Building binaries..."
 nasm -i $srcDir/boot $srcDir/boot/bootPandaOS.asm -o bootPandaOS.bin
 nasm -i $srcDir/boot $srcDir/boot/loadPandaOS.asm -o pkLoader.bin
-nasm -i $srcDir/boot $srcDir/boot/kernel.asm -o pKernelA.bin
+nasm -felf32 -i $srcDir/boot $srcDir/kernel/kernel_entry.asm -o kernel_entry.o
+clang -ffreestanding -nostdinc -nostdlib -o pKernelA.bin -target i386-pc-none-elf -Wl,--oformat=binary,-T$prjRoot/tools/kernelLinker.ld kernel_entry.o $srcDir/kernel/kernel.c
 
 echo
 echo "Building floppies..."
-../tools/ffc_linux -b bootPandaOS.bin -s pkLoader.bin pKernelA.bin -o pandaFloppy.img --ls-fat
+../tools/ffc_linux -b bootPandaOS.bin \
+				   -s pkLoader.bin pKernelA.bin \
+				   -o pandaFloppy.img \
+				   --ls-fat
 
 echo
 echo "Building ISO image..."
-genisoimage -V 'PandaVolume' -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img .
+genisoimage -V "PandaVolume" -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img .
 
 echo
 echo "Done!"

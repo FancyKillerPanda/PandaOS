@@ -130,8 +130,6 @@ read_sector:
 	cmp cx, [MAX_READ_ATTEMPTS]
 	je boot_failed
 
-	print loading_msg
-
 	; Retry
 	call reset_disk_system
 	pop ax

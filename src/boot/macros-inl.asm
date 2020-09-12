@@ -9,7 +9,7 @@ DIRECTORY_LOAD_SEGMENT: equ 0x1000
 FAT_LOAD_SEGMENT: equ 0x0ee0
 KERNEL_LOADER_SEGMENT: equ 0x1000
 KERNEL_SEGMENT: equ 0x2000
-KERNEL_FLAT_ADDRESS: equ 0x00020000
+KERNEL_FLAT_ADDRESS: equ 0x20000
 MAX_READ_ATTEMPTS: equ 4
 	
 CR: equ 0x0d
@@ -87,14 +87,15 @@ LF: equ 0x0a
 	repz cmpsb					; Compares the filename to memory
 	je %%.found_file
 
-	add bx, word 32				; Entries are 32 bytes, move to the next one
+	add bx, word BYTES_PER_DIRECTORY_ENTRY ; Entries are 32 bytes, move to the next one
 	cmp bx, word [BytesPerSector]
-	jne %%.check_next_entry
+	; jne %%.check_next_entry
+	jl %%.check_next_entry
 
 	pop ax
 	inc ax						; Check the next sector next time
 	pop cx
-	loopnz %%.read_next_sector		; Try find another sector
+	loopnz %%.read_next_sector	; Try find another sector
 	jmp boot_failed
 
 %%.found_file:

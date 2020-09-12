@@ -113,5 +113,7 @@ a20_failed_msg: db "Error: Failed to enable A20 line!", CR, LF, 0
 a20_success_msg: db "Info: Enabled A20 line!", CR, LF, 0
 jumping_msg: db "Info: Jumping to the kernel!", CR, LF, 0
 
+; TODO(fkp): Why can't I pad the name with spaces?
+; e.g. "kernel  bin"
 kernel_file: db "pKernelAbin"
 kernel_file_cluster: dw 0
