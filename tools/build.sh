@@ -31,7 +31,8 @@ kernelDir=$srcDir/kernel
 # Flags
 kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernelA.bin -target i386-pc-none-elf -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$prjRoot/tools/kernelLinker.ld"
-kernelFiles="kernel_entry.o $kernelDir/kernel.cpp $kernelDir/system/display.cpp"
+# kernelFiles="kernel_entry.o $kernelDir/kernel.cpp $kernelDir/system/display.cpp $kernelDir/system/memory.cpp"
+kernelFiles="kernel_entry.o $kernelDir/kernel.cpp $kernelDir/system/*.cpp"
 
 mkdir -p $prjRoot/bin
 pushd $prjRoot/bin > /dev/null

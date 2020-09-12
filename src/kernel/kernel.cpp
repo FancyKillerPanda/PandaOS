@@ -5,7 +5,10 @@
 
 extern "C" void start_kernel()
 {
-	print("Hello, it's FancyKillerPanda here! ", 0x9f);
-	print("This is a super long line. It should hopefully advance to the next one.", 0x04);
+	clear_screen();
+	print("Hello, it's\nFancyKillerPanda\b\b\b\b\b here!\n", 0x9f);
+	print("This is a super\nlong line.\nIt should hopefully \nadvance to the\n next one.\n", 0x04);
+	print("This\tis a long\tline\tthat is\tdelimited\tby\ttabs.\n");
+	print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHello\nthis is testing\nscrolling functionality.");
 	while (true);
 }
