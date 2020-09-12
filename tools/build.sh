@@ -29,9 +29,9 @@ bootDir=$srcDir/boot
 kernelDir=$srcDir/kernel
 
 # Flags
-kernelCompileFlags="-ffreestanding -nostdinc -nostdlib -o pKernelA.bin -target i386-pc-none-elf"
+kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernelA.bin -target i386-pc-none-elf -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$prjRoot/tools/kernelLinker.ld"
-kernelFiles="kernel_entry.o $kernelDir/kernel.c"
+kernelFiles="kernel_entry.o $kernelDir/kernel.cpp $kernelDir/system/display.cpp"
 
 mkdir -p $prjRoot/bin
 pushd $prjRoot/bin > /dev/null
