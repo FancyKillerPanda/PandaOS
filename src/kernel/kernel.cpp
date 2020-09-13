@@ -2,13 +2,19 @@
 
 #include "system.hpp"
 #include "display.hpp"
+#include "log.hpp"
 
 extern "C" void start_kernel()
 {
-	clear_screen();
-	print("Hello, it's\nFancyKillerPanda\b\b\b\b\b here!\n", 0x9f);
-	print("This is a super\nlong line.\nIt should hopefully \nadvance to the\n next one.\n", 0x04);
-	print("This\tis a long\tline\tthat is\tdelimited\tby\ttabs.\n");
-	print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nHello\nthis is testing\nscrolling functionality.");
+	// clear_screen();
+	move_cursor(4, 0); // This is because the bootloader logged some text
+	log_info("Starting kernel...");
+	log_init();
+
+	print("\n");
+	log_info("This is information.");
+	log_warning("This is a warning.");
+	log_error("This is an error.");
+	
 	while (true);
 }

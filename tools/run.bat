@@ -14,7 +14,7 @@ if not exist %prjRoot%\bin\ (
 		bochsdbg -q -f bochsrc-debug.bxrc
 	) else (
 		cd %prjRoot%\bin\
-		qemu-system-i386 -cdrom pandaOS.iso
+		qemu-system-i386 -cdrom pandaOS.iso -serial file:pandaLog.txt
 		cd %startingDirectory%
 	)
 )
