@@ -41,20 +41,20 @@ print $BLUE "Cleaning..."
 rm *.bin *.img *.iso *.o 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
-if ! nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin; then exit_on_error; fi
-if ! nasm -i $bootDir $bootDir/loadPandaOS.asm -o pkLoader.bin; then exit_on_error; fi
-if ! nasm -felf32 $kernelDir/kernel_entry.asm -o kernel_entry.o; then exit_on_error; fi
-if ! clang $kernelCompileFlags $kernelLinkFlags $kernelFiles; then exit_on_error; fi
+nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin || exit_on_error
+nasm -i $bootDir $bootDir/loadPandaOS.asm -o pkLoader.bin || exit_on_error
+nasm -felf32 $kernelDir/kernel_entry.asm -o kernel_entry.o || exit_on_error
+clang $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nBuilding floppies..."
-if ! ../tools/ffc_linux -b bootPandaOS.bin \
-						-s pkLoader.bin pKernelA.bin \
-						-o pandaFloppy.img \
-						--ls-fat \
-						; then exit_on_error; fi
+../tools/ffc_linux -b bootPandaOS.bin \
+				   -s pkLoader.bin pKernelA.bin \
+				   -o pandaFloppy.img \
+				   --ls-fat \
+	|| exit_on_error
 
 print $BLUE "\nBuilding ISO image..."
-if ! genisoimage -V "PandaVolume" -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img .; then exit_on_error; fi
+genisoimage -V "PandaVolume" -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img . || exit_on_error
 
 print $GREEN "\nBuild succeeded!\n"
 
