@@ -5,7 +5,7 @@ source ./buildCommon.sh
 
 exit_on_error()
 {
-	print $RED "genVDisk build failed!\n";
+	print $RED "\ngenVDisk build failed!\n";
 	popd
 	exit 1
 }
@@ -14,9 +14,9 @@ exit_on_error()
 srcDir=$prjRoot/src/genVDisk/
 
 # Flags
-compileFlags="-o genVDisk -I $srcDir"
+compileFlags="-o genVDisk -I $srcDir -funsigned-char"
 linkFlags=""
-files="$srcDir/genVDisk.cpp"
+files="$srcDir/*.cpp"
 
 mkdir -p $binDir/genVDisk
 pushd $binDir/genVDisk > /dev/null
