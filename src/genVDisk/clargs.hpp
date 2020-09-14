@@ -11,6 +11,7 @@ struct CLArgs
 {
 	const u8* imageName = "";
 	const u8* volumeBootRecordFile = "";
+	usize hardDiskSize = 0;
 };
 
 bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments);

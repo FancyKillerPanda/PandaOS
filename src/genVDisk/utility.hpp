@@ -18,4 +18,10 @@ using usize = size_t;
 using f32 = float;
 using f64 = double;
 
+// Size conversion to bytes
+#define kB(num) (num * 1024)
+#define MB(num) (kB(num) * 1024)
+#define GB(num) (MB(num) * 1024)
+#define TB(num) (GB(num) * 1024)
+
 #endif

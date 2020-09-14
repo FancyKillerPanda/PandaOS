@@ -2,13 +2,16 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
 #include "clargs.hpp"
 
-constexpr const u8* optionDescriptions[6] = {
+constexpr const u8* optionDescriptions[8] = {
 	"--help", "Displays this help message.",
-	"--output <file>", "Specifies an output file.",
+	"--name <image name>", "Specifies the name of the output disk.",
 	"--vbr <file>", "Specifies a Volume Boot Record file."
+	"--size <number>", "Specifies the size of the hard disk in megabytes."
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0, "All options must have a description.");
 
@@ -27,7 +30,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			
 			return false;
 		}
-		else if (strcmp(argv[i], "--output") == 0)
+		else if (strcmp(argv[i], "--name") == 0)
 		{
 			if (i + 1 < argc)
 			{
@@ -35,7 +38,8 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			}
 			else
 			{
-				printf("Error: No output file given.\n");
+				printf("Error: No disk name given.\n");
+				return false;
 			}
 		}
 		else if (strcmp(argv[i], "--vbr") == 0)
@@ -47,6 +51,22 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			else
 			{
 				printf("Error: No VBR file given.\n");
+				return false;
+			}
+		}
+		else if (strcmp(argv[i], "--size") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				unsigned long size = strtoul(argv[i + 1], nullptr, 10);
+
+				if (size == 0 || size == ULONG_MAX)
+				{
+					printf("Error: Size passed in was invalid.\n");
+					return false;
+				}
+				
+				arguments->hardDiskSize = (usize) MB(size);
 			}
 		}
 	}
@@ -60,6 +80,11 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 	else if (strcmp(arguments->volumeBootRecordFile, "") == 0)
 	{
 		printf("Error: A volume boot record file must be supplied.\n");
+		return false;
+	}
+	else if (arguments->hardDiskSize == 0)
+	{
+		printf("Error: A hard disk size must be supplied.\n");
 		return false;
 	}
 
