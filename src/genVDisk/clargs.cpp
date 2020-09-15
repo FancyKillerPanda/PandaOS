@@ -7,13 +7,28 @@
 
 #include "clargs.hpp"
 
-constexpr const u8* optionDescriptions[8] = {
+constexpr const u8* optionDescriptions[12] = {
 	"--help", "Displays this help message.",
-	"--name <image name>", "Specifies the name of the output disk.",
+	"--image-name <name>", "Specifies the name of the output disk.",
+	"--image-path <path>", "Specifies the location of the output disk.",
 	"--vbr <file>", "Specifies a Volume Boot Record file."
-	"--size <number>", "Specifies the size of the hard disk in megabytes."
+	"--size <number>", "Specifies the size of the hard disk in megabytes.",
+	"--files [files...]", "Specifies a list of file names for the root directory.",
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0, "All options must have a description.");
+
+bool is_argument(const u8* string)
+{
+	for (i32 i = 0; i < STACK_ARRAY_LENGTH(optionDescriptions); i += 2)
+	{
+		if (strcmp(string, optionDescriptions[i]) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 {
@@ -30,11 +45,23 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			
 			return false;
 		}
-		else if (strcmp(argv[i], "--name") == 0)
+		else if (strcmp(argv[i], "--image-name") == 0)
 		{
 			if (i + 1 < argc)
 			{
 				arguments->imageName = argv[i + 1];
+			}
+			else
+			{
+				printf("Error: No disk name given.\n");
+				return false;
+			}
+		}
+		else if (strcmp(argv[i], "--image-path") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				arguments->imagePath = argv[i + 1];
 			}
 			else
 			{
@@ -67,6 +94,44 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 				}
 				
 				arguments->hardDiskSize = (usize) MB(size);
+			}
+			else
+			{
+				printf("Error: No size given.\n");
+				return false;
+			}
+		}
+		else if (strcmp(argv[i], "--files") == 0)
+		{
+			i32 indexOfFilesArgument = i;
+			
+			if (i + 1 < argc)
+			{
+				do
+				{
+					i += 1;
+
+					if (is_argument(argv[i]))
+					{
+						if (i == indexOfFilesArgument + 1)
+						{
+							printf("Error: No files given.\n");
+							return false;
+						}
+						else
+						{
+							break;
+						}
+					}
+					else
+					{
+						// TODO(fkp): Add to the list of files
+					}
+				} while (i + 1 < argc);
+			}
+			else
+			{
+				
 			}
 		}
 	}

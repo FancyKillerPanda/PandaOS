@@ -31,17 +31,20 @@ i32 main(i32 argc, const u8* argv[])
 	}
 
 	// The descriptor file
+	usize imagePathLength = strlen(arguments.imagePath);
 	usize imageNameLength = strlen(arguments.imageName);
-	u8* descriptorFileName = (u8*) calloc(imageNameLength + strlen(".vmdk") + 1, sizeof(u8));
-	memcpy(descriptorFileName, arguments.imageName, imageNameLength);
+	u8* descriptorFileName = (u8*) calloc(imagePathLength + imageNameLength + strlen(".vmdk") + 1, sizeof(u8));
+	memcpy(descriptorFileName, arguments.imagePath, imagePathLength);
+	strcat(descriptorFileName, arguments.imageName);
 	strcat(descriptorFileName, ".vmdk");
 	
 	write_descriptor_file(descriptorFileName, 64 * 1024 * 1024);
 	free(descriptorFileName);
 	
 	// The extent file
-	u8* extentFileName = (u8*) calloc(imageNameLength + strlen("-flat.vmdk") + 1, sizeof(u8));
-	memcpy(extentFileName, arguments.imageName, imageNameLength);
+	u8* extentFileName = (u8*) calloc(imagePathLength + imageNameLength + strlen("-flat.vmdk") + 1, sizeof(u8));
+	memcpy(extentFileName, arguments.imagePath, imagePathLength);
+	strcat(extentFileName, arguments.imageName);
 	strcat(extentFileName, "-flat.vmdk");
 
 	write_extent_file(extentFileName, arguments);
@@ -147,7 +150,7 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	// Writes out the FAT table
 	for (u8 i = 0; i < fat16Information.fatCount; i++)
 	{
-		write_data_as_blocks(extentFile, data, 4, fat16Information.sectorsPerFat);
+		write_data_as_blocks(extentFile, nullptr, 0, fat16Information.sectorsPerFat);
 	}
 
 	fclose(extentFile);
