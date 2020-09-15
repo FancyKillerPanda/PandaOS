@@ -30,6 +30,12 @@ i32 main(i32 argc, const u8* argv[])
 		return 1;
 	}
 
+	// DEBUG
+	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+	{
+		printf("File: '%s'\n", arguments.otherFiles[i]);
+	}
+
 	// The descriptor file
 	usize imagePathLength = strlen(arguments.imagePath);
 	usize imageNameLength = strlen(arguments.imageName);

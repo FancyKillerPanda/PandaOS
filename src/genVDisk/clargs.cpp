@@ -7,6 +7,14 @@
 
 #include "clargs.hpp"
 
+constexpr const u8* options[6] = {
+	"--help",
+	"--image-name",
+	"--image-path",
+	"--vbr",
+	"--size",
+	"--files",
+};
 constexpr const u8* optionDescriptions[12] = {
 	"--help", "Displays this help message.",
 	"--image-name <name>", "Specifies the name of the output disk.",
@@ -16,12 +24,13 @@ constexpr const u8* optionDescriptions[12] = {
 	"--files [files...]", "Specifies a list of file names for the root directory.",
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0, "All options must have a description.");
+static_assert(STACK_ARRAY_LENGTH(options) * 2 == STACK_ARRAY_LENGTH(optionDescriptions), "Size of options * 2 must equal size of descriptions.");
 
 bool is_argument(const u8* string)
 {
-	for (i32 i = 0; i < STACK_ARRAY_LENGTH(optionDescriptions); i += 2)
+	for (i32 i = 0; i < STACK_ARRAY_LENGTH(options); i++)
 	{
-		if (strcmp(string, optionDescriptions[i]) == 0)
+		if (strcmp(string, options[i]) == 0)
 		{
 			return true;
 		}
@@ -50,6 +59,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			if (i + 1 < argc)
 			{
 				arguments->imageName = argv[i + 1];
+				i += 1;
 			}
 			else
 			{
@@ -62,10 +72,11 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			if (i + 1 < argc)
 			{
 				arguments->imagePath = argv[i + 1];
+				i += 1;
 			}
 			else
 			{
-				printf("Error: No disk name given.\n");
+				printf("Error: No path to disk given.\n");
 				return false;
 			}
 		}
@@ -74,6 +85,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			if (i + 1 < argc)
 			{
 				arguments->volumeBootRecordFile = argv[i + 1];
+				i += 1;
 			}
 			else
 			{
@@ -94,6 +106,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 				}
 				
 				arguments->hardDiskSize = (usize) MB(size);
+				i += 1;
 			}
 			else
 			{
@@ -107,31 +120,46 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			
 			if (i + 1 < argc)
 			{
-				do
-				{
-					i += 1;
+				i += 1;
 
+				while (i < argc)
+				{
 					if (is_argument(argv[i]))
 					{
 						if (i == indexOfFilesArgument + 1)
 						{
-							printf("Error: No files given.\n");
+							printf("Error: No additional files given.\n");
 							return false;
 						}
 						else
 						{
+							i -= 1;
 							break;
 						}
 					}
-					else
-					{
-						// TODO(fkp): Add to the list of files
-					}
-				} while (i + 1 < argc);
+
+					i += 1;
+				}
+				
+				arguments->numberOfOtherFiles = i - indexOfFilesArgument;
+				arguments->otherFiles = (const u8**) malloc(arguments->numberOfOtherFiles * sizeof(const u8**));
+
+				for (i32 j = 0; j < arguments->numberOfOtherFiles; j++)
+				{
+					arguments->otherFiles[j] = argv[j + indexOfFilesArgument + 1];
+				}
 			}
 			else
 			{
-				
+				printf("Error: No additional files given.\n");
+				return false;
+			}
+		}
+		else
+		{
+			if (i != 0)
+			{
+				printf("Warning: Ignoring argument '%s'.\n", argv[i]);
 			}
 		}
 	}

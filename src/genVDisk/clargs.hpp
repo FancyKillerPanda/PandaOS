@@ -13,7 +13,8 @@ struct CLArgs
 	const u8* imagePath = "";
 	const u8* volumeBootRecordFile = "";
 	usize hardDiskSize = 0;
-	// TODO(fkp): Array of files
+	const u8** otherFiles = nullptr; // Array of file names
+	usize numberOfOtherFiles = 0;
 };
 
 bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments);
