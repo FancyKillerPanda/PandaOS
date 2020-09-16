@@ -19,7 +19,7 @@ constexpr const u8* optionDescriptions[12] = {
 	"--help", "Displays this help message.",
 	"--image-name <name>", "Specifies the name of the output disk.",
 	"--image-path <path>", "Specifies the location of the output disk.",
-	"--vbr <file>", "Specifies a Volume Boot Record file."
+	"--vbr <file>", "Specifies a Volume Boot Record file.",
 	"--size <number>", "Specifies the size of the hard disk in megabytes.",
 	"--files [files...]", "Specifies a list of file names for the root directory.",
 };
@@ -49,7 +49,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 			
 			for (i32 i = 0; i < STACK_ARRAY_LENGTH(optionDescriptions); i += 2)
 			{
-				printf("\t[%s]: %s\n", optionDescriptions[i], optionDescriptions[i + 1]);
+				printf("\t[%-20s]: %s\n", optionDescriptions[i], optionDescriptions[i + 1]);
 			}
 			
 			return false;
@@ -133,7 +133,6 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 						}
 						else
 						{
-							i -= 1;
 							break;
 						}
 					}
@@ -141,6 +140,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 					i += 1;
 				}
 				
+				i -= 1;
 				arguments->numberOfOtherFiles = i - indexOfFilesArgument;
 				arguments->otherFiles = (const u8**) malloc(arguments->numberOfOtherFiles * sizeof(const u8**));
 

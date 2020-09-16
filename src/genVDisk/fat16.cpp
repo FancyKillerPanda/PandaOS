@@ -6,10 +6,25 @@
 
 #include "fat16.hpp"
 
+bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks);
+
+struct RootDirectoryEntry
+{
+	u8 filename[8] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+	u8 extension[3] = { ' ', ' ', ' ' };
+	u8 attributes = 0;
+	u8 reserved[10];
+	u8 time[2];
+	u8 date[2];
+	u16 cluster;
+	u32 size;
+};
+	
 void read_bios_parameter_block(FAT16Information* information, const u8* fileContents)
 {
 	information->bytesPerSector = read_word(fileContents, 0x0b);
 	information->fatCount = fileContents[0x10];
+	information->rootDirectoryEntries = read_word(fileContents, 0x11);
 	information->mediaDescriptor = fileContents[0x15];
 	information->sectorsPerFat = read_word(fileContents, 0x16);
 }
@@ -19,12 +34,16 @@ FAT16 init_fat_16(const FAT16Information* information)
 	FAT16 result;
 
 	result.information = information;
+	
 	result.tableSize = information->bytesPerSector * information->sectorsPerFat;
 	result.table = (u8*) calloc(result.tableSize, sizeof(u8));
 	result.table[0] = 0xf0;
 	result.table[1] = 0xff;
 	result.table[2] = 0xff;
 
+	result.rootDirectorySize = information->rootDirectoryEntries * sizeof(RootDirectoryEntry);
+	result.rootDirectoryData = (u8*) calloc(result.rootDirectorySize, sizeof(u8));
+	
 	return result;
 }
 
@@ -148,20 +167,8 @@ u16 allocate_clusters(FAT16* fat16, u16 numberOfRequiredClusters)
 
 void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename, u32 size, u16 cluster)
 {
-	struct Entry
-	{
-		u8 filename[8] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
-		u8 extension[3] = { ' ', ' ', ' ' };
-		u8 attributes = 0;
-		u8 reserved[10];
-		u8 time[2];
-		u8 date[2];
-		u16 cluster;
-		u32 size;
-	};
-	
 	// Calculates the 8.3 filename/extension pair
-	Entry entry;
+	RootDirectoryEntry entry;
 	usize fullFilenameLength = strlen(filename);
 	i32 extensionStart = -1;
 		
@@ -199,17 +206,20 @@ void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename
 	entry.cluster = cluster;
 	entry.size = size;
 
-	static_assert(sizeof(Entry) == 32, "Entry might have had padding added.");
-	fwrite((u8*) &entry, 1, sizeof(Entry), file);
+	static_assert(sizeof(RootDirectoryEntry) == 32, "RootDirectoryEntry might have had padding added.");
+	memcpy(fat16->rootDirectoryData + (fat16->numberOfRootDirectoryEntries * sizeof(RootDirectoryEntry)), (u8*) &entry, sizeof(entry));
+	fat16->numberOfRootDirectoryEntries += 1;
 }
 
-bool store_file(FAT16* fat16, const char* path)
+bool store_file(FAT16* fat16, const char* prefix, const char* name)
 {
-	FILE* file = fopen(path, "rb");
+	u8* filename = concat_strings(prefix, name);
+	FILE* file = fopen(filename, "rb");
 
 	if (!file)
 	{
-		printf("Error: Failed to store file '%s'.\n", path);
+		printf("Error: Failed to store file '%s'.\n", filename);
+		free(filename);
 		return false;
 	}
 
@@ -220,9 +230,22 @@ bool store_file(FAT16* fat16, const char* path)
 	u8* fileContents = (u8*) malloc(fileSize);
 	fread(fileContents, 1, fileSize, file);
 
+	// Stores the FAT entry
+	u16 numberOfRequiredClusters = 1 + ((fileSize - 1) / fat16->information->bytesPerSector);
+	u16 firstCluster = allocate_clusters(fat16, numberOfRequiredClusters);
+
+	if (firstCluster == 0)
+	{
+		printf("Error: Not enough space to allocate for '%s'.\n", filename);
+		fclose(file);
+		free(filename);
+		
+		return false;
+	}
+
 	// Inserts the file's data
-	usize newRawDataSize = fat16->rawDataSize + fileSize;
-	u8* newRawData = (u8*) malloc(fat16->rawDataSize);
+	usize newRawDataSize = fat16->rawDataSize + (numberOfRequiredClusters * fat16->information->bytesPerSector);
+	u8* newRawData = (u8*) malloc(newRawDataSize);
 
 	if (fat16->rawDataSize != 0)
 	{
@@ -230,25 +253,26 @@ bool store_file(FAT16* fat16, const char* path)
 		free(fat16->rawData);
 	}
 	
+	memcpy(newRawData + fat16->rawDataSize, fileContents, fileSize);
 	fat16->rawDataSize = newRawDataSize;
 	fat16->rawData = newRawData;
-	
-	// Stores the FAT entry
-	u16 numberOfRequiredClusters = 1 + ((fileSize - 1) / fat16->information->bytesPerSector);
-	u16 firstCluster = allocate_clusters(fat16, numberOfRequiredClusters);
 
-	if (firstCluster == 0)
-	{
-		printf("Error: Not enough space to allocate for '%s'.\n", path);
-		fclose(file);
-		
-		return false;
-	}
-
-	store_file_in_root_directory(fat16, file, path, fileSize, firstCluster);
+	store_file_in_root_directory(fat16, file, name, fileSize, firstCluster);
 	fclose(file);
+	free(filename);
 	
 	return true;
+}
+
+void write_fat16_into(FAT16* fat16, FILE* file)
+{
+	for (u8 i = 0; i < fat16->information->fatCount; i++)
+	{
+		write_data_as_blocks(file, fat16->table, fat16->tableSize, fat16->information->sectorsPerFat);
+	}
+
+	write_data_as_blocks(file, fat16->rootDirectoryData, fat16->rootDirectorySize, 0);
+	write_data_as_blocks(file, fat16->rawData, fat16->rawDataSize, 0);
 }
 
 u16 read_word(const u8* data, usize indexOfFirstByte)

@@ -4,6 +4,8 @@
 #define UTILITY_HPP
 
 #include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
 
 // Common types
 using i8 = signed char;
@@ -23,5 +25,16 @@ using f64 = double;
 #define MB(num) (kB(num) * 1024)
 #define GB(num) (MB(num) * 1024)
 #define TB(num) (GB(num) * 1024)
+
+// NOTE(fkp): The caller is responsible for calling free()
+inline u8* concat_strings(const char* strOne, const char* strTwo)
+{
+	usize strOneLength = strlen(strOne);
+	u8* result = (u8*) calloc(strOneLength + strlen(strTwo) + 1, sizeof(u8));
+	memcpy(result, strOne, strOneLength);
+	strcat(result, strTwo);
+
+	return result;
+}
 
 #endif

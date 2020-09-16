@@ -23,31 +23,17 @@ i32 main(i32 argc, const u8* argv[])
 		return 1;
 	}
 
-	// DEBUG
-	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
-	{
-		printf("File: '%s'\n", arguments.otherFiles[i]);
-	}
-
 	// The descriptor file
-	usize imagePathLength = strlen(arguments.imagePath);
-	usize imageNameLength = strlen(arguments.imageName);
-	u8* descriptorFileName = (u8*) calloc(imagePathLength + imageNameLength + strlen(".vmdk") + 1, sizeof(u8));
-	memcpy(descriptorFileName, arguments.imagePath, imagePathLength);
-	strcat(descriptorFileName, arguments.imageName);
-	strcat(descriptorFileName, ".vmdk");
-	
+	u8* imagePathWithoutEnd = concat_strings(arguments.imagePath, arguments.imageName);
+	u8* descriptorFileName = concat_strings(imagePathWithoutEnd, ".vmdk");	
 	write_descriptor_file(descriptorFileName, 64 * 1024 * 1024);
 	free(descriptorFileName);
 	
 	// The extent file
-	u8* extentFileName = (u8*) calloc(imagePathLength + imageNameLength + strlen("-flat.vmdk") + 1, sizeof(u8));
-	memcpy(extentFileName, arguments.imagePath, imagePathLength);
-	strcat(extentFileName, arguments.imageName);
-	strcat(extentFileName, "-flat.vmdk");
-
+	u8* extentFileName = concat_strings(imagePathWithoutEnd, "-flat.vmdk");
 	write_extent_file(extentFileName, arguments);
 	free(extentFileName);
+	free(imagePathWithoutEnd);
 }
 
 bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize)
@@ -110,6 +96,7 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 		return false;
 	}
 
+	
 	FILE* vbrFile = fopen(arguments.volumeBootRecordFile, "rb");
 
 	if (!vbrFile)
@@ -148,25 +135,12 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 
 	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
 	{
-		store_file(&fat16, arguments.otherFiles[i]);
+		store_file(&fat16, arguments.imagePath, arguments.otherFiles[i]);
 	}
 	
-	for (u8 i = 0; i < fat16Information.fatCount; i++)
-	{
-		write_data_as_blocks(extentFile, fat16.table, fat16.tableSize, fat16Information.sectorsPerFat);
-	}
-
-	/*
-	// The root directory
-	constexpr usize sizeOfEntry = 32;
-	u8* rootDirectoryData = (u8*) malloc(sizeOfEntry * arguments.numberOfOtherFiles * sizeof(u8));
-	
-	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
-	{
-	}
-	*/
-
+	write_fat16_into(&fat16, extentFile);
 	fclose(extentFile);
+	
 	return true;
 }
 
@@ -189,5 +163,6 @@ bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumbe
 	fwrite(data, 1, size, file);
 	fwrite(padding, 1, amountOfPadding, file);
 	
+	free(padding);
 	return true;
 }
