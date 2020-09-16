@@ -32,7 +32,7 @@ struct FAT16
 void read_bios_parameter_block(FAT16Information* information, const u8* fileContents);
 FAT16 init_fat_16(const FAT16Information* information);
 bool store_file(FAT16* fat16, const char* prefix, const char* name);
-void write_fat16_into(FAT16* fat16, FILE* file);
+usize write_fat16_into(FAT16* fat16, FILE* file);
 u16 read_word(const u8* data, usize indexOfFirstByte);
 
 #endif

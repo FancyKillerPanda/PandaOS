@@ -6,7 +6,7 @@
 
 #include "fat16.hpp"
 
-bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks);
+usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks);
 
 struct RootDirectoryEntry
 {
@@ -264,15 +264,19 @@ bool store_file(FAT16* fat16, const char* prefix, const char* name)
 	return true;
 }
 
-void write_fat16_into(FAT16* fat16, FILE* file)
+usize write_fat16_into(FAT16* fat16, FILE* file)
 {
+	usize numberOfBlocksWritten = 0;
+	
 	for (u8 i = 0; i < fat16->information->fatCount; i++)
 	{
-		write_data_as_blocks(file, fat16->table, fat16->tableSize, fat16->information->sectorsPerFat);
+		numberOfBlocksWritten += write_data_as_blocks(file, fat16->table, fat16->tableSize, fat16->information->sectorsPerFat);
 	}
 
-	write_data_as_blocks(file, fat16->rootDirectoryData, fat16->rootDirectorySize, 0);
-	write_data_as_blocks(file, fat16->rawData, fat16->rawDataSize, 0);
+	numberOfBlocksWritten += write_data_as_blocks(file, fat16->rootDirectoryData, fat16->rootDirectorySize, 0);
+	numberOfBlocksWritten += write_data_as_blocks(file, fat16->rawData, fat16->rawDataSize, 0);
+
+	return numberOfBlocksWritten;
 }
 
 u16 read_word(const u8* data, usize indexOfFirstByte)

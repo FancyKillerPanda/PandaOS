@@ -11,7 +11,7 @@
 
 bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize);
 bool write_extent_file(const u8* extentFileName, const CLArgs& arguments);
-bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
+usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
 u16 read_word(const u8* data, usize indexOfFirstByte);
 
 i32 main(i32 argc, const u8* argv[])
@@ -26,7 +26,7 @@ i32 main(i32 argc, const u8* argv[])
 	// The descriptor file
 	u8* imagePathWithoutEnd = concat_strings(arguments.imagePath, arguments.imageName);
 	u8* descriptorFileName = concat_strings(imagePathWithoutEnd, ".vmdk");	
-	write_descriptor_file(descriptorFileName, 64 * 1024 * 1024);
+	write_descriptor_file(descriptorFileName, MB(arguments.hardDiskSize));
 	free(descriptorFileName);
 	
 	// The extent file
@@ -103,6 +103,7 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	{
 		printf("Error: VBR file (%s) is invalid.\n", arguments.volumeBootRecordFile);
 		fclose(extentFile);
+		
 		return false;
 	}
 	
@@ -120,9 +121,11 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 		return false;
 	}
 	
+	usize numberOfBlocksWritten = 0;
 	u8* vbrFileContents = (u8*) malloc(vbrFileSize);
 	fread(vbrFileContents, 1, vbrFileSize, vbrFile);
-	write_data_as_blocks(extentFile, vbrFileContents, vbrFileSize);
+
+	numberOfBlocksWritten += write_data_as_blocks(extentFile, vbrFileContents, vbrFileSize);
 
 	// Gets information about the FAT from the BPB/EBPB in the VBR
 	FAT16Information fat16Information;
@@ -138,13 +141,15 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 		store_file(&fat16, arguments.imagePath, arguments.otherFiles[i]);
 	}
 	
-	write_fat16_into(&fat16, extentFile);
+	numberOfBlocksWritten += write_fat16_into(&fat16, extentFile);
+	write_data_as_blocks(extentFile, nullptr, 0, arguments.hardDiskSize / 512);
+	
 	fclose(extentFile);
 	
 	return true;
 }
 
-bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks)
+usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks)
 {
 	constexpr usize blockSize = 512;
 	usize amountOfPadding;
@@ -162,7 +167,7 @@ bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumbe
 	
 	fwrite(data, 1, size, file);
 	fwrite(padding, 1, amountOfPadding, file);
-	
 	free(padding);
-	return true;
+
+	return (size + amountOfPadding) / blockSize;
 }
