@@ -7,19 +7,12 @@
 #include "utility.hpp"
 #include "clargs.hpp"
 #include "geometry.hpp"
+#include "fat16.hpp"
 
 bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize);
 bool write_extent_file(const u8* extentFileName, const CLArgs& arguments);
 bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
 u16 read_word(const u8* data, usize indexOfFirstByte);
-
-struct FAT16Information
-{
-	u16 bytesPerSector = 0;
-	u8 fatCount = 0;
-	u8 mediaDescriptor = 0;
-	u16 sectorsPerFat = 0;
-};
 
 i32 main(i32 argc, const u8* argv[])
 {
@@ -146,18 +139,32 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 
 	// Gets information about the FAT from the BPB/EBPB in the VBR
 	FAT16Information fat16Information;
-	fat16Information.bytesPerSector = read_word(vbrFileContents, 0x0b);
-	fat16Information.fatCount = vbrFileContents[0x10];
-	fat16Information.mediaDescriptor = vbrFileContents[0x15];
-	fat16Information.sectorsPerFat = read_word(vbrFileContents, 0x16);
+	read_bios_parameter_block(&fat16Information, vbrFileContents);
 	free(vbrFileContents);
 	fclose(vbrFile);
 
 	// Writes out the FAT table
+	FAT16 fat16 = init_fat_16(&fat16Information);
+
+	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+	{
+		store_file(&fat16, arguments.otherFiles[i]);
+	}
+	
 	for (u8 i = 0; i < fat16Information.fatCount; i++)
 	{
-		write_data_as_blocks(extentFile, nullptr, 0, fat16Information.sectorsPerFat);
+		write_data_as_blocks(extentFile, fat16.table, fat16.tableSize, fat16Information.sectorsPerFat);
 	}
+
+	/*
+	// The root directory
+	constexpr usize sizeOfEntry = 32;
+	u8* rootDirectoryData = (u8*) malloc(sizeOfEntry * arguments.numberOfOtherFiles * sizeof(u8));
+	
+	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+	{
+	}
+	*/
 
 	fclose(extentFile);
 	return true;
@@ -183,13 +190,4 @@ bool write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumbe
 	fwrite(padding, 1, amountOfPadding, file);
 	
 	return true;
-}
-
-u16 read_word(const u8* data, usize indexOfFirstByte)
-{
-	u16 firstByte = (u16) data[indexOfFirstByte];
-	u16 secondByte = (u16) data[indexOfFirstByte + 1];
-	u16 result = (secondByte << 8) | firstByte;
-
-	return result;
 }
