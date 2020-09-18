@@ -5,8 +5,7 @@
 #include <string.h>
 
 #include "fat16.hpp"
-
-usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks);
+#include "utility.hpp"
 
 struct RootDirectoryEntry
 {
@@ -285,15 +284,6 @@ usize write_fat16_into(FAT16* fat16, FILE* file)
 	printf("Info: Wrote raw file data...\n");
 
 	return numberOfBlocksWritten;
-}
-
-u16 read_word(const u8* data, usize indexOfFirstByte)
-{
-	u16 firstByte = (u16) data[indexOfFirstByte];
-	u16 secondByte = (u16) data[indexOfFirstByte + 1];
-	u16 result = (secondByte << 8) | firstByte;
-
-	return result;
 }
 
 void debug_list_fat(FAT16* fat16)

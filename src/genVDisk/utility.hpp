@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // Common types
 using i8 = signed char;
@@ -27,14 +28,9 @@ using f64 = double;
 #define TB(num) (GB(num) * 1024)
 
 // NOTE(fkp): The caller is responsible for calling free()
-inline u8* concat_strings(const char* strOne, const char* strTwo)
-{
-	usize strOneLength = strlen(strOne);
-	u8* result = (u8*) calloc(strOneLength + strlen(strTwo) + 1, sizeof(u8));
-	memcpy(result, strOne, strOneLength);
-	strcat(result, strTwo);
+u8* concat_strings(const char* strOne, const char* strTwo);
 
-	return result;
-}
+usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
+u16 read_word(const u8* data, usize indexOfFirstByte);
 
 #endif
