@@ -13,7 +13,7 @@ if not exist %prjRoot%\bin\PandaOS\ (
 		bochsdbg -q -f bochsrc-debug.bxrc
 	) else (
 		pushd %prjRoot%\bin\PandaOS\
-		qemu-system-i386 -cdrom pandaOS.iso -serial file:pandaLog.txt
+		qemu-system-i386 -drive file=PandaHDD-flat.vmdk,index=0,media=disk,format=raw
 		popd
 	)
 )

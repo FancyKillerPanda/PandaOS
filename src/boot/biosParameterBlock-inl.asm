@@ -14,7 +14,7 @@ bios_parameter_block:
 	SectorsCount			dw 2880
 	MediaDescriptor			db 0xf0
 	SectorsPerFAT			dw 9
-	SectorsPerTrack			dw 18
+	SectorsPerTrack			dw 63
 	HeadsCount				dw 2
 	HiddenSectors			dd 0
 

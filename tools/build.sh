@@ -30,7 +30,7 @@ mkdir -p $binDir/PandaOS
 pushd $binDir/PandaOS > /dev/null
 
 print $BLUE "Cleaning..."
-rm *.bin *.img *.iso *.o 2> /dev/null
+rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin || exit_on_error
@@ -48,7 +48,11 @@ print $BLUE "\nBuilding ISO image..."
 genisoimage -V "PandaVolume" -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img . || exit_on_error
 
 print $BLUE "\nBuilding virtual hard disk..."
-$binDir/genVDisk/genVDisk || exit_on_error
+$binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
+						  --vbr bootPandaOS.bin \
+						  --size 64 \
+						  --files pkLoader.bin pKernelA.bin \
+	|| exit_on_error
 
 print $GREEN "\nBuild succeeded!\n"
 
