@@ -23,7 +23,6 @@ fi
 # Flags
 kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernelA.bin -target i386-pc-none-elf -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$prjRoot/tools/kernelLinker.ld"
-# kernelFiles="kernel_entry.o $kernelDir/kernel.cpp $kernelDir/system/display.cpp $kernelDir/system/memory.cpp"
 kernelFiles="kernel_entry.o $kernelDir/*.cpp $kernelDir/system/*.cpp"
 
 mkdir -p $binDir/PandaOS
@@ -37,15 +36,6 @@ nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin || exit_on_error
 nasm -i $bootDir $bootDir/loadPandaOS.asm -o pkLoader.bin || exit_on_error
 nasm -felf32 $kernelDir/kernel_entry.asm -o kernel_entry.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
-
-print $BLUE "\nBuilding floppies..."
-$prjRoot/tools/ffc_linux -b bootPandaOS.bin \
-						 -s pkLoader.bin pKernelA.bin \
-						 -o pandaFloppy.img \
-	|| exit_on_error
-
-print $BLUE "\nBuilding ISO image..."
-genisoimage -V "PandaVolume" -input-charset iso8859-1 -o pandaOS.iso -b pandaFloppy.img . || exit_on_error
 
 print $BLUE "\nBuilding virtual hard disk..."
 $binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
