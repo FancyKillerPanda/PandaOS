@@ -8,7 +8,7 @@
 #include "clargs.hpp"
 #include "vmdk.hpp"
 
-i32 main(i32 argc, const u8* argv[])
+s32 main(s32 argc, const u8* argv[])
 {
 	CLArgs arguments;
 	

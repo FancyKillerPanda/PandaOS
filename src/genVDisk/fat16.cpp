@@ -169,7 +169,7 @@ void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename
 	// Calculates the 8.3 filename/extension pair
 	RootDirectoryEntry entry;
 	usize fullFilenameLength = strlen(filename);
-	i32 extensionStart = -1;
+	s32 extensionStart = -1;
 
 	for (usize j = 0; j < 11; j++)
 	{
@@ -179,7 +179,7 @@ void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename
 		}
 		else if (filename[j] == '.')
 		{
-			extensionStart = (i32) j + 1;
+			extensionStart = (s32) j + 1;
 			break;
 		}
 

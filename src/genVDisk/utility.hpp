@@ -9,9 +9,9 @@
 #include <stdio.h>
 
 // Common types
-using i8 = signed char;
-using i16 = short;
-using i32 = int;
+using s8 = signed char;
+using s16 = short;
+using s32 = int;
 
 using u8 = char; // NOTE(fkp): This is forced to by unsigned through compiler flags
 using u16 = unsigned short;

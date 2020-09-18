@@ -17,6 +17,6 @@ struct CLArgs
 	usize numberOfOtherFiles = 0;
 };
 
-bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments);
+bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments);
 
 #endif
