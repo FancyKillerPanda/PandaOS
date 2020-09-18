@@ -278,8 +278,11 @@ usize write_fat16_into(FAT16* fat16, FILE* file)
 		numberOfBlocksWritten += write_data_as_blocks(file, fat16->table, fat16->tableSize, fat16->information->sectorsPerFat);
 	}
 
+	printf("Info: Wrote FAT...\n");
 	numberOfBlocksWritten += write_data_as_blocks(file, fat16->rootDirectoryData, fat16->rootDirectorySize, 0);
+	printf("Info: Wrote root directory...\n");
 	numberOfBlocksWritten += write_data_as_blocks(file, fat16->rawData, fat16->rawDataSize, 0);
+	printf("Info: Wrote raw file data...\n");
 
 	return numberOfBlocksWritten;
 }

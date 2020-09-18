@@ -38,6 +38,7 @@ i32 main(i32 argc, const u8* argv[])
 
 bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize)
 {
+	printf("Info: Writing VMDK descriptor to '%s'\n", descriptorFileName);
 	DiskGeometry diskGeometry;
 	
 	if (!calculate_geometry(&diskGeometry, hardDiskSize))
@@ -83,11 +84,14 @@ bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileN
 			diskGeometry.numberOfSectors);
 
 	fclose(descriptorFile);
+	printf("Info: Successfully wrote descriptor file...\n");
+	
 	return true;
 }
 
 bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 {
+	printf("\nInfo: Writing flat extent to '%s'\n", extentFileName);
 	FILE* extentFile = fopen(extentFileName, "wb");
 
 	if (!extentFile)
@@ -95,7 +99,6 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 		printf("Error: Failed to open extent file (%s).\n", extentFileName);
 		return false;
 	}
-
 	
 	FILE* vbrFile = fopen(arguments.volumeBootRecordFile, "rb");
 
@@ -126,6 +129,7 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	fread(vbrFileContents, 1, vbrFileSize, vbrFile);
 
 	numberOfBlocksWritten += write_data_as_blocks(extentFile, vbrFileContents, vbrFileSize);
+	printf("Info: Wrote Volume Boot Record to extent file...\n");
 
 	// Gets information about the FAT from the BPB/EBPB in the VBR
 	FAT16Information fat16Information;
@@ -149,7 +153,8 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	// DEBUG
 	void debug_list_fat(FAT16* fat16);
 	// debug_list_fat(&fat16);
-	
+
+	printf("Info: Successfully wrote extent file...\n");
 	return true;
 }
 
