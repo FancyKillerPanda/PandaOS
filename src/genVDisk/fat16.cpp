@@ -171,8 +171,8 @@ void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename
 	RootDirectoryEntry entry;
 	usize fullFilenameLength = strlen(filename);
 	i32 extensionStart = -1;
-		
-	for (usize j = 0; j < 8; j++)
+
+	for (usize j = 0; j < 11; j++)
 	{
 		if (j == fullFilenameLength)
 		{
@@ -180,8 +180,13 @@ void store_file_in_root_directory(FAT16* fat16, FILE* file, const char* filename
 		}
 		else if (filename[j] == '.')
 		{
-			extensionStart = (i32) j;
+			extensionStart = (i32) j + 1;
 			break;
+		}
+
+		if (j >= 8)
+		{
+			continue;
 		}
 
 		entry.filename[j] = filename[j];
@@ -286,4 +291,32 @@ u16 read_word(const u8* data, usize indexOfFirstByte)
 	u16 result = (secondByte << 8) | firstByte;
 
 	return result;
+}
+
+void debug_list_fat(FAT16* fat16)
+{
+	printf("\nFile Allocation Table (FAT16):\n"
+		   "Entry[0] = RESERVED\n"
+		   "Entry[1] = RESERVED\n");
+
+	constexpr u16 clusters = 3072;
+	u16 lastEntry = clusters + 1;
+
+	for (u16 i = 2; i < clusters; i++)
+	{
+		u16 entryValue = get_entry(fat16, i);
+
+		if (!entryValue)
+		{
+			lastEntry = i;
+			break;
+		}
+
+		printf("Entry[%d] = %d\n", i, entryValue);
+	}
+
+	if (lastEntry < clusters + 1)
+	{
+		printf("Entry[%d - %d] = EMPTY\n", lastEntry, clusters);
+	}
 }

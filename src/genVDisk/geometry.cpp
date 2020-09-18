@@ -19,7 +19,7 @@ bool calculate_geometry(DiskGeometry* geometry, usize hardDiskSize)
 	geometry->totalSectorsOnHardDisk = hardDiskSize / sectorSize;
 	geometry->numberOfHeads = ideHeads;
 	geometry->numberOfSectors = ideSectors;
-	geometry->numberOfCylinders = geometry->totalSectorsOnHardDisk / (geometry->numberOfHeads + geometry->numberOfSectors);
+	geometry->numberOfCylinders = geometry->totalSectorsOnHardDisk / (geometry->numberOfHeads * geometry->numberOfSectors);
 
 	if (geometry->numberOfCylinders > maxCylinders)
 	{

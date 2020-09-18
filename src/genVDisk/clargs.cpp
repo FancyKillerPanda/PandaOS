@@ -104,7 +104,7 @@ bool handle_command_line_args(i32 argc, const u8* argv[], CLArgs* arguments)
 					printf("Error: Size passed in was invalid.\n");
 					return false;
 				}
-				
+
 				arguments->hardDiskSize = (usize) MB(size);
 				i += 1;
 			}

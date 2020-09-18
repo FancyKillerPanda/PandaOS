@@ -9,7 +9,7 @@
 #include "geometry.hpp"
 #include "fat16.hpp"
 
-bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize);
+bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize);
 bool write_extent_file(const u8* extentFileName, const CLArgs& arguments);
 usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
 u16 read_word(const u8* data, usize indexOfFirstByte);
@@ -26,17 +26,17 @@ i32 main(i32 argc, const u8* argv[])
 	// The descriptor file
 	u8* imagePathWithoutEnd = concat_strings(arguments.imagePath, arguments.imageName);
 	u8* descriptorFileName = concat_strings(imagePathWithoutEnd, ".vmdk");	
-	write_descriptor_file(descriptorFileName, MB(arguments.hardDiskSize));
+	u8* extentFileName = concat_strings(imagePathWithoutEnd, "-flat.vmdk");
+	write_descriptor_file(descriptorFileName, extentFileName, arguments.hardDiskSize);
 	free(descriptorFileName);
 	
 	// The extent file
-	u8* extentFileName = concat_strings(imagePathWithoutEnd, "-flat.vmdk");
 	write_extent_file(extentFileName, arguments);
 	free(extentFileName);
 	free(imagePathWithoutEnd);
 }
 
-bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize)
+bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize)
 {
 	DiskGeometry diskGeometry;
 	
@@ -64,13 +64,13 @@ bool write_descriptor_file(const u8* descriptorFileName, usize hardDiskSize)
 
 	// Extent description
 	fprintf(descriptorFile,
-			"# Extent description\n"
+			"\n# Extent description\n"
 			"RW %lu FLAT \"%s\" 0\n",
-			diskGeometry.totalSectorsOnHardDisk, descriptorFileName);
+			diskGeometry.totalSectorsOnHardDisk, extentFileName);
 
 	// Disk database
 	fprintf(descriptorFile,
-			"# The Disk Data Base\n"
+			"\n# The Disk Data Base\n"
 			"#DDB\n"
 			"ddb.virtualHWVersion = \"16\"\n"
 			"ddb.geometry.cylinders = \"%lu\"\n"
@@ -142,9 +142,13 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	}
 	
 	numberOfBlocksWritten += write_fat16_into(&fat16, extentFile);
-	write_data_as_blocks(extentFile, nullptr, 0, arguments.hardDiskSize / 512);
+	write_data_as_blocks(extentFile, nullptr, 0, (arguments.hardDiskSize / 512) - numberOfBlocksWritten);
 	
 	fclose(extentFile);
+
+	// DEBUG
+	void debug_list_fat(FAT16* fat16);
+	// debug_list_fat(&fat16);
 	
 	return true;
 }
