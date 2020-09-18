@@ -21,7 +21,7 @@ if [ ! -e $binDir/genVDisk/genVDisk ]; then
 fi
 
 # Flags
-kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernelA.bin -target i386-pc-none-elf -I $kernelDir/system"
+kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernel.bin -target i386-pc-none-elf -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
 kernelFiles="kernelEntry.o $kernelDir/*.cpp $kernelDir/system/*.cpp"
 
@@ -41,7 +41,7 @@ print $BLUE "\nBuilding virtual hard disk..."
 $binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
 						  --vbr bootPandaOS.bin \
 						  --size 64 \
-						  --files pkLoader.bin pKernelA.bin \
+						  --files pkLoader.bin pKernel.bin \
 	|| exit_on_error
 
 print $GREEN "\nBuild succeeded!\n"
