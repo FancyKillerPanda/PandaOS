@@ -22,8 +22,8 @@ fi
 
 # Flags
 kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernelA.bin -target i386-pc-none-elf -I $kernelDir/system"
-kernelLinkFlags="-Wl,--oformat=binary,-T$prjRoot/tools/kernelLinker.ld"
-kernelFiles="kernel_entry.o $kernelDir/*.cpp $kernelDir/system/*.cpp"
+kernelLinkFlags="-Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
+kernelFiles="kernelEntry.o $kernelDir/*.cpp $kernelDir/system/*.cpp"
 
 mkdir -p $binDir/PandaOS
 pushd $binDir/PandaOS > /dev/null
@@ -34,7 +34,7 @@ rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin || exit_on_error
 nasm -i $bootDir $bootDir/loadPandaOS.asm -o pkLoader.bin || exit_on_error
-nasm -felf32 $kernelDir/kernel_entry.asm -o kernel_entry.o || exit_on_error
+nasm -felf32 $kernelDir/kernelEntry.asm -o kernelEntry.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nBuilding virtual hard disk..."
