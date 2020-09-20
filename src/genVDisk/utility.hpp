@@ -28,9 +28,13 @@ using f64 = double;
 #define TB(num) (GB(num) * 1024)
 
 // NOTE(fkp): The caller is responsible for calling free()
-u8* concat_strings(const char* strOne, const char* strTwo);
+u8* concat_strings(const u8* strOne, const u8* strTwo);
 
 usize write_data_as_blocks(FILE* file, const u8* data, usize size, usize minNumberOfBlocks = 0);
 u16 read_word(const u8* data, usize indexOfFirstByte);
+
+// This function will fill in the data and size parameters if it
+// returns true.
+bool read_entire_file(const u8* path, u8** data, usize* size);
 
 #endif

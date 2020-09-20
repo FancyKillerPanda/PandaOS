@@ -70,42 +70,54 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 		return false;
 	}
 	
-	FILE* vbrFile = fopen(arguments.volumeBootRecordFile, "rb");
-
-	if (!vbrFile)
-	{
-		printf("Error: VBR file (%s) is invalid.\n", arguments.volumeBootRecordFile);
-		fclose(extentFile);
-		
-		return false;
-	}
-	
-	// Reads the entire contents of the VBR file and writes it to the extent file
-	fseek(vbrFile, 0, SEEK_END);
-	usize vbrFileSize = ftell(vbrFile);
-	fseek(vbrFile, 0, SEEK_SET);
-
-	if (vbrFileSize != 512)
-	{
-		printf("VBR file (%s) is not 512 bytes long.\n", arguments.volumeBootRecordFile);
-		fclose(vbrFile);
-		fclose(extentFile);
-		
-		return false;
-	}
-	
 	usize numberOfBlocksWritten = 0;
-	u8* vbrFileContents = (u8*) malloc(vbrFileSize);
-	fread(vbrFileContents, 1, vbrFileSize, vbrFile);
+	
+	// Writes the MBR file to the extent file
+	u8* mbrFileContents = nullptr;
+	usize mbrFileSize = 0;
+
+	if (!read_entire_file(arguments.masterBootRecordFile, &mbrFileContents, &mbrFileSize))
+	{
+		fclose(extentFile);
+		return false;
+	}
+
+	if (mbrFileSize != 512 ||
+		mbrFileContents[510] != 0x55 || mbrFileContents[511] != 0xaa)
+	{
+		printf("Error: MBR file ('%s') is invalid.\n", arguments.masterBootRecordFile);
+		fclose(extentFile);
+		return false;
+	}
+
+	numberOfBlocksWritten += write_data_as_blocks(extentFile, mbrFileContents, mbrFileSize);
+	printf("Info: Wrote Master Boot Record to extent file.\n");
+	
+	// Writes the VBR file to the extent file
+	u8* vbrFileContents = nullptr;
+	usize vbrFileSize = 0;
+
+	if (!read_entire_file(arguments.volumeBootRecordFile, &vbrFileContents, &vbrFileSize))
+	{
+		fclose(extentFile);
+		return false;
+	}
+
+	if (vbrFileSize != 512 ||
+		vbrFileContents[510] != 0x55 || vbrFileContents[511] != 0xaa)
+	{
+		printf("Error: VBR file ('%s') is invalid.\n", arguments.volumeBootRecordFile);
+		fclose(extentFile);
+		return false;
+	}
 
 	numberOfBlocksWritten += write_data_as_blocks(extentFile, vbrFileContents, vbrFileSize);
 	printf("Info: Wrote Volume Boot Record to extent file...\n");
-
+	
 	// Gets information about the FAT from the BPB/EBPB in the VBR
 	FAT16Information fat16Information;
 	read_bios_parameter_block(&fat16Information, vbrFileContents);
 	free(vbrFileContents);
-	fclose(vbrFile);
 
 	// Writes out the FAT table
 	FAT16 fat16 = init_fat_16(&fat16Information);

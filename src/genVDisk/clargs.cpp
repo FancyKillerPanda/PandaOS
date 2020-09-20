@@ -7,18 +7,20 @@
 
 #include "clargs.hpp"
 
-constexpr const u8* options[6] = {
+constexpr const u8* options[] = {
 	"--help",
 	"--image-name",
 	"--image-path",
+	"--mbr",
 	"--vbr",
 	"--size",
 	"--files",
 };
-constexpr const u8* optionDescriptions[12] = {
+constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
 	"--image-name <name>", "Specifies the name of the output disk.",
 	"--image-path <path>", "Specifies the location of the output disk.",
+	"--mbr <file>", "Specifies a Master Boot Record file.",
 	"--vbr <file>", "Specifies a Volume Boot Record file.",
 	"--size <number>", "Specifies the size of the hard disk in megabytes.",
 	"--files [files...]", "Specifies a list of file names for the root directory.",
@@ -77,6 +79,19 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments)
 			else
 			{
 				printf("Error: No path to disk given.\n");
+				return false;
+			}
+		}
+		else if (strcmp(argv[i], "--mbr") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				arguments->masterBootRecordFile = argv[i + 1];
+				i += 1;
+			}
+			else
+			{
+				printf("Error: No MBR file given.\n");
 				return false;
 			}
 		}

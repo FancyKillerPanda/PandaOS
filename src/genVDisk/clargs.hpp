@@ -11,6 +11,7 @@ struct CLArgs
 {
 	const u8* imageName = "";
 	const u8* imagePath = "";
+	const u8* masterBootRecordFile = "";
 	const u8* volumeBootRecordFile = "";
 	usize hardDiskSize = 0;
 	const u8** otherFiles = nullptr; // Array of file names

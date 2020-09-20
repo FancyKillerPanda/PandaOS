@@ -2,7 +2,7 @@
 
 #include "utility.hpp"
 
-u8* concat_strings(const char* strOne, const char* strTwo)
+u8* concat_strings(const u8* strOne, const u8* strTwo)
 {
 	usize strOneLength = strlen(strOne);
 	u8* result = (u8*) calloc(strOneLength + strlen(strTwo) + 1, sizeof(u8));
@@ -42,4 +42,25 @@ u16 read_word(const u8* data, usize indexOfFirstByte)
 	u16 result = (secondByte << 8) | firstByte;
 
 	return result;
+}
+
+bool read_entire_file(const u8* path, u8** data, usize* size)
+{
+	FILE* file = fopen(path, "rb");
+
+	if (!file)
+	{
+		printf("Error: Failed to open file ('%s').\n", path);
+		return false;
+	}
+
+	fseek(file, 0, SEEK_END);
+	*size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	*data = (u8*) malloc(*size);
+	fread(*data, 1, *size, file);
+
+	fclose(file);
+	return true;
 }

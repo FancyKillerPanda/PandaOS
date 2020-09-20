@@ -32,7 +32,7 @@ print $BLUE "Cleaning..."
 rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
-nasm -i $bootDir $bootDir/volumeBootRecord.asm -o masterBootRecord.bin || exit_on_error
+nasm -i $bootDir $bootDir/masterBootRecord.asm -o masterBootRecord.bin || exit_on_error
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
 nasm -i $bootDir $bootDir/kernelLoader.asm -o pkLoader.bin || exit_on_error
 nasm -felf32 $kernelDir/kernelEntry.asm -o kernelEntry.o || exit_on_error
