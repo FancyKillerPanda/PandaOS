@@ -32,14 +32,16 @@ print $BLUE "Cleaning..."
 rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
-nasm -i $bootDir $bootDir/bootPandaOS.asm -o bootPandaOS.bin || exit_on_error
-nasm -i $bootDir $bootDir/loadPandaOS.asm -o pkLoader.bin || exit_on_error
+nasm -i $bootDir $bootDir/volumeBootRecord.asm -o masterBootRecord.bin || exit_on_error
+nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
+nasm -i $bootDir $bootDir/kernelLoader.asm -o pkLoader.bin || exit_on_error
 nasm -felf32 $kernelDir/kernelEntry.asm -o kernelEntry.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nBuilding virtual hard disk..."
 $binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
-						  --vbr bootPandaOS.bin \
+						  --mbr masterBootRecord.bin \
+						  --vbr volumeBootRecord.bin \
 						  --size 64 \
 						  --files pkLoader.bin pKernel.bin \
 	|| exit_on_error
