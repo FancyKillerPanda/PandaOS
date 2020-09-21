@@ -5,8 +5,9 @@
 
 #include "utility.hpp"
 #include "clargs.hpp"
+#include "geometry.hpp"
 
-bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize);
-bool write_extent_file(const u8* extentFileName, const CLArgs& arguments);
+bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize, const DiskGeometry* diskGeometry);
+bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const DiskGeometry* diskGeometry);
 
 #endif

@@ -5,16 +5,11 @@
 #include "vmdk.hpp"
 #include "geometry.hpp"
 #include "fat16.hpp"
+#include "mbr.hpp"
 
-bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize)
+bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize, const DiskGeometry* diskGeometry)
 {
 	printf("Info: Writing VMDK descriptor to '%s'\n", descriptorFileName);
-	DiskGeometry diskGeometry;
-	
-	if (!calculate_geometry(&diskGeometry, hardDiskSize))
-	{
-		return false;
-	}
 	
 	FILE* descriptorFile = fopen(descriptorFileName, "wb");
 
@@ -37,7 +32,7 @@ bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileN
 	fprintf(descriptorFile,
 			"\n# Extent description\n"
 			"RW %lu FLAT \"%s\" 0\n",
-			diskGeometry.totalSectorsOnHardDisk, extentFileName);
+			diskGeometry->totalSectorsOnHardDisk, extentFileName);
 
 	// Disk database
 	fprintf(descriptorFile,
@@ -49,9 +44,9 @@ bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileN
 			"ddb.geometry.sectors = \"%lu\"\n"
 			"ddb.adapterType = \"ide\"\n"
 			"ddb.toolsVersion = \"0\"\n",
-			diskGeometry.numberOfCylinders,
-			diskGeometry.numberOfHeads,
-			diskGeometry.numberOfSectors);
+			diskGeometry->numberOfCylinders,
+			diskGeometry->numberOfHeads,
+			diskGeometry->numberOfSectors);
 
 	fclose(descriptorFile);
 	printf("Info: Successfully wrote descriptor file...\n");
@@ -59,7 +54,7 @@ bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileN
 	return true;
 }
 
-bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
+bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const DiskGeometry* diskGeometry)
 {
 	printf("\nInfo: Writing flat extent to '%s'\n", extentFileName);
 	FILE* extentFile = fopen(extentFileName, "wb");
@@ -73,24 +68,22 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments)
 	usize numberOfBlocksWritten = 0;
 	
 	// Writes the MBR file to the extent file
-	u8* mbrFileContents = nullptr;
-	usize mbrFileSize = 0;
-
-	if (!read_entire_file(arguments.masterBootRecordFile, &mbrFileContents, &mbrFileSize))
+	MBR masterBootRecord;
+	if (!init_mbr(&masterBootRecord, arguments.masterBootRecordFile))
 	{
 		fclose(extentFile);
 		return false;
 	}
 
-	if (mbrFileSize != 512 ||
-		mbrFileContents[510] != 0x55 || mbrFileContents[511] != 0xaa)
+	if (!add_partition_to_mbr(&masterBootRecord, diskGeometry, arguments.hardDiskSize / 512))
 	{
-		printf("Error: MBR file ('%s') is invalid.\n", arguments.masterBootRecordFile);
+		printf("Error: Failed to add a partition to the MBR.\n");
 		fclose(extentFile);
 		return false;
 	}
 
-	numberOfBlocksWritten += write_data_as_blocks(extentFile, mbrFileContents, mbrFileSize);
+	numberOfBlocksWritten += write_data_as_blocks(extentFile, masterBootRecord.data, masterBootRecord.size);
+	free(masterBootRecord.data);
 	printf("Info: Wrote Master Boot Record to extent file.\n");
 	
 	// Writes the VBR file to the extent file

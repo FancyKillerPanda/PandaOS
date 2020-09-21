@@ -17,15 +17,22 @@ s32 main(s32 argc, const u8* argv[])
 		return 1;
 	}
 
+	DiskGeometry diskGeometry;
+	
+	if (!calculate_geometry(&diskGeometry, arguments.hardDiskSize))
+	{
+		return 1;
+	}
+	
 	// The descriptor file
 	u8* imagePathWithoutEnd = concat_strings(arguments.imagePath, arguments.imageName);
 	u8* descriptorFileName = concat_strings(imagePathWithoutEnd, ".vmdk");	
 	u8* extentFileName = concat_strings(imagePathWithoutEnd, "-flat.vmdk");
-	write_descriptor_file(descriptorFileName, extentFileName, arguments.hardDiskSize);
+	write_descriptor_file(descriptorFileName, extentFileName, arguments.hardDiskSize, &diskGeometry);
 	free(descriptorFileName);
 	
 	// The extent file
-	write_extent_file(extentFileName, arguments);
+	write_extent_file(extentFileName, arguments, &diskGeometry);
 	free(extentFileName);
 	free(imagePathWithoutEnd);
 }
