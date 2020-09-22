@@ -18,9 +18,14 @@ LF: equ 0x0a
 	
 ; void print(text)
 %macro print 1
-	pusha
 	mov si, %1
 	call print_string
+%endmacro
+	
+; void log(text)
+%macro log 1
+	pusha
+	print %1
 	popa
 %endmacro
 	

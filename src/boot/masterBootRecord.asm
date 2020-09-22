@@ -33,8 +33,8 @@ relocate:
 	pusha
 	call clear_screen
 	popa
-	print loadingMessage
-	print relocatingMessage
+	log loadingMessage
+	log relocatingMessage
 	
 	; Far jump to the new address
 	jmp 0x0:start
@@ -59,11 +59,16 @@ start:
 	jmp .no_bootable_partition	; When cx reaches zero
 
 .found_active_partition:
-	; TODO(fkp): Check if the BIOS supports LBA addressing
-
-	print foundPartitionMessage
-	
+	log foundPartitionMessage
 	mov [selectedPartition], bx
+	
+	; Checks if the BIOS supports LBA addressing
+	mov ah, 0x41
+	mov bx, 0x55aa
+	int 0x13
+	jc .lba_not_supported
+	
+	mov bx, [selectedPartition]
 	add bx, PARTITION_LBA_OFFSET
 	xor ax, ax
 	mov es, ax
@@ -79,7 +84,7 @@ start:
 	mov si, [selectedPartition]
 	mov dl, [driveNumber]
 
-	print jumpingToVBRMessage
+	log jumpingToVBRMessage
 	
 	jmp 0x0:VBR_ADDRESS
 
@@ -87,17 +92,24 @@ start:
 	print noPartitionMessage
 	call reboot
 
+.lba_not_supported:
+	print diskErrorMessage
+	call reboot
+
 driveNumber: db 0
 selectedPartition: db 0
 
 loadingMessage: db "PandaOS", CR, LF, 0
-noPartitionMessage: db "No bootable partition", CR, LF, 0
+; noPartitionMessage: db "No bootable partition", CR, LF, 0
+noPartitionMessage: db "No partition", CR, LF, 0
 relocatingMessage: db "Relocating MBR", CR, LF, 0
-foundPartitionMessage: db "Found bootable partition", CR, LF, 0
+; foundPartitionMessage: db "Found bootable partition", CR, LF, 0
+foundPartitionMessage: db "Found partition", CR, LF, 0
 jumpingToVBRMessage: db "Jumping to VBR", CR, LF, 0
 
 %define UTILITY_NO_READ_SECTOR
 %define UTILITY_NO_BOOT_FAILED
+%define UTILITY_NO_RESET_DISK_SYSTEM
 %include "commonUtility-inl.asm"
 %include "biosParameterBlock-inl.asm"
 	

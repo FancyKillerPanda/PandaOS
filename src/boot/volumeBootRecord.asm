@@ -23,7 +23,7 @@ start:
 	mov sp, 0x7c00				; Stack grows from 0x7c00 toward 0x0000
 	sti							; Re-enables interrupts
 
-	print vbrMessage
+	log vbrMessage
 	
 	; Resets the disk system
 	mov dl, [bootDriveNumber]

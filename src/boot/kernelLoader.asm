@@ -4,7 +4,7 @@ bits 16
 %include "macros-inl.asm"
 	
 main:
-	print kernelLoaderMessage
+	log kernelLoaderMessage
 
 	; Copies the boot sector
 	push ds						; Original bootsector is at 0x0000:0x7c00
