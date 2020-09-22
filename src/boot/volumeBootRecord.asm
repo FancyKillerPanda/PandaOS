@@ -23,8 +23,7 @@ start:
 	mov sp, 0x7c00				; Stack grows from 0x7c00 toward 0x0000
 	sti							; Re-enables interrupts
 
-	call clear_screen
-	print loading_msg
+	print vbr_msg
 	
 	; Resets the disk system
 	mov dl, [BootDriveNumber]
@@ -51,6 +50,7 @@ start:
 
 kernel_loader_cluster: dw 0
 kernel_loader_file: db "pkLoaderbin"
+vbr_msg: db "Entered VBR!", CR, LF, 0
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes

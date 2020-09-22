@@ -18,8 +18,10 @@ LF: equ 0x0a
 	
 ; void print(text)
 %macro print 1
+	pusha
 	mov si, %1
 	call print_string
+	popa
 %endmacro
 	
 ; void load_fat()

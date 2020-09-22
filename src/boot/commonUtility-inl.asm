@@ -137,7 +137,7 @@ read_sector:
 
 	
 ; loading_msg: db "Loading PandaOS...", CR, LF, 0
-loading_msg: db "PandaOS", CR, LF, 0
+; loading_msg: db "PandaOS", CR, LF, 0
 ; disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
 disk_error_msg: db "Disk error", CR, LF, 0
 ; reboot_msg: db "Press any key to reboot...", CR, LF, 0

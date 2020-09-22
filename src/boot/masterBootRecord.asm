@@ -39,13 +39,15 @@ start:
 	sti
 	mov [DriveNumber], dl
 
+	call clear_screen
+	
 .find_bootable_partition:
 	mov bx, first_partition
 	mov cx, 4					; We want to look through four partitions
 
 .check_partition:
 	cmp byte [bx], 0x80			; Checks the active bit
-	jnz .found_active_partition
+	je .found_active_partition
 
 	; Tries again
 	add bx, PARTITION_ENTRY_SIZE
@@ -56,9 +58,7 @@ start:
 .found_active_partition:
 	; TODO(fkp): Check if the BIOS supports LBA addressing
 
-	pusha
 	print found_partition_msg
-	popa
 	
 	mov [SelectedPartition], bx
 	add bx, PARTITION_LBA_OFFSET
@@ -76,9 +76,7 @@ start:
 	mov si, [SelectedPartition]
 	mov dl, [DriveNumber]
 
-	pusha
 	print jumping_to_vbr_msg
-	popa
 	
 	jmp 0x0:VBR_ADDRESS
 
@@ -90,14 +88,14 @@ DriveNumber: db 0
 SelectedPartition: db 0
 
 ; no_partition_msg: db "No bootable partition.", CR, LF, 0
-no_partition_msg: db "No partition.", CR, LF, 0
+no_partition_msg: db "No ptn", CR, LF, 0
 ; relocating_msg: db "Relocating MBR", CR, LF, 0
-relocating_msg: db "Reloc", CR, LF, 0
+relocating_msg: db "Rlc", CR, LF, 0
 ; found_partition_msg: db "Found bootable partition", CR, LF, 0
-found_partition_msg: db "Found", CR, LF, 0
+found_partition_msg: db "Fnd", CR, LF, 0
 ; jumping_to_vbr_msg: db "Jumping to VBR", CR, LF, 0
-jumping_to_vbr_msg: db "Jump", CR, LF, 0
-
+jumping_to_vbr_msg: db "Jmp", CR, LF, 0
+	
 ; TODO(fkp): Move this
 ; eax: start location (LBA)
 ; es: segment to read into

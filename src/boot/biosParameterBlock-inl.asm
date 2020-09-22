@@ -8,7 +8,7 @@ bios_parameter_block:
 	OEMName					db "PandaOS "
 	BytesPerSector			dw 512
 	SectorsPerCluster		db 1
-	ReservedSectors			dw 1
+	ReservedSectors			dw 2
 	FATCount				db 2
 	RootDirectoryEntries	dw 224
 	SectorsCount			dw 2880
