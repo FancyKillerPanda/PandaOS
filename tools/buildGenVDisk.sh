@@ -14,7 +14,7 @@ exit_on_error()
 srcDir=$prjRoot/src/genVDisk/
 
 # Flags
-compileFlags="-o genVDisk -I $srcDir -funsigned-char"
+compileFlags="-o genVDisk -I $srcDir -funsigned-char -O3"
 linkFlags=""
 files="$srcDir/*.cpp"
 
