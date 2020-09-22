@@ -30,12 +30,12 @@ LF: equ 0x0a
 	mov es, ax
 
 	; Calculates the offset of the FAT
-	mov ax, word [ReservedSectors]
-	add ax, word [HiddenSectors]
-	adc ax, word [HiddenSectors + 2]
+	mov ax, word [reservedSectors]
+	add ax, word [hiddenSectors]
+	adc ax, word [hiddenSectors + 2]
 
 	; Read all the FAT sectors into memory
-	mov cx, word [SectorsPerFAT]
+	mov cx, word [sectorsPerFAT]
 	xor bx, bx
 
 %%.read_next_fat_sector:
@@ -47,7 +47,7 @@ LF: equ 0x0a
 	pop ax
 	inc ax
 
-	add bx, word [BytesPerSector]
+	add bx, word [bytesPerSector]
 	loopnz %%.read_next_fat_sector ; Continues with the next sector
 %endmacro
 
@@ -61,21 +61,21 @@ LF: equ 0x0a
 	; (number of sectors in root directory * 32) / 512
 	mov ax, BYTES_PER_DIRECTORY_ENTRY
 	xor dx, dx
-	mul word [RootDirectoryEntries]
-	div word [BytesPerSector]
+	mul word [rootDirectoryEntries]
+	div word [bytesPerSector]
 	mov cx, ax
-	mov [root_directory_size], cx
+	mov [rootDirectorySize], cx
 
 	; Calculates the starting sector of the root directory
 	; (number of FATs * sectors per FAT) + number of hidden and reserved sectors
 	xor ax, ax
 	mov al, [FATCount]
-	mov bx, [SectorsPerFAT]
+	mov bx, [sectorsPerFAT]
 	mul bx
-	add ax, word [HiddenSectors]
-	adc ax, word [HiddenSectors + 2]
-	add ax, word [ReservedSectors]
-	mov [root_directory_sector], ax
+	add ax, word [hiddenSectors]
+	adc ax, word [hiddenSectors + 2]
+	add ax, word [reservedSectors]
+	mov [rootDirectorySector], ax
 
 %%.read_next_sector:
 	push cx
@@ -91,8 +91,7 @@ LF: equ 0x0a
 	je %%.found_file
 
 	add bx, word BYTES_PER_DIRECTORY_ENTRY ; Entries are 32 bytes, move to the next one
-	cmp bx, word [BytesPerSector]
-	; jne %%.check_next_entry
+	cmp bx, word [bytesPerSector]
 	jl %%.check_next_entry
 
 	pop ax
@@ -121,15 +120,15 @@ LF: equ 0x0a
 	; Locates the sector
 	; Sector to read = current FAT entry + root directory - 2
 	mov ax, cx
-	add ax, [root_directory_sector]
-	add ax, [root_directory_size]
+	add ax, [rootDirectorySector]
+	add ax, [rootDirectorySize]
 	sub ax, 2
 
 	; Reads the sector
 	push cx
 	call read_sector
 	pop cx
-	add bx, [BytesPerSector]	; Moves pointer to the next sector
+	add bx, [bytesPerSector]	; Moves pointer to the next sector
 
 	; Gets the next sector from the FAT
 	push ds
@@ -231,11 +230,11 @@ try_enable:
 	is_a20_done
 
 .fail:
-	print a20_failed_msg
+	print a20FailedMessage
 	call reboot
 
 .done:
-	print a20_success_msg
+	print a20SuccessMessage
 %endmacro
 	
 %endif

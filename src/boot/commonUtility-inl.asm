@@ -58,14 +58,14 @@ move_cursor:
 %ifndef UTILITY_NO_BOOT_FAILED
 ; void boot_failed()
 boot_failed:
-	print disk_error_msg
+	print diskErrorMessage
 	call reboot
 %endif
 	
 %ifndef UTILITY_NO_REBOOT
 ; void reboot()
 reboot:
-	print reboot_msg
+	print rebootMessage
 
 	; Waits for a key to be pressed
 	xor ax, ax
@@ -98,14 +98,14 @@ read_sector:
 	; Cylinder = (LBA / sectors per track) / number of heads
 	; Sector = (LBA % sectors per track) + 1
 	; Head = (LBA / sectors per track) % number of heads
-	mov bx, [SectorsPerTrack]
+	mov bx, [sectorsPerTrack]
 	xor dx, dx
 	div bx						; Quotient: ax (LBA / sectors per track)
 	; Remainder: dx (LBA % sectors per track)
 	inc dx
 	mov cl, dl
 
-	mov bx, [HeadsCount]
+	mov bx, [headsCount]
 	xor dx, dx
 	div bx						; Quotient: ax (cylinder)
 	; Remainder: dx (head)
@@ -116,7 +116,7 @@ read_sector:
 	; mov ah, 0x02				; Subfunction two
 	; mov al, 0x01				; Reads one sector
 	mov ax, 0x0201
-	mov dl, [BootDriveNumber]
+	mov dl, [bootDriveNumber]
 	pop bx						; Restores the data buffer offset
 	int 0x13
 	jc .read_failed
@@ -148,14 +148,14 @@ read_sector:
 extended_read_lba:
 	push ax
 	push si
-	cmp [disk_address_packet.sectors_to_read], word MAX_SECTORS_PER_READ
+	cmp [diskAddressPacket.sectorsToRead], word MAX_SECTORS_PER_READ
 	jg .read_failed
 
 .initialise_dap:
-	mov [disk_address_packet.start_low], eax
-	mov [disk_address_packet.segment_to_read_into], es
-	mov [disk_address_packet.offset_to_read_into], di
-	mov ax, disk_address_packet
+	mov [diskAddressPacket.startLow], eax
+	mov [diskAddressPacket.segmentToReadInto], es
+	mov [diskAddressPacket.offsetToReadInto], di
+	mov ax, diskAddressPacket
 	mov si, ax
 
 .read:
@@ -168,31 +168,31 @@ extended_read_lba:
 	ret
 
 .read_failed:
-	print disk_error_msg
+	print diskErrorMessage
 	call reboot
 
-disk_address_packet:
+diskAddressPacket:
 	.size:					db 16
 	.unused:				db 0
-	.sectors_to_read:		dw 1
-	.offset_to_read_into:	dw 0
-	.segment_to_read_into:	dw 0
-	.start_low:				dd 0
-	.start_high:			dd 0
+	.sectorsToRead:			dw 1
+	.offsetToReadInto:		dw 0
+	.segmentToReadInto:		dw 0
+	.startLow:				dd 0
+	.startHigh:				dd 0
 %endif
 	
 	
-%ifndef UTILITY_NO_DISK_ERROR_MSG
-; disk_error_msg: db "Error: Failed to load disk!", CR, LF, 0
-disk_error_msg: db "Disk error", CR, LF, 0
+%ifndef UTILITY_NO_DISKERRORMESSAGE
+; diskErrorMessage: db "Error: Failed to load disk!", CR, LF, 0
+diskErrorMessage: db "Disk error", CR, LF, 0
 %endif
 
 %ifndef UTILITY_NO_REBOOT
-; reboot_msg: db "Press any key to reboot...", CR, LF, 0
-reboot_msg: db "Reboot?", CR, LF, 0
+; rebootMessage: db "Press any key to reboot...", CR, LF, 0
+rebootMessage: db "Reboot?", CR, LF, 0
 %endif
 	
-root_directory_size: dw 0
-root_directory_sector: dw 0
+rootDirectorySize: dw 0
+rootDirectorySector: dw 0
 
 %endif

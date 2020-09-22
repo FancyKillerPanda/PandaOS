@@ -9,7 +9,7 @@ PARTITION_LBA_OFFSET: equ 0x08
 	
 org MBR_RELOCATED_ADDRESS
 	
-	%include "macros-inl.asm"
+%include "macros-inl.asm"
 	
 relocate:
 	; Clears the initial registers
@@ -29,7 +29,12 @@ relocate:
 	rep movsb
 	pop ds
 
-	print relocating_msg
+	; Logging
+	pusha
+	call clear_screen
+	popa
+	print loadingMessage
+	print relocatingMessage
 	
 	; Far jump to the new address
 	jmp 0x0:start
@@ -37,12 +42,10 @@ relocate:
 start:
 	; We are here after the relocation
 	sti
-	mov [DriveNumber], dl
+	mov [driveNumber], dl
 
-	call clear_screen
-	
 .find_bootable_partition:
-	mov bx, first_partition
+	mov bx, firstPartition
 	mov cx, 4					; We want to look through four partitions
 
 .check_partition:
@@ -58,96 +61,96 @@ start:
 .found_active_partition:
 	; TODO(fkp): Check if the BIOS supports LBA addressing
 
-	print found_partition_msg
+	print foundPartitionMessage
 	
-	mov [SelectedPartition], bx
+	mov [selectedPartition], bx
 	add bx, PARTITION_LBA_OFFSET
 	xor ax, ax
 	mov es, ax
 	mov eax, [bx]
 	mov di, VBR_ADDRESS
-	mov dl, [DriveNumber]
+	mov dl, [driveNumber]
 
 	; Reads a single sector
 	call extended_read_lba
 
 .jump_to_vbr:
 	; Makes the jump
-	mov si, [SelectedPartition]
-	mov dl, [DriveNumber]
+	mov si, [selectedPartition]
+	mov dl, [driveNumber]
 
-	print jumping_to_vbr_msg
+	print jumpingToVBRMessage
 	
 	jmp 0x0:VBR_ADDRESS
 
 .no_bootable_partition:
-	print no_partition_msg
+	print noPartitionMessage
 	call reboot
 
-DriveNumber: db 0
-SelectedPartition: db 0
+driveNumber: db 0
+selectedPartition: db 0
 
-loading_msg: db "PandaOS", CR, LF, 0
-no_partition_msg: db "No bootable partition", CR, LF, 0
-relocating_msg: db "Relocating MBR", CR, LF, 0
-found_partition_msg: db "Found bootable partition", CR, LF, 0
-jumping_to_vbr_msg: db "Jumping to VBR", CR, LF, 0
+loadingMessage: db "PandaOS", CR, LF, 0
+noPartitionMessage: db "No bootable partition", CR, LF, 0
+relocatingMessage: db "Relocating MBR", CR, LF, 0
+foundPartitionMessage: db "Found bootable partition", CR, LF, 0
+jumpingToVBRMessage: db "Jumping to VBR", CR, LF, 0
 
 %define UTILITY_NO_READ_SECTOR
 %define UTILITY_NO_BOOT_FAILED
 %include "commonUtility-inl.asm"
 %include "biosParameterBlock-inl.asm"
 	
-mbr_code_padding: times 446 - ($ - $$) db 0
+MBRCodePadding: times 446 - ($ - $$) db 0
 
 ; The four partitions
-first_partition:
+firstPartition:
 	.attributes:		db 0
-	.head_begin:		db 0
-	.sector_begin:		db 0
-	.cylinder_begin:	db 0
+	.headBegin:		db 0
+	.sectorBegin:		db 0
+	.cylinderBegin:	db 0
 	.type:				db 0
-	.head_end:			db 0
-	.sector_end:		db 0
-	.cylinder_end:		db 0
-	.lba_address:		dd 0
-	.number_of_sectors:	dd 0
+	.headEnd:			db 0
+	.sectorEnd:		db 0
+	.cylinderEnd:		db 0
+	.LBAAddress:		dd 0
+	.numberOfSectors:	dd 0
 	
-second_partition:
+secondPartition:
 	.attributes:		db 0
-	.head_begin:		db 0
-	.sector_begin:		db 0
-	.cylinder_begin:	db 0
+	.headBegin:		db 0
+	.sectorBegin:		db 0
+	.cylinderBegin:	db 0
 	.type:				db 0
-	.head_end:			db 0
-	.sector_end:		db 0
-	.cylinder_end:		db 0
-	.lba_address:		dd 0
-	.number_of_sectors:	dd 0
+	.headEnd:			db 0
+	.sectorEnd:		db 0
+	.cylinderEnd:		db 0
+	.LBAAddress:		dd 0
+	.numberOfSectors:	dd 0
 	
-third_partition:
+thirdPartition:
 	.attributes:		db 0
-	.head_begin:		db 0
-	.sector_begin:		db 0
-	.cylinder_begin:	db 0
+	.headBegin:		db 0
+	.sectorBegin:		db 0
+	.cylinderBegin:	db 0
 	.type:				db 0
-	.head_end:			db 0
-	.sector_end:		db 0
-	.cylinder_end:		db 0
-	.lba_address:		dd 0
-	.number_of_sectors:	dd 0
+	.headEnd:			db 0
+	.sectorEnd:		db 0
+	.cylinderEnd:		db 0
+	.LBAAddress:		dd 0
+	.numberOfSectors:	dd 0
 	
-fourth_partition:
+fourthPartition:
 	.attributes:		db 0
-	.head_begin:		db 0
-	.sector_begin:		db 0
-	.cylinder_begin:	db 0
+	.headBegin:		db 0
+	.sectorBegin:		db 0
+	.cylinderBegin:	db 0
 	.type:				db 0
-	.head_end:			db 0
-	.sector_end:		db 0
-	.cylinder_end:		db 0
-	.lba_address:		dd 0
-	.number_of_sectors:	dd 0
+	.headEnd:			db 0
+	.sectorEnd:		db 0
+	.cylinderEnd:		db 0
+	.LBAAddress:		dd 0
+	.numberOfSectors:	dd 0
 	
 end:
 	db 0x55, 0xaa

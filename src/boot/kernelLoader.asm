@@ -4,25 +4,25 @@ bits 16
 %include "macros-inl.asm"
 	
 main:
-	print kernel_loader_msg
+	print kernelLoaderMessage
 
 	; Copies the boot sector
 	push ds						; Original bootsector is at 0x0000:0x7c00
 	xor ax, ax
 	mov ds, ax
 	mov si, 0x7c03				; Actual data starts at 0x7c03
-	mov di, bios_parameter_block
+	mov di, biosParameterBlock
 	mov cx, 34					; The size of the boot sector
 	rep movsb
 	pop ds
 	
 	; Locates and reads the kernel file
-	find_file_on_disk kernel_file, KERNEL_SEGMENT
-	mov [kernel_file_cluster], ax
-	read_file_from_disk [kernel_file_cluster], KERNEL_SEGMENT
+	find_file_on_disk kernelFile, KERNEL_SEGMENT
+	mov [kernelFileCluster], ax
+	read_file_from_disk [kernelFileCluster], KERNEL_SEGMENT
 
 	; Resets the disk system
-	mov dl, [BootDriveNumber]
+	mov dl, [bootDriveNumber]
 	call reset_disk_system
 	
 	; Tries to enable to A20 line
@@ -63,8 +63,8 @@ main:
 	cli
 	
 	; Tells the CPU where the GDT table is and its size
-	lgdt [gdt_entry]
-	lidt [idt_entry]
+	lgdt [gdtEntry]
+	lidt [idtEntry]
 	
 	; Enables protected mode
 	mov eax, cr0
@@ -95,11 +95,11 @@ main:
 	; Shouldn't get here
 	call boot_failed
 	
-gdt_entry:
+gdtEntry:
 	dw 24
 	dd 2048
 
-idt_entry:
+idtEntry:
 	dw 2048
 	dd 0
 	
@@ -108,10 +108,10 @@ idt_entry:
 %include "commonUtility-inl.asm"
 %include "loaderUtility-inl.asm"
 
-kernel_loader_msg: db "Info: PandaOS kernel loader...", CR, LF, 0
-a20_failed_msg: db "Error: Failed to enable A20 line!", CR, LF, 0
-a20_success_msg: db "Info: Enabled A20 line!", CR, LF, 0
-jumping_msg: db "Info: Jumping to the kernel!", CR, LF, 0
+kernelLoaderMessage: db "Info: PandaOS kernel loader...", CR, LF, 0
+a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
+a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
+jumpingMessage: db "Info: Jumping to the kernel!", CR, LF, 0
 
-kernel_file: db "pKernel bin"
-kernel_file_cluster: dw 0
+kernelFile: db "pKernel bin"
+kernelFileCluster: dw 0

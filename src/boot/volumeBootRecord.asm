@@ -12,7 +12,7 @@ main:
 	
 start:
 	cli							; Disables interrupts
-	mov [BootDriveNumber], dl	; Save the drive we booted from
+	mov [bootDriveNumber], dl	; Save the drive we booted from
 	
 	; Clears registers
 	xor ax, ax
@@ -23,21 +23,21 @@ start:
 	mov sp, 0x7c00				; Stack grows from 0x7c00 toward 0x0000
 	sti							; Re-enables interrupts
 
-	print vbr_msg
+	print vbrMessage
 	
 	; Resets the disk system
-	mov dl, [BootDriveNumber]
+	mov dl, [bootDriveNumber]
 	call reset_disk_system
 	jc boot_failed
 
 	; Finds the second-stage bootloader file
-	find_file_on_disk kernel_loader_file, KERNEL_LOADER_SEGMENT
-	mov [kernel_loader_cluster], ax
+	find_file_on_disk kernelLoaderFile, KERNEL_LOADER_SEGMENT
+	mov [kernelLoaderCluster], ax
 
 	load_fat
 
 	; Reads the second-stage bootloader file
-	read_file_from_disk [kernel_loader_cluster], KERNEL_LOADER_SEGMENT
+	read_file_from_disk [kernelLoaderCluster], KERNEL_LOADER_SEGMENT
 
 	; Loads the second-stage bootloader
 	mov ax, KERNEL_LOADER_SEGMENT
@@ -50,9 +50,9 @@ start:
 %define UTILITY_NO_EXTENDED_READ_LBA
 %include "commonUtility-inl.asm"
 
-kernel_loader_cluster: dw 0
-kernel_loader_file: db "pkLoaderbin"
-vbr_msg: db "Entered VBR!", CR, LF, 0
+kernelLoaderCluster: dw 0
+kernelLoaderFile: db "pkLoaderbin"
+vbrMessage: db "Entered VBR!", CR, LF, 0
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes

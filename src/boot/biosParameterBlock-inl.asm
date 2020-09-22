@@ -3,28 +3,28 @@
 %ifndef BIOS_PARAMETER_BLOCK_INL_ASM
 %define BIOS_PARAMETER_BLOCK_INL_ASM
 	
-bios_parameter_block:
+biosParameterBlock:
 	; BIOS parameter block
 	OEMName					db "PandaOS "
-	BytesPerSector			dw 512
-	SectorsPerCluster		db 1
-	ReservedSectors			dw 2
+	bytesPerSector			dw 512
+	sectorsPerCluster		db 1
+	reservedSectors			dw 2
 	FATCount				db 2
-	RootDirectoryEntries	dw 224
-	SectorsCount			dw 2880
-	MediaDescriptor			db 0xf0
-	SectorsPerFAT			dw 9
-	SectorsPerTrack			dw 63
-	HeadsCount				dw 2
-	HiddenSectors			dd 0
+	rootDirectoryEntries	dw 224
+	sectorsCount			dw 2880
+	mediaDescriptor			db 0xf0
+	sectorsPerFAT			dw 9
+	sectorsPerTrack			dw 63
+	headsCount				dw 2
+	hiddenSectors			dd 0
 
 	; Extended BIOS parameter block
-	TotalSectorsCount		dd 0
-	BootDriveNumber			db 0
-	Reserved				db 0
-	BootSignature			db 0x29
-	VolumeID				dd 0
-	VolumeLabel				db "PandaVolume"
-	FilesystemType			db "FAT16   "
+	totalSectorsCount		dd 0
+	bootDriveNumber			db 0
+	reserved				db 0
+	bootSignature			db 0x29
+	volumeID				dd 0
+	volumeLabel				db "PandaVolume"
+	filesystemType			db "FAT16   "
 
 %endif
