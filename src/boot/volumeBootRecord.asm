@@ -45,7 +45,9 @@ start:
 	mov ds, ax
 	jmp KERNEL_LOADER_SEGMENT:0x00
 
-	
+
+%define UTILITY_NO_CLEAR_SCREEN
+%define UTILITY_NO_EXTENDED_READ_LBA
 %include "commonUtility-inl.asm"
 
 kernel_loader_cluster: dw 0

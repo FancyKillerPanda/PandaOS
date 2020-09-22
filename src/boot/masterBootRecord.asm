@@ -87,57 +87,16 @@ start:
 DriveNumber: db 0
 SelectedPartition: db 0
 
-; no_partition_msg: db "No bootable partition.", CR, LF, 0
-no_partition_msg: db "No ptn", CR, LF, 0
-; relocating_msg: db "Relocating MBR", CR, LF, 0
-relocating_msg: db "Rlc", CR, LF, 0
-; found_partition_msg: db "Found bootable partition", CR, LF, 0
-found_partition_msg: db "Fnd", CR, LF, 0
-; jumping_to_vbr_msg: db "Jumping to VBR", CR, LF, 0
-jumping_to_vbr_msg: db "Jmp", CR, LF, 0
-	
-; TODO(fkp): Move this
-; eax: start location (LBA)
-; es: segment to read into
-; di: offset to read into
-; dl: boot drive number
-extended_read_lba:
-	push ax
-	push si
-	cmp [disk_address_packet.sectors_to_read], word MAX_SECTORS_PER_READ
-	jg .read_failed
+loading_msg: db "PandaOS", CR, LF, 0
+no_partition_msg: db "No bootable partition", CR, LF, 0
+relocating_msg: db "Relocating MBR", CR, LF, 0
+found_partition_msg: db "Found bootable partition", CR, LF, 0
+jumping_to_vbr_msg: db "Jumping to VBR", CR, LF, 0
 
-.initialise_dap:
-	mov [disk_address_packet.start_low], eax
-	mov [disk_address_packet.segment_to_read_into], es
-	mov [disk_address_packet.offset_to_read_into], di
-	mov ax, disk_address_packet
-	mov si, ax
-
-.read:
-	mov ah, 0x42
-	int 0x13
-	jc .read_failed
-
-	pop si
-	pop ax
-	ret
-
-.read_failed:
-	print disk_error_msg
-	call reboot
-
-disk_address_packet:
-	.size:					db 16
-	.unused:				db 0
-	.sectors_to_read:		dw 1
-	.offset_to_read_into:	dw 0
-	.segment_to_read_into:	dw 0
-	.start_low:				dd 0
-	.start_high:			dd 0
-	
-	%include "biosParameterBlock-inl.asm"
-	%include "commonUtility-inl.asm"
+%define UTILITY_NO_READ_SECTOR
+%define UTILITY_NO_BOOT_FAILED
+%include "commonUtility-inl.asm"
+%include "biosParameterBlock-inl.asm"
 	
 mbr_code_padding: times 446 - ($ - $$) db 0
 
