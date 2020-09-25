@@ -3,6 +3,13 @@
 #if !defined(SYSTEM_HPP)
 #define SYSTEM_HPP
 
+#if !defined(__clang__)
+#error Clang is the only compiler supported right now...
+#endif
+
+#define PACKED_STRUCT __attribute__((packed))
+#define INTERRUPT_FUNCTION __attribute__((interrupt))
+
 // Common types
 using s8 = signed char;
 using s16 = short;

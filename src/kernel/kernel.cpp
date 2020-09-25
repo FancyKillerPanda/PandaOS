@@ -3,18 +3,18 @@
 #include "system.hpp"
 #include "display.hpp"
 #include "log.hpp"
+#include "interrupts/interruptDescriptorTable.hpp"
+#include "interrupts/handleInterrupts.hpp"
 
 extern "C" void start_kernel()
 {
+	init_interrupt_descriptor_table();
+	asm volatile("sti" ::);
+	
 	// clear_screen();
 	move_cursor(8, 0); // This is because the bootloader logged some text
 	log_info("Starting kernel...");
 	log_init();
 
-	print("\n");
-	log_info("This is information.");
-	log_warning("This is a warning.");
-	log_error("This is an error.");
-	
 	while (true);
 }
