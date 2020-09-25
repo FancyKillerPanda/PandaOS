@@ -113,4 +113,5 @@ void init_interrupt_descriptor_table()
 	interruptDescriptorTablePointer[1] = interruptDescriptorTableAddress >> 16;
 
 	asm volatile("lidt %0" : : "m"(interruptDescriptorTablePointer));
+	asm volatile("sti" ::);
 }

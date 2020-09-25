@@ -9,7 +9,6 @@
 extern "C" void start_kernel()
 {
 	init_interrupt_descriptor_table();
-	asm volatile("sti" ::);
 	
 	// clear_screen();
 	move_cursor(8, 0); // This is because the bootloader logged some text

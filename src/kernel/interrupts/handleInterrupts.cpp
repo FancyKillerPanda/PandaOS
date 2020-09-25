@@ -10,7 +10,7 @@
 // System timer
 INTERRUPT_FUNCTION void handleInterruptRequest0(InterruptFrame* frame)
 {
-	log_info("System timer interrupt (0).");
+//	log_info("System timer interrupt (0).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
 
@@ -18,6 +18,11 @@ INTERRUPT_FUNCTION void handleInterruptRequest0(InterruptFrame* frame)
 INTERRUPT_FUNCTION void handleInterruptRequest1(InterruptFrame* frame)
 {
 	log_info("Keyboard interrupt (1).");
+
+	u8 scancode = port_in_8(0x60);
+	u8 status = port_in_8(0x61);
+	port_out_8(0x61, status | 0x80); // Toggles the high bit, signals that we want more
+
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
 
@@ -67,54 +72,54 @@ INTERRUPT_FUNCTION void handleInterruptRequest7(InterruptFrame* frame)
 INTERRUPT_FUNCTION void handleInterruptRequest8(InterruptFrame* frame)
 {
 	log_info("Motherboard real-time clock interrupt (8).");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Works with IRQ2?
 INTERRUPT_FUNCTION void handleInterruptRequest9(InterruptFrame* frame)
 {
 	log_info("Interrupt request 9.");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Likely available
 INTERRUPT_FUNCTION void handleInterruptRequest10(InterruptFrame* frame)
 {
 	log_info("Interrupt request 10.");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Likely available
 INTERRUPT_FUNCTION void handleInterruptRequest11(InterruptFrame* frame)
 {
 	log_info("Interrupt request 11.");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Mouse / likely available
 INTERRUPT_FUNCTION void handleInterruptRequest12(InterruptFrame* frame)
 {
 	log_info("Interrupt request 12.");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Numeric coprocessor
 INTERRUPT_FUNCTION void handleInterruptRequest13(InterruptFrame* frame)
 {
 	log_info("Numeric coprocessor interrupt (13).");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Hard disk drive
 INTERRUPT_FUNCTION void handleInterruptRequest14(InterruptFrame* frame)
 {
 	log_info("Hard disk drive interrupt (14).");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
 
 // Likely available
 INTERRUPT_FUNCTION void handleInterruptRequest15(InterruptFrame* frame)
 {
 	log_info("Interrupt request 15.");
-	SEND_END_OF_INTERRUPT_SIGNAL();
+	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
