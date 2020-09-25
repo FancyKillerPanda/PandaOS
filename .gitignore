@@ -1,2 +1,4 @@
 bin/
 *.ini
+TAGS
+compile_flags.txt
