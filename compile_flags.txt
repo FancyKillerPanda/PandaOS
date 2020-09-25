@@ -1,9 +1,0 @@
--ffreestanding
--nostdinc
--nostdinc++
--nostdlib
--funsigned-char
--I
-./src/kernel
--I
-./src/kernel/system
