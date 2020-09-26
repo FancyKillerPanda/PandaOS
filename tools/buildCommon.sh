@@ -8,7 +8,8 @@ BLUE="\033[0;36m"
 DEFAULT_COLOUR="\033[0m"
 
 # Directories
-prjRoot=$PWD/..
+originalDir=$PWD
+prjRoot=$scriptDir/..
 binDir=$prjRoot/bin
 
 # Argument one is the colour (ANSI escape sequence), argument two is

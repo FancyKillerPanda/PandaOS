@@ -1,7 +1,8 @@
 @echo off
 rem  ===== Date Created: 03 September, 2020 ===== 
 
-set prjRoot=%CD%\..
+set scriptDir=%~dp0
+set prjRoot=%scriptDir%\..
 set debug=false
 
 if "%~1" == "-debug" set debug=true

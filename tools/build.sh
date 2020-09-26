@@ -1,13 +1,15 @@
 #!/bin/bash
 #  ===== Date Created: 03 September, 2020 ===== 
 
-source ./buildCommon.sh
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
+source $scriptDir/buildCommon.sh
 
 # Exits the script because of an error
 exit_on_error()
 {
 	print $RED "\nBuild failed!\n"
 	popd
+	cd $originalDir
 	exit 1
 }
 
@@ -49,4 +51,5 @@ $binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
 print $GREEN "\nBuild succeeded!\n"
 
 popd > /dev/null
+cd $originalDir
 exit 0
