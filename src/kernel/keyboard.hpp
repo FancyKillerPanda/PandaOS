@@ -16,7 +16,7 @@ enum class KeyboardRegion
 namespace Key
 {
 
-enum KeyCode
+enum Code
 {
 	// Not really keys, but ok...
 	Error, None,
@@ -43,12 +43,16 @@ enum KeyCode
 	
 	LeftParen, RightParen, LeftBrace, RightBrace,
 	LeftSquareBracket, RightSquareBracket, LeftAngleBracket, RightAngleBracket,
+
+	// Keep at the end
+	Count,
 };
 
 }
 
-// TODO(fkp): Modifiers like shift
-Key::KeyCode convert_scancode_to_keycode(u8 scancode, bool shiftPressed, KeyboardRegion region);
-u8 convert_keycode_to_character(Key::KeyCode keycode);
+extern bool keysPressed[(usize) Key::Count];
+
+Key::Code convert_scancode_to_keycode(u8 scancode, bool shiftPressed, KeyboardRegion region);
+u8 convert_keycode_to_character(Key::Code keycode);
 
 #endif

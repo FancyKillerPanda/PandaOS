@@ -24,23 +24,24 @@ INTERRUPT_FUNCTION void handleInterruptRequest1(InterruptFrame* frame)
 	u8 scancode = port_in_8(0x60);
 	u8 status = port_in_8(0x61);
 	port_out_8(0x61, status | 0x80); // Toggles the high bit, signals that we want more
-
-	static bool shiftPressed = false;
 	
-	if (scancode == 0x2a)
+	Key::Code keycode;
+		
+	if (keysPressed[Key::LeftShift] || keysPressed[Key::RightShift])
 	{
-		shiftPressed = true;
+		keycode = convert_scancode_to_keycode(scancode, true, KeyboardRegion::EnglishUS);
 	}
-	else if (scancode == 0xaa)
+	else
 	{
-		shiftPressed = false;
+		keycode = convert_scancode_to_keycode(scancode, false, KeyboardRegion::EnglishUS);
 	}
+	
+	keysPressed[keycode] = !(scancode & 0x80);
 
-	if (!(scancode & 0x80))
+	// TODO(fkp): Get rid of this when we have a proper event system
+	if (keysPressed[keycode])
 	{
-		Key::KeyCode keycode = convert_scancode_to_keycode(scancode, shiftPressed, KeyboardRegion::EnglishUS);
-		u8 character = convert_keycode_to_character(keycode);
-		print_char(character);
+		print_char(convert_keycode_to_character(keycode));
 	}
 	
 	SEND_END_OF_INTERRUPT_SIGNAL();

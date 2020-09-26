@@ -2,9 +2,10 @@
 
 #include "keyboard.hpp"
 
+bool keysPressed[(usize)Key::Count] {};
 using namespace Key;
 
-constexpr KeyCode usEnglishKeymapRegular[] = {
+constexpr Code usEnglishKeymapRegular[] = {
 	Error, Escape,
 	_1, _2, _3, _4, _5, _6, _7, _8, _9, _0,
 	Minus, Equal, Backspace, Tab,
@@ -19,7 +20,7 @@ constexpr KeyCode usEnglishKeymapRegular[] = {
 	RightArrow, None, End, DownArrow, PageDown, Insert, Delete, None
 };
 
-constexpr KeyCode usEnglishKeymapShifted[] = {
+constexpr Code usEnglishKeymapShifted[] = {
 	Error, Escape,
 	Bang, At, Hash, Dollar, Percent, Caret, Ampersand, Asterisk, LeftParen, RightParen,
 	Underscore, Plus, Backspace, Tab,
@@ -34,7 +35,7 @@ constexpr KeyCode usEnglishKeymapShifted[] = {
 	RightArrow, None, End, DownArrow, PageDown, Insert, Delete, None
 };
 
-Key::KeyCode convert_scancode_to_keycode(u8 scancode, bool shiftPressed, KeyboardRegion region)
+Key::Code convert_scancode_to_keycode(u8 scancode, bool shiftPressed, KeyboardRegion region)
 {
 	switch (region)
 	{
@@ -52,7 +53,7 @@ Key::KeyCode convert_scancode_to_keycode(u8 scancode, bool shiftPressed, Keyboar
 	}
 }
 
-u8 convert_keycode_to_character(Key::KeyCode keycode)
+u8 convert_keycode_to_character(Key::Code keycode)
 {
 	switch (keycode)
 	{
