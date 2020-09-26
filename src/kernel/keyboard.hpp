@@ -25,7 +25,7 @@ enum KeyCode
 	CapsLock, ScrollLock, NumLock,
 
 	_1, _2, _3, _4, _5, _6, _7, _8, _9, _0,
-
+	a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
 	A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 
 	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
@@ -39,7 +39,7 @@ enum KeyCode
 	Comma, Period, ForwardSlash, Backslash,
 	Plus, Minus, Equal, Underscore, Question, Bang,
 	Ampersand, Percent, Dollar, Hash, At, Asterisk, Caret,
-	Colon, SemiColon, SingleQuote, DoubleQuote, Pipe, Backtick,
+	Colon, SemiColon, SingleQuote, DoubleQuote, Pipe, Backtick, Tilde,
 	
 	LeftParen, RightParen, LeftBrace, RightBrace,
 	LeftSquareBracket, RightSquareBracket, LeftAngleBracket, RightAngleBracket,
@@ -48,7 +48,7 @@ enum KeyCode
 }
 
 // TODO(fkp): Modifiers like shift
-Key::KeyCode convert_scancode_to_keycode(u8 scancode, KeyboardRegion region);
+Key::KeyCode convert_scancode_to_keycode(u8 scancode, bool shiftPressed, KeyboardRegion region);
 u8 convert_keycode_to_character(Key::KeyCode keycode);
 
 #endif
