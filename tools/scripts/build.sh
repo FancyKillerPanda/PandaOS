@@ -19,7 +19,7 @@ bootDir=$srcDir/boot
 kernelDir=$srcDir/kernel
 
 if [ ! -e $binDir/genVDisk/genVDisk ]; then
-	$prjRoot/tools/buildGenVDisk.sh
+	$prjRoot/tools/scripts/buildGenVDisk.sh
 fi
 
 # Flags
