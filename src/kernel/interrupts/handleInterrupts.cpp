@@ -3,6 +3,8 @@
 #include "handleInterrupts.hpp"
 #include "log.hpp"
 #include "io.hpp"
+#include "keyboard.hpp"
+#include "display.hpp"
 
 #define SEND_END_OF_INTERRUPT_SIGNAL() port_out_8(0x20, 0x20)
 #define SEND_END_OF_INTERRUPT_SIGNAL_EXT() port_out_8(0xa0, 0x20); port_out_8(0x20, 0x20);
@@ -10,19 +12,23 @@
 // System timer
 INTERRUPT_FUNCTION void handleInterruptRequest0(InterruptFrame* frame)
 {
-//	log_info("System timer interrupt (0).");
+	// log_info("System timer interrupt (0).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
 
 // Keyboard
 INTERRUPT_FUNCTION void handleInterruptRequest1(InterruptFrame* frame)
 {
-	log_info("Keyboard interrupt (1).");
+	// log_info("Keyboard interrupt (1).");
 
 	u8 scancode = port_in_8(0x60);
 	u8 status = port_in_8(0x61);
 	port_out_8(0x61, status | 0x80); // Toggles the high bit, signals that we want more
 
+	Key::KeyCode keycode = convert_scancode_to_keycode(scancode, US_ENGLISH);
+	u8 character = convert_keycode_to_character(keycode);
+	print_char(character);
+	
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
 
