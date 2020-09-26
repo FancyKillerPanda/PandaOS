@@ -25,7 +25,7 @@ INTERRUPT_FUNCTION void handleInterruptRequest1(InterruptFrame* frame)
 	u8 status = port_in_8(0x61);
 	port_out_8(0x61, status | 0x80); // Toggles the high bit, signals that we want more
 
-	Key::KeyCode keycode = convert_scancode_to_keycode(scancode, US_ENGLISH);
+	Key::KeyCode keycode = convert_scancode_to_keycode(scancode, KeyboardRegion::EnglishUS);
 	u8 character = convert_keycode_to_character(keycode);
 	print_char(character);
 	

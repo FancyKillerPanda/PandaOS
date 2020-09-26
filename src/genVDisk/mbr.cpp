@@ -25,7 +25,7 @@ bool serialise_partition(u8* into, const DiskGeometry* geometry,
 {
 	switch (type)
 	{
-	case PARTITION_FAT16_CHS:
+	case PartitionType::Fat16Chs:
 	{
 		CHS chsBegin = convert_lba_to_chs(lbaBaseOffset, geometry);
 		CHS chsEnd = convert_lba_to_chs(lbaBaseOffset + numberOfSectors, geometry);
@@ -87,7 +87,7 @@ bool add_partition_to_mbr(MBR* mbr, const DiskGeometry* geometry, usize numberOf
 
 	return serialise_partition(mbr->data + partitionOffset, geometry,
 							   numberOfSectors, partitionLBAOffset,
-							   PARTITION_FAT16_CHS, PARTITION_BOOTABLE);
+							   PartitionType::Fat16Chs, PartitionStatus::Bootable);
 }
 	
 CHS convert_lba_to_chs(usize lba, const DiskGeometry* geometry)

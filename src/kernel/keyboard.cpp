@@ -24,7 +24,7 @@ Key::KeyCode convert_scancode_to_keycode(u8 scancode, KeyboardRegion region)
 {
 	switch (region)
 	{
-	case US_ENGLISH:
+	case KeyboardRegion::EnglishUS:
 	{
 	} return usEnglishKeymapRegular[scancode];
 	}

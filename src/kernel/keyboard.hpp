@@ -5,9 +5,9 @@
 
 #include "system.hpp"
 
-enum KeyboardRegion
+enum class KeyboardRegion
 {
-	US_ENGLISH,
+	EnglishUS,
 };
 
 // NOTE(fkp): This is a namespace/enum instead of an enum class

@@ -6,17 +6,17 @@
 #include "utility.hpp"
 #include "geometry.hpp"
 
-enum PartitionType
+enum class PartitionType : u8
 {
-	PARTITION_EMPTY = 0x00,
-	PARTITION_FAT16_CHS = 0x06,
+	Empty = 0x00,
+	Fat16Chs = 0x06,
 };
 
-enum PartitionStatus
+enum class PartitionStatus : u8
 {
-	PARTITION_INACTIVE = 0x00,
-	PARTITION_INVALID = 0x7f,
-	PARTITION_BOOTABLE = 0x80,
+	Inactive = 0x00,
+	Invalid = 0x7f,
+	Bootable = 0x80,
 };
 
 struct MBR
