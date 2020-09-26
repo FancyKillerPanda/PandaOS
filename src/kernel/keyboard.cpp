@@ -2,22 +2,6 @@
 
 #include "keyboard.hpp"
 
-constexpr u8 usEnglishKeymap[] = {
-	/* error */ 0,
-
-	/* escape */ 0,
-
-	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', /* backspace */ 0,
-	/* tab */ 0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
-	/* enter */ 0, /* left control */ 0,
-	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'',
-	'`', /* left shift */ 0, '\\',
-	'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', /* right shift */ 0,
-	'*', /* left alt */ 0, ' ', /* caps lock */ 0,
-	/* f1 - f10 */ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	/* num lock */ 0, /* scroll lock */ 0, /* home */ 0, 
-};
-
 using namespace Key;
 
 // TODO(fkp): Shift-ed version
