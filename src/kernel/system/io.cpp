@@ -35,5 +35,10 @@ void port_out_16(u16 port, u16 data)
 
 void port_out_32(u16 port, u32 data)
 {
-	asm volatile("outl %0, %1" : : "a"(data), "dN"(port));	
+	asm volatile("outl %0, %1" : : "a"(data), "dN"(port));
+}
+
+void port_wait()
+{
+	port_out_8(0x80, 0);
 }

@@ -31,16 +31,27 @@ void init_interrupt_descriptor_table()
 	constexpr u8 slavePICOffset = 0x28;
 	constexpr u8 mode8086 = 0x01;
 	
+	// NOTE(fkp): The waits make sure this doesn't happen too quickly
 	port_out_8(masterPICCommandAddress, initSequenceStart);
+	port_wait();
 	port_out_8(slavePICCommandAddress, initSequenceStart);
+	port_wait();
 	port_out_8(masterPICDataAddress, masterPICOffset);
+	port_wait();
 	port_out_8(slavePICDataAddress, slavePICOffset);
+	port_wait();
 	port_out_8(masterPICDataAddress, 0x04); // Tells master there's a slave on IRQ2
+	port_wait();
 	port_out_8(slavePICDataAddress, 0x02); // Tells slave its cascade identity
+	port_wait();
 	port_out_8(masterPICDataAddress, mode8086);
+	port_wait();
 	port_out_8(slavePICDataAddress, mode8086);
+	port_wait();
 	port_out_8(masterPICDataAddress, 0x00);
+	port_wait();
 	port_out_8(slavePICDataAddress, 0x00);
+	port_wait();
 
 	/* TODO(fkp): Inline intialisation of this needs memcpy and stuff
 	const u32 interruptRequestAddresses[16] = {

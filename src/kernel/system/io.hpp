@@ -13,4 +13,6 @@ void port_out_8(u16 port, u8 data);
 void port_out_16(u16 port, u16 data);
 void port_out_32(u16 port, u32 data);
 
+void port_wait();
+
 #endif
