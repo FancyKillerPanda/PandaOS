@@ -3,6 +3,7 @@
 #include "system.hpp"
 #include "display.hpp"
 #include "log.hpp"
+#include "display.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
 #include "interrupts/handleInterrupts.hpp"
 
@@ -18,7 +19,7 @@ extern "C" void start_kernel()
 	u8 a = 5;
 	u8 b = 0;
 	// u8 c = b / a;
-	u8 c = a / b;
+	// u8 c = a / b;
 
 	log_info("\nFinished, now hanging...");
 	while (true);

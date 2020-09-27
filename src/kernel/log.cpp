@@ -92,8 +92,19 @@ void log_serial(const u8* str1, const u8* str2)
 	port_out_8(SERIAL_PORT, '\n');
 }
 
+void do_prefix_formatting(const u8*& message)
+{
+	while (*message == '\t' || *message == '\n' || *message == '\b')
+	{
+		print_char(*message);
+		message += 1;
+	}
+}
+
 void log_info(const u8* message)
 {
+	do_prefix_formatting(message);
+	
 	print("Info: ", 0x09);
 	print(message);
 	print("\n");
@@ -103,6 +114,8 @@ void log_info(const u8* message)
 	
 void log_warning(const u8* message)
 {
+	do_prefix_formatting(message);
+	
 	print("Warning: ", 0x0e);
 	print(message);
 	print("\n");
@@ -112,6 +125,8 @@ void log_warning(const u8* message)
 	
 void log_error(const u8* message)
 {
+	do_prefix_formatting(message);
+	
 	print("Error: ", 0x04);
 	print(message);
 	print("\n");	
