@@ -4,6 +4,7 @@
 #include "io.hpp"
 #include "interruptDescriptorTable.hpp"
 #include "handleInterrupts.hpp"
+#include "handleExceptions.hpp"
 
 struct PACKED_STRUCT InterruptDescriptorTableEntry
 {
@@ -66,23 +67,44 @@ void init_interrupt_descriptor_table()
 	};
 	*/
 
-	u32 interruptRequestAddresses[16];
-	interruptRequestAddresses[0] = (u32) handleInterruptRequest0;
-	interruptRequestAddresses[1] = (u32) handleInterruptRequest1;
-	interruptRequestAddresses[2] = (u32) handleInterruptRequest2;
-	interruptRequestAddresses[3] = (u32) handleInterruptRequest3;
-	interruptRequestAddresses[4] = (u32) handleInterruptRequest4;
-	interruptRequestAddresses[5] = (u32) handleInterruptRequest5;
-	interruptRequestAddresses[6] = (u32) handleInterruptRequest6;
-	interruptRequestAddresses[7] = (u32) handleInterruptRequest7;
-	interruptRequestAddresses[8] = (u32) handleInterruptRequest8;
-	interruptRequestAddresses[9] = (u32) handleInterruptRequest9;
-	interruptRequestAddresses[10] = (u32) handleInterruptRequest10;
-	interruptRequestAddresses[11] = (u32) handleInterruptRequest11;
-	interruptRequestAddresses[12] = (u32) handleInterruptRequest12;
-	interruptRequestAddresses[13] = (u32) handleInterruptRequest13;
-	interruptRequestAddresses[14] = (u32) handleInterruptRequest14;
-	interruptRequestAddresses[15] = (u32) handleInterruptRequest15;
+	u32 interruptRequestAddresses[48];
+	interruptRequestAddresses[0] = (u32) handle_division_by_zero_exception;
+	interruptRequestAddresses[1] = (u32) handle_debug_exception;
+	interruptRequestAddresses[2] = (u32) handle_non_maskable_exception;
+	interruptRequestAddresses[3] = (u32) handle_breakpoint_exception;
+	interruptRequestAddresses[4] = (u32) handle_overflow_exception;
+	interruptRequestAddresses[5] = (u32) handle_bound_range_exceeded_exception;
+	interruptRequestAddresses[6] = (u32) handle_invalid_opcode_exception;
+	interruptRequestAddresses[7] = (u32) handle_device_not_available_exception;
+	interruptRequestAddresses[8] = (u32) handle_double_fault_exception;
+	interruptRequestAddresses[10] = (u32) handle_invalid_tss_exception;
+	interruptRequestAddresses[11] = (u32) handle_segment_not_present_exception;
+	interruptRequestAddresses[12] = (u32) handle_stack_segment_fault_exception;
+	interruptRequestAddresses[13] = (u32) handle_general_protection_fault_exception;
+	interruptRequestAddresses[14] = (u32) handle_page_fault_exception;
+	interruptRequestAddresses[16] = (u32) handle_x87_floating_point_exception;
+	interruptRequestAddresses[17] = (u32) handle_alignment_check_exception;
+	interruptRequestAddresses[18] = (u32) handle_machine_check_exception;
+	interruptRequestAddresses[19] = (u32) handle_simd_floating_point_exception;
+	interruptRequestAddresses[20] = (u32) handle_virtualisation_exception;
+	interruptRequestAddresses[30] = (u32) handle_security_exception;
+	
+	interruptRequestAddresses[32] = (u32) handleInterruptRequest0;
+	interruptRequestAddresses[33] = (u32) handleInterruptRequest1;
+	interruptRequestAddresses[34] = (u32) handleInterruptRequest2;
+	interruptRequestAddresses[35] = (u32) handleInterruptRequest3;
+	interruptRequestAddresses[36] = (u32) handleInterruptRequest4;
+	interruptRequestAddresses[37] = (u32) handleInterruptRequest5;
+	interruptRequestAddresses[38] = (u32) handleInterruptRequest6;
+	interruptRequestAddresses[39] = (u32) handleInterruptRequest7;
+	interruptRequestAddresses[40] = (u32) handleInterruptRequest8;
+	interruptRequestAddresses[41] = (u32) handleInterruptRequest9;
+	interruptRequestAddresses[42] = (u32) handleInterruptRequest10;
+	interruptRequestAddresses[43] = (u32) handleInterruptRequest11;
+	interruptRequestAddresses[44] = (u32) handleInterruptRequest12;
+	interruptRequestAddresses[45] = (u32) handleInterruptRequest13;
+	interruptRequestAddresses[46] = (u32) handleInterruptRequest14;
+	interruptRequestAddresses[47] = (u32) handleInterruptRequest15;
 
 	const u32 interruptDescriptorTableAddress = (u32) interruptDescriptorTableEntries;
 	u32 interruptDescriptorTablePointer[2];
@@ -90,30 +112,54 @@ void init_interrupt_descriptor_table()
 	constexpr u8 interruptGate = 0x8e;
 	constexpr u8 firstInterrupt = 32;
 
-#define SET_UP_HANDLER(index)											\
-	InterruptDescriptorTableEntry& entry##index = interruptDescriptorTableEntries[firstInterrupt + index]; \
-	entry##index.offsetLow = interruptRequestAddresses[index] & 0x0000ffff;	\
-	entry##index.selector = kernelCodeSegmentOffset;					\
-	entry##index.zero = 0;												\
-	entry##index.type = interruptGate;									\
-	entry##index.offsetHigh = (interruptRequestAddresses[index] & 0xffff0000) >> 16;
-
-	SET_UP_HANDLER(0);
-	SET_UP_HANDLER(1);
-	SET_UP_HANDLER(2);
-	SET_UP_HANDLER(3);
-	SET_UP_HANDLER(4);
-	SET_UP_HANDLER(5);
-	SET_UP_HANDLER(6);
-	SET_UP_HANDLER(7);
-	SET_UP_HANDLER(8);
-	SET_UP_HANDLER(9);
-	SET_UP_HANDLER(10);
-	SET_UP_HANDLER(11);
-	SET_UP_HANDLER(12);
-	SET_UP_HANDLER(13);
-	SET_UP_HANDLER(14);
-	SET_UP_HANDLER(15);
+#define SET_UP_HANDLER(index, offset)									\
+	InterruptDescriptorTableEntry& entry##offset = interruptDescriptorTableEntries[index]; \
+	entry##offset.offsetLow = interruptRequestAddresses[index] & 0x0000ffff; \
+	entry##offset.selector = kernelCodeSegmentOffset;					\
+	entry##offset.zero = 0;												\
+	entry##offset.type = interruptGate;							\
+	entry##offset.offsetHigh = (interruptRequestAddresses[index] & 0xffff0000) >> 16;
+	
+	// Exceptions
+	SET_UP_HANDLER(0, a);
+	SET_UP_HANDLER(1, b);
+	SET_UP_HANDLER(2, c);
+	SET_UP_HANDLER(3, d);
+	SET_UP_HANDLER(4, e);
+	SET_UP_HANDLER(5, f);
+	SET_UP_HANDLER(6, g);
+	SET_UP_HANDLER(7, h);
+	SET_UP_HANDLER(7, i);
+	SET_UP_HANDLER(8, j);
+	SET_UP_HANDLER(10, k);
+	SET_UP_HANDLER(11, l);
+	SET_UP_HANDLER(12, m);
+	SET_UP_HANDLER(13, n);
+	SET_UP_HANDLER(14, o);
+	SET_UP_HANDLER(16, p);
+	SET_UP_HANDLER(17, q);
+	SET_UP_HANDLER(18, r);
+	SET_UP_HANDLER(19, s);
+	SET_UP_HANDLER(20, t);
+	SET_UP_HANDLER(30, u);
+	
+	// IRQs
+	SET_UP_HANDLER(32, 0);
+	SET_UP_HANDLER(33, 1);
+	SET_UP_HANDLER(34, 2);
+	SET_UP_HANDLER(35, 3);
+	SET_UP_HANDLER(36, 4);
+	SET_UP_HANDLER(37, 5);
+	SET_UP_HANDLER(38, 6);
+	SET_UP_HANDLER(39, 7);
+	SET_UP_HANDLER(40, 8);
+	SET_UP_HANDLER(41, 9);
+	SET_UP_HANDLER(42, 10);
+	SET_UP_HANDLER(43, 11);
+	SET_UP_HANDLER(44, 12);
+	SET_UP_HANDLER(45, 13);
+	SET_UP_HANDLER(46, 14);
+	SET_UP_HANDLER(47, 15);
 
 #undef SET_UP_HANDLER
 

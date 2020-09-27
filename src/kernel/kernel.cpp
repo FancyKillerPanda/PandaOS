@@ -15,5 +15,11 @@ extern "C" void start_kernel()
 	log_info("Starting kernel...");
 	log_init();
 
+	u8 a = 5;
+	u8 b = 0;
+	// u8 c = b / a;
+	u8 c = a / b;
+
+	log_info("\nFinished, now hanging...");
 	while (true);
 }
