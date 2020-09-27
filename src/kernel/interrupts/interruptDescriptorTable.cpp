@@ -56,14 +56,14 @@ void init_interrupt_descriptor_table()
 
 	/* TODO(fkp): Inline intialisation of this needs memcpy and stuff
 	const u32 interruptRequestAddresses[16] = {
-		(u32) handleInterruptRequest0, (u32) handleInterruptRequest1,
-		(u32) handleInterruptRequest2, (u32) handleInterruptRequest3,
-		(u32) handleInterruptRequest4, (u32) handleInterruptRequest5,
-		(u32) handleInterruptRequest6, (u32) handleInterruptRequest7,
-		(u32) handleInterruptRequest8, (u32) handleInterruptRequest9,
-		(u32) handleInterruptRequest10, (u32) handleInterruptRequest11,
-		(u32) handleInterruptRequest12, (u32) handleInterruptRequest13,
-		(u32) handleInterruptRequest14, (u32) handleInterruptRequest15,
+		(u32) handle_interrupt_request0, (u32) handle_interrupt_request1,
+		(u32) handle_interrupt_request2, (u32) handle_interrupt_request3,
+		(u32) handle_interrupt_request4, (u32) handle_interrupt_request5,
+		(u32) handle_interrupt_request6, (u32) handle_interrupt_request7,
+		(u32) handle_interrupt_request8, (u32) handle_interrupt_request9,
+		(u32) handle_interrupt_request10, (u32) handle_interrupt_request11,
+		(u32) handle_interrupt_request12, (u32) handle_interrupt_request13,
+		(u32) handle_interrupt_request14, (u32) handle_interrupt_request15,
 	};
 	*/
 
@@ -89,22 +89,22 @@ void init_interrupt_descriptor_table()
 	interruptRequestAddresses[20] = (u32) handle_virtualisation_exception;
 	interruptRequestAddresses[30] = (u32) handle_security_exception;
 	
-	interruptRequestAddresses[32] = (u32) handleInterruptRequest0;
-	interruptRequestAddresses[33] = (u32) handleInterruptRequest1;
-	interruptRequestAddresses[34] = (u32) handleInterruptRequest2;
-	interruptRequestAddresses[35] = (u32) handleInterruptRequest3;
-	interruptRequestAddresses[36] = (u32) handleInterruptRequest4;
-	interruptRequestAddresses[37] = (u32) handleInterruptRequest5;
-	interruptRequestAddresses[38] = (u32) handleInterruptRequest6;
-	interruptRequestAddresses[39] = (u32) handleInterruptRequest7;
-	interruptRequestAddresses[40] = (u32) handleInterruptRequest8;
-	interruptRequestAddresses[41] = (u32) handleInterruptRequest9;
-	interruptRequestAddresses[42] = (u32) handleInterruptRequest10;
-	interruptRequestAddresses[43] = (u32) handleInterruptRequest11;
-	interruptRequestAddresses[44] = (u32) handleInterruptRequest12;
-	interruptRequestAddresses[45] = (u32) handleInterruptRequest13;
-	interruptRequestAddresses[46] = (u32) handleInterruptRequest14;
-	interruptRequestAddresses[47] = (u32) handleInterruptRequest15;
+	interruptRequestAddresses[32] = (u32) handle_interrupt_request0;
+	interruptRequestAddresses[33] = (u32) handle_interrupt_request1;
+	interruptRequestAddresses[34] = (u32) handle_interrupt_request2;
+	interruptRequestAddresses[35] = (u32) handle_interrupt_request3;
+	interruptRequestAddresses[36] = (u32) handle_interrupt_request4;
+	interruptRequestAddresses[37] = (u32) handle_interrupt_request5;
+	interruptRequestAddresses[38] = (u32) handle_interrupt_request6;
+	interruptRequestAddresses[39] = (u32) handle_interrupt_request7;
+	interruptRequestAddresses[40] = (u32) handle_interrupt_request8;
+	interruptRequestAddresses[41] = (u32) handle_interrupt_request9;
+	interruptRequestAddresses[42] = (u32) handle_interrupt_request10;
+	interruptRequestAddresses[43] = (u32) handle_interrupt_request11;
+	interruptRequestAddresses[44] = (u32) handle_interrupt_request12;
+	interruptRequestAddresses[45] = (u32) handle_interrupt_request13;
+	interruptRequestAddresses[46] = (u32) handle_interrupt_request14;
+	interruptRequestAddresses[47] = (u32) handle_interrupt_request15;
 
 	const u32 interruptDescriptorTableAddress = (u32) interruptDescriptorTableEntries;
 	u32 interruptDescriptorTablePointer[2];
