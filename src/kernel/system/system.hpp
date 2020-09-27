@@ -10,6 +10,8 @@
 #define PACKED_STRUCT __attribute__((packed))
 #define INTERRUPT_FUNCTION __attribute__((interrupt))
 
+#define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
+
 // Common types
 using s8 = signed char;
 using s16 = short;

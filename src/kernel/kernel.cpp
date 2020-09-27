@@ -16,11 +16,32 @@ extern "C" void start_kernel()
 	log_info("Starting kernel...");
 	log_init();
 
-	u8 a = 5;
-	u8 b = 0;
-	// u8 c = b / a;
-	// u8 c = a / b;
+	u32 a = 5;
+	u32 b = 10;
+	u32 c = 14;
+	u32 d = 123456789;
 
+	print_char('\n');
+	print_integer(a);
+	print("\t\t\t");
+	print_integer(b);
+	print("\t\t\t");
+	print_integer(c);
+	print("\t\t\t");
+	print_integer(d);
+	print("\t\t\t");
+	print_char('\n');
+	
+	print_hex_integer(a);
+	print("\t\t");
+	print_hex_integer(b);
+	print("\t\t");
+	print_hex_integer(c);
+	print("\t\t");
+	print_hex_integer(d);
+	print("\t\t\t");
+	print_char('\n');
+	
 	log_info("\nFinished, now hanging...");
 	while (true);
 }
