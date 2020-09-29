@@ -9,6 +9,11 @@
 #define SCREEN_ROWS 25
 #define SCREEN_COLS 80
 
+// TODO(fkp): I don't like how this logging stuff is split between
+// display and log.
+#define CONSOLE_LOG_PORT ((u16) 0xe9)
+#define CONSOLE_LOGGING 1
+
 // Current cursor position
 u8 cursorRow = 0;
 u8 cursorCol = 0;
@@ -138,6 +143,10 @@ void print_char(u8 character, u8 attribute)
 	{
 		scroll_screen_up();
 	}
+
+#if CONSOLE_LOGGING
+	port_out_8(CONSOLE_LOG_PORT, character);
+#endif
 }
 
 void print_integer(u32 integer, u8 attribute)
