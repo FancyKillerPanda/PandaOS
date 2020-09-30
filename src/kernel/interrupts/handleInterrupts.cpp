@@ -7,7 +7,35 @@
 #include "display.hpp"
 
 #define SEND_END_OF_INTERRUPT_SIGNAL() port_out_8(0x20, 0x20)
-#define SEND_END_OF_INTERRUPT_SIGNAL_EXT() port_out_8(0xa0, 0x20); port_out_8(0x20, 0x20);
+#define SEND_END_OF_INTERRUPT_SIGNAL_EXT() port_out_8(0xa0, 0x20); port_out_8(0x20, 0x20)
+
+// Returns true if the interrupt was spurious
+bool handle_potential_spurious_interrupt(bool extended)
+{
+	constexpr u8 masterPICCommandAddress = 0x20;
+	constexpr u8 slavePICCommandAddress = 0xa0;
+
+	// Reads the In-Service Register
+	port_out_8(masterPICCommandAddress, 0x0b);
+	port_out_8(slavePICCommandAddress, 0x0b);
+	u16 inServiceRegister = (port_in_8(slavePICCommandAddress) << 8) | port_in_8(masterPICCommandAddress);
+
+	if (inServiceRegister & 0x0080 ||
+		(extended && inServiceRegister & 0x8000))
+	{
+		// This interrupt is not spurious
+		return false;
+	}
+
+	// This interrupt is spurious
+	if (extended)
+	{
+		SEND_END_OF_INTERRUPT_SIGNAL();
+	}
+	
+	log_warning("Spurious interrupt detected.");
+	return true;
+}
 
 // System timer
 INTERRUPT_FUNCTION void handle_interrupt_request0(InterruptFrame* frame)
@@ -85,6 +113,11 @@ INTERRUPT_FUNCTION void handle_interrupt_request6(InterruptFrame* frame)
 // Parallel printer port
 INTERRUPT_FUNCTION void handle_interrupt_request7(InterruptFrame* frame)
 {
+	if (handle_potential_spurious_interrupt(false))
+	{
+		return;
+	}
+	
 	log_info("Parallel printer port interrupt (7).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -141,6 +174,11 @@ INTERRUPT_FUNCTION void handle_interrupt_request14(InterruptFrame* frame)
 // Likely available
 INTERRUPT_FUNCTION void handle_interrupt_request15(InterruptFrame* frame)
 {
+	if (handle_potential_spurious_interrupt(true))
+	{
+		return;
+	}
+	
 	log_info("Interrupt request 15.");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }

@@ -16,6 +16,21 @@ extern "C" void start_kernel()
 	log_info("Starting kernel...");
 	log_init();
 
+	// Testing spurious interrupts
+	asm volatile("cli" ::);
+
+	for (u32 i = 0; i < 10000000; i++)
+	{
+		static bool hasPrinted = false;
+		if (!hasPrinted)
+		{
+			print_char('a');
+			hasPrinted = true;
+		}
+	}
+	
+	asm volatile("sti" ::);
+
 	u32 a = 5;
 	u32 b = 10;
 	u32 c = 14;
