@@ -237,3 +237,66 @@ void print(const u8* string, u8 attribute)
 	shouldMoveCursor = true;
 	move_cursor(cursorRow, cursorCol);
 }
+
+void printf(const u8* string, ...)
+{
+#define va_start(argsPointer, param) __builtin_va_start(argsPointer, param)
+#define va_arg(argsPointer, type) __builtin_va_arg(argsPointer, type)
+#define va_end(argsPointer) __builtin_va_end(argsPointer)
+	
+	using va_list = __builtin_va_list;
+	
+	shouldMoveCursor = false;
+	va_list argsPointer;
+	va_start(argsPointer, string);
+	
+	while (*string)
+	{
+		switch (*string)
+		{
+		case '%':
+		{
+			string += 1;
+
+			switch (*string)
+			{
+			case 'd':
+			{
+				print_integer(va_arg(argsPointer, u32));
+			} break;
+
+			case 'x':
+			{
+				print_hex_integer(va_arg(argsPointer, u32));
+			} break;
+				
+			case 's':
+			{
+				print(va_arg(argsPointer, u8*));
+			} break;
+
+			case 'c':
+			{
+				print_char((u8) va_arg(argsPointer, u32));
+			} break;
+			
+			default:
+			{
+				print_char(*string);
+			} break;
+			}
+		} break;
+
+		default:
+		{
+			print_char(*string);
+		} break;
+		}
+
+		string += 1;
+	}
+
+	va_end(argsPointer);
+	shouldMoveCursor = true;
+	move_cursor(cursorRow, cursorCol);
+}

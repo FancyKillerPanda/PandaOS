@@ -16,46 +16,17 @@ extern "C" void start_kernel()
 	log_info("Starting kernel...");
 	log_init();
 
-	// Testing spurious interrupts
-	asm volatile("cli" ::);
-
-	for (u32 i = 0; i < 10000000; i++)
-	{
-		static bool hasPrinted = false;
-		if (!hasPrinted)
-		{
-			print_char('a');
-			hasPrinted = true;
-		}
-	}
-	
-	asm volatile("sti" ::);
-
 	u32 a = 5;
 	u32 b = 10;
 	u32 c = 14;
 	u32 d = 123456789;
 
-	print_char('\n');
-	print_integer(a);
-	print("\t\t\t");
-	print_integer(b);
-	print("\t\t\t");
-	print_integer(c);
-	print("\t\t\t");
-	print_integer(d);
-	print("\t\t\t");
-	print_char('\n');
-	
-	print_hex_integer(a);
-	print("\t\t");
-	print_hex_integer(b);
-	print("\t\t");
-	print_hex_integer(c);
-	print("\t\t");
-	print_hex_integer(d);
-	print("\t\t\t");
-	print_char('\n');
+	printf("Hello, this is a test string.\n");
+	printf("String: %s\n", "hello");
+	printf("Char: %c\n", 'f');
+	printf("Int: %d\n", a);
+	printf("Hex: %x\n", d);
+	printf("Percent: %%\n");
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
