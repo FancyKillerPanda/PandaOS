@@ -16,17 +16,18 @@ extern "C" void start_kernel()
 	log_info("Starting kernel...");
 	log_init();
 
-	u32 a = 5;
-	u32 b = 10;
-	u32 c = 14;
-	u32 d = 123456789;
+	u32 a = 123456789;
 
-	printf("Hello, this is a test string.\n");
-	printf("String: %s\n", "hello");
-	printf("Char: %c\n", 'f');
-	printf("Int: %d\n", a);
-	printf("Hex: %x\n", d);
-	printf("Percent: %%\n");
+	log_plain("\nPlain old logging.");
+	log_info_plain("Plain old information.");
+	log_warning_plain("Plain old warning.");
+	log_error_plain("Plain old error.");
+
+	log("\nFormatted logging: %c", 'a');
+	log_info("Formatted information: %d", a);
+	log_warning("Formatted warning: %x", a);
+	log_error("Formatted error: %s", "hello");
+
 	
 	log_info("\nFinished, now hanging...");
 	while (true);

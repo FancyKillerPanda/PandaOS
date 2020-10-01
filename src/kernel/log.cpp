@@ -101,7 +101,14 @@ void do_prefix_formatting(const u8*& message)
 	}
 }
 
-void log_info(const u8* message)
+void log_plain(const u8* message)
+{
+	print(message);
+	print("\n");
+	log_serial(message, "");
+}
+
+void log_info_plain(const u8* message)
 {
 	do_prefix_formatting(message);
 	
@@ -112,7 +119,7 @@ void log_info(const u8* message)
 	log_serial("Info: ", message);
 }
 	
-void log_warning(const u8* message)
+void log_warning_plain(const u8* message)
 {
 	do_prefix_formatting(message);
 	
@@ -123,7 +130,7 @@ void log_warning(const u8* message)
 	log_serial("Warning: ", message);
 }
 	
-void log_error(const u8* message)
+void log_error_plain(const u8* message)
 {
 	do_prefix_formatting(message);
 	
@@ -132,4 +139,64 @@ void log_error(const u8* message)
 	print("\n");	
 
 	log_serial("Error: ", message);
+}
+
+void log(const u8* message, ...)
+{
+	va_list argsPointer;
+	va_start(argsPointer, message);
+
+	// TODO(fkp): snprintf so we can output serial properly too
+	vprintf(message, argsPointer);
+	print("\n");
+
+	va_end(argsPointer);
+}
+
+void log_info(const u8* message, ...)
+{
+	va_list argsPointer;
+	va_start(argsPointer, message);
+	
+	do_prefix_formatting(message);
+	
+	print("Info: ", 0x09);
+	vprintf(message, argsPointer);
+	print("\n");
+
+	va_end(argsPointer);
+	
+	// TODO(fkp): snprintf so we can output serial properly too
+}
+
+void log_warning(const u8* message, ...)
+{
+	va_list argsPointer;
+	va_start(argsPointer, message);
+	
+	do_prefix_formatting(message);
+	
+	print("Warning: ", 0x0e);
+	vprintf(message, argsPointer);
+	print("\n");
+
+	va_end(argsPointer);
+	
+	// TODO(fkp): snprintf so we can output serial properly too
+}
+
+void log_error(const u8* message, ...)
+{
+	va_list argsPointer;
+	va_start(argsPointer, message);
+	
+	do_prefix_formatting(message);
+	
+	print("Error: ", 0x04);
+	vprintf(message, argsPointer);
+	print("\n");
+
+	va_end(argsPointer);
+	
+	// TODO(fkp): snprintf so we can output serial properly too
 }

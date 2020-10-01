@@ -7,8 +7,14 @@
 
 void log_init();
 
-void log_info(const u8* message);
-void log_warning(const u8* message);
-void log_error(const u8* message);
+void log_plain(const u8* message);
+void log_info_plain(const u8* message);
+void log_warning_plain(const u8* message);
+void log_error_plain(const u8* message);
+
+void log(const u8* message, ...);
+void log_info(const u8* message, ...);
+void log_warning(const u8* message, ...);
+void log_error(const u8* message, ...);
 
 #endif

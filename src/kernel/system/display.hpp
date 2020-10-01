@@ -16,6 +16,8 @@ void print_char(u8 character, u8 attribute = 0x07);
 void print_integer(u32 integer, u8 attribute = 0x07);
 void print_hex_integer(u32 integer, u8 attribute = 0x07);
 void print(const u8* string, u8 attribute = 0x07);
+
+void vprintf(const u8* string, va_list argsPointer);
 void printf(const u8* string, ...);
 
 #endif
