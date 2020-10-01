@@ -17,17 +17,8 @@ extern "C" void start_kernel()
 	log_init();
 
 	u32 a = 123456789;
-
-	log_plain("\nPlain old logging.");
-	log_info_plain("Plain old information.");
-	log_warning_plain("Plain old warning.");
-	log_error_plain("Plain old error.");
-
-	log("\nFormatted logging: %c", 'a');
-	log_info("Formatted information: %d", a);
-	log_warning("Formatted warning: %x", a);
-	log_error("Formatted error: %s", "hello");
-
+	u32 b = 0;
+	u32 c = a / b;
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
