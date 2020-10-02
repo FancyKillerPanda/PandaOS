@@ -18,7 +18,7 @@ srcDir=$prjRoot/src/genVDisk/
 # Flags
 compileFlags="-o genVDisk -I $srcDir -funsigned-char -O3"
 linkFlags=""
-files="$srcDir/*.cpp"
+files="$srcDir/unityBuild.cpp"
 
 mkdir -p $binDir/genVDisk
 pushd $binDir/genVDisk > /dev/null

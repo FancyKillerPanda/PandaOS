@@ -4,9 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "utility.hpp"
-#include "clargs.hpp"
-#include "vmdk.hpp"
+#include "utility/utility.hpp"
+#include "utility/clargs.hpp"
+#include "disk/vmdk.hpp"
 
 s32 main(s32 argc, const u8* argv[])
 {
