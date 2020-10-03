@@ -4,7 +4,8 @@
 
 #include "vmdk.hpp"
 #include "utility/geometry.hpp"
-#include "filesystem/fat16.hpp"
+// #include "filesystem/fat16.hpp"
+#include "filesystem/fatFilesystem.hpp"
 #include "filesystem/mbr.hpp"
 
 bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize, const DiskGeometry* diskGeometry)
@@ -109,6 +110,7 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const 
 	
 	if (!arguments.isFat32)
 	{
+		/*
 		// Gets information about the FAT from the BPB/EBPB in the VBR
 		FAT16Information fat16Information;
 		read_bios_parameter_block(&fat16Information, vbrFileContents);
@@ -124,12 +126,24 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const 
 	
 		numberOfBlocksWritten += write_fat16_into(&fat16, extentFile);
 		write_data_as_blocks(extentFile, nullptr, 0, (arguments.hardDiskSize / 512) - numberOfBlocksWritten);
+		*/
+
+		FATFilesystem fat = init_fat(FilesystemType::Fat16, vbrFileContents);
+		free(vbrFileContents);
+
+		for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+		{
+			store_file(&fat, arguments.imagePath, arguments.otherFiles[i]);
+		}
+
+		numberOfBlocksWritten += write_fat_into(&fat, extentFile);
+		write_data_as_blocks(extentFile, nullptr, 0, (arguments.hardDiskSize / 512) - numberOfBlocksWritten);
 	}
 	
 	fclose(extentFile);
 
 	// DEBUG
-	void debug_list_fat(FAT16* fat16);
+	// void debug_list_fat(FAT16* fat16);
 	// debug_list_fat(&fat16);
 
 	printf("Info: Successfully wrote extent file...\n");
