@@ -15,6 +15,7 @@ constexpr const u8* options[] = {
 	"--vbr",
 	"--size",
 	"--files",
+	"--fat32"
 };
 constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
@@ -24,6 +25,7 @@ constexpr const u8* optionDescriptions[] = {
 	"--vbr <file>", "Specifies a Volume Boot Record file.",
 	"--size <number>", "Specifies the size of the hard disk in megabytes.",
 	"--files [files...]", "Specifies a list of file names for the root directory.",
+	"--fat32", "Specifies to use the FAT32 filesystem.",
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0, "All options must have a description.");
 static_assert(STACK_ARRAY_LENGTH(options) * 2 == STACK_ARRAY_LENGTH(optionDescriptions), "Size of options * 2 must equal size of descriptions.");
@@ -169,6 +171,10 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments)
 				printf("Error: No additional files given.\n");
 				return false;
 			}
+		}
+		else if (strcmp(argv[i], "--fat32") == 0)
+		{
+			arguments->isFat32 = true;
 		}
 		else
 		{

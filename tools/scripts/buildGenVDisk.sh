@@ -23,9 +23,11 @@ files="$srcDir/unityBuild.cpp"
 mkdir -p $binDir/genVDisk
 pushd $binDir/genVDisk > /dev/null
 
-print $BLUE "Building genVDisk...";
+print $BLUE "Cleaning genVDisk..." 2> /dev/null
+rm genVDisk
+print $BLUE "\nBuilding...";
 clang++ $compileFlags $linkFlags $files || exit_on_error
-print $GREEN "genVDisk build succeeded!\n"
+print $GREEN "\ngenVDisk build succeeded!\n"
 
 popd > /dev/null
 cd $originalDir

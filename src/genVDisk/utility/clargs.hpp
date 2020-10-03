@@ -16,6 +16,7 @@ struct CLArgs
 	usize hardDiskSize = 0;
 	const u8** otherFiles = nullptr; // Array of file names
 	usize numberOfOtherFiles = 0;
+	bool isFat32 = false;
 };
 
 bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments);

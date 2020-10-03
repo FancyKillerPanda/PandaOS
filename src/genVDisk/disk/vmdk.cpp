@@ -107,21 +107,24 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const 
 	numberOfBlocksWritten += write_data_as_blocks(extentFile, vbrFileContents, vbrFileSize);
 	printf("Info: Wrote Volume Boot Record to extent file...\n");
 	
-	// Gets information about the FAT from the BPB/EBPB in the VBR
-	FAT16Information fat16Information;
-	read_bios_parameter_block(&fat16Information, vbrFileContents);
-	free(vbrFileContents);
-
-	// Writes out the FAT table
-	FAT16 fat16 = init_fat_16(&fat16Information);
-
-	for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+	if (!arguments.isFat32)
 	{
-		store_file(&fat16, arguments.imagePath, arguments.otherFiles[i]);
-	}
+		// Gets information about the FAT from the BPB/EBPB in the VBR
+		FAT16Information fat16Information;
+		read_bios_parameter_block(&fat16Information, vbrFileContents);
+		free(vbrFileContents);
+
+		// Writes out the FAT table
+		FAT16 fat16 = init_fat_16(&fat16Information);
+
+		for (usize i = 0; i < arguments.numberOfOtherFiles; i++)
+		{
+			store_file(&fat16, arguments.imagePath, arguments.otherFiles[i]);
+		}
 	
-	numberOfBlocksWritten += write_fat16_into(&fat16, extentFile);
-	write_data_as_blocks(extentFile, nullptr, 0, (arguments.hardDiskSize / 512) - numberOfBlocksWritten);
+		numberOfBlocksWritten += write_fat16_into(&fat16, extentFile);
+		write_data_as_blocks(extentFile, nullptr, 0, (arguments.hardDiskSize / 512) - numberOfBlocksWritten);
+	}
 	
 	fclose(extentFile);
 
