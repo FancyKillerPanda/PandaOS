@@ -7,14 +7,14 @@ struct RootDirectoryEntry
 	u8 filename[8] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
 	u8 extension[3] = { ' ', ' ', ' ' };
 	u8 attributes = 0;
-	u8 reserved[10];
-	u8 time[2];
-	u8 date[2];
-	u16 cluster;
-	u32 size;
+	u8 reserved[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	u16 clusterHigh = 0;
+	u8 time[2] = { 0, 0 };
+	u8 date[2] = { 0, 0 };
+	u16 cluster = 0;
+	u32 size = 0;
 };
-static_assert(sizeof(RootDirectoryEntry) == 32,
-              "RootDirectoryEntry might have had padding added.");
+static_assert(sizeof(RootDirectoryEntry) == 32, "RootDirectoryEntry might have had padding added.");
 
 FATFilesystem init_fat(FilesystemType type, const u8* vbrFileContents)
 {
@@ -38,6 +38,11 @@ FATFilesystem init_fat(FilesystemType type, const u8* vbrFileContents)
 		result.table[0] = information.mediaDescriptor;
 		result.table[1] = 0xff;
 		result.table[2] = 0xff;
+	}
+	else if (result.type == FilesystemType::Fat32)
+	{
+		((u32*) result.table)[0] = 0x0fffff00 | information.mediaDescriptor;
+		((u32*) result.table)[1] = 0x0fffffff;
 	}
 
 	return result;
@@ -67,6 +72,15 @@ void put_entry(FATFilesystem* fat, u32 index, u32 value)
 			fat->table[index + 2] = ((u16) value & 0x0ff0) >> 4;
 		}
 	}
+	else if (fat->type == FilesystemType::Fat32)
+	{
+		index *= 4;
+		
+		fat->table[index] = (u8) (value & 0x000000ff);
+		fat->table[index + 1] = (u8) ((value & 0x0000ff00) >> 8);
+		fat->table[index + 2] = (u8) ((value & 0x00ff0000) >> 16);
+		fat->table[index + 3] = (u8) ((value & 0xff000000) >> 24);
+	}
 }
 
 u32 get_entry(FATFilesystem* fat, u32 index)
@@ -94,6 +108,15 @@ u32 get_entry(FATFilesystem* fat, u32 index)
 			entry = fat->table[index + 1] >> 4;
 			entry = entry | (fat->table[index + 2] << 4);
 		}
+	}
+	else if (fat->type == FilesystemType::Fat32)
+	{
+		index *= 4;
+
+		entry = fat->table[index];
+		entry = entry | (fat->table[index + 1] << 8);
+		entry = entry | (fat->table[index + 2] << 16);
+		entry = entry | (fat->table[index + 3] << 24);
 	}
 	
 	return entry;
@@ -168,6 +191,10 @@ u32 allocate_clusters(FATFilesystem* fat, u32 numberOfRequiredClusters)
 	{
 		put_entry(fat, previousCluster, 0x0ff8);
 	}
+	else if (fat->type == FilesystemType::Fat32)
+	{
+		put_entry(fat, previousCluster, 0x0ffffff8);
+	}
 
 	return firstCluster;
 }
@@ -220,6 +247,11 @@ void store_file_in_root_directory(FATFilesystem* fat, FILE* file, const char* fi
 	if (fat->type == FilesystemType::Fat16)
 	{
 		entry.cluster = cluster;
+	}
+	else if (fat->type == FilesystemType::Fat32)
+	{
+		entry.cluster = cluster & 0x0000ffff;
+		entry.clusterHigh = (cluster & 0xffff0000) >> 16;
 	}
 	
 	memcpy(fat->rootDirectoryData + (fat->numberOfRootDirectoryEntries * sizeof(RootDirectoryEntry)), (u8*) &entry, sizeof(entry));
@@ -283,14 +315,50 @@ usize write_fat_into(FATFilesystem* fat, FILE* file)
 {
 	usize numberOfBlocksWritten = 0;
 
+	// FS information
+	if (fat->type == FilesystemType::Fat32)
+	{
+		u8* fsInformation = (u8*) calloc(512, sizeof(u8));
+
+		fsInformation[0] = 'R';
+		fsInformation[1] = 'R';
+		fsInformation[2] = 'a';
+		fsInformation[3] = 'A';
+		fsInformation[484] = 'r';
+		fsInformation[485] = 'r';
+		fsInformation[486] = 'A';
+		fsInformation[487] = 'a';
+
+		fsInformation[488] = 0xff;
+		fsInformation[489] = 0xff;
+		fsInformation[490] = 0xff;
+		fsInformation[491] = 0xff;
+	
+		fsInformation[492] = 0xff;
+		fsInformation[493] = 0xff;
+		fsInformation[494] = 0xff;
+		fsInformation[495] = 0xff;
+
+		fsInformation[510] = 0x55;
+		fsInformation[511] = 0xaa;
+	
+		numberOfBlocksWritten += write_data_as_blocks(file, fsInformation, 512);
+		free(fsInformation);
+	}
+
+	// FAT tables
 	for (u8 i = 0; i < fat->information.fatCount; i++)
 	{
 		numberOfBlocksWritten += write_data_as_blocks(file, fat->table, fat->tableSize, fat->information.sectorsPerFat);
 	}
+	
+	printf("Info: Wrote FAT%s tables...\n", fat->type == FilesystemType::Fat16 ? "16" : "32");
 
-	printf("Info: Wrote FAT...\n");
+	// Root directory
 	numberOfBlocksWritten += write_data_as_blocks(file, fat->rootDirectoryData, fat->rootDirectorySize, 0);
 	printf("Info: Wrote root directory...\n");
+
+	// Raw data
 	numberOfBlocksWritten += write_data_as_blocks(file, fat->rawData, fat->rawDataSize, 0);
 	printf("Info: Wrote raw file data...\n");
 

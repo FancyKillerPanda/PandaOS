@@ -45,7 +45,7 @@ print $BLUE "\nBuilding virtual hard disk..."
 $binDir/genVDisk/genVDisk --image-name PandaHDD --image-path ./ \
 						  --mbr masterBootRecord.bin \
 						  --vbr volumeBootRecord.bin \
-						  --size 1 \
+						  --size 1 --fat32 \
 						  --files pkLoader.bin pKernel.bin \
 	|| exit_on_error
 

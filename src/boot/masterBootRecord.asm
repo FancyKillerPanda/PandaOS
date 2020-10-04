@@ -104,8 +104,9 @@ loadingMessage: db "PandaOS", CR, LF, 0
 noPartitionMessage: db "No partition", CR, LF, 0
 relocatingMessage: db "Relocating MBR", CR, LF, 0
 ; foundPartitionMessage: db "Found bootable partition", CR, LF, 0
-foundPartitionMessage: db "Found partition", CR, LF, 0
-jumpingToVBRMessage: db "Jumping to VBR", CR, LF, 0
+foundPartitionMessage: db "Found", CR, LF, 0
+; jumpingToVBRMessage: db "Jumping to VBR", CR, LF, 0
+jumpingToVBRMessage: db "Jump", CR, LF, 0
 
 %define UTILITY_NO_READ_SECTOR
 %define UTILITY_NO_BOOT_FAILED
