@@ -18,10 +18,10 @@ srcDir=$prjRoot/src
 bootDir=$srcDir/boot
 kernelDir=$srcDir/kernel
 
-# if [ ! -e $binDir/genVDisk/genVDisk ]; then
+if [ ! -e $binDir/genVDisk/genVDisk ]; then
 	$prjRoot/tools/scripts/buildGenVDisk.sh
 	echo
-# fi
+fi
 
 # Flags
 kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernel.bin -target i386-pc-none-elf -I $kernelDir -I $kernelDir/system"

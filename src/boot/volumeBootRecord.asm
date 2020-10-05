@@ -52,8 +52,7 @@ start:
 
 kernelLoaderCluster: dw 0
 kernelLoaderFile: db "pkLoaderbin"
-; vbrMessage: db "Entered VBR!", CR, LF, 0
-vbrMessage: db "VBR!", CR, LF, 0
+vbrMessage: db "Entered VBR!", CR, LF, 0
 	
 end:
 	times 510 - ($ - $$) db 0	; Pads with zero bytes
