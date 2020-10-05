@@ -40,13 +40,16 @@ bool handle_potential_spurious_interrupt(bool extended)
 // System timer
 INTERRUPT_FUNCTION void handle_interrupt_request0(InterruptFrame* frame)
 {
+	UNUSED(frame);
 	// log_info("System timer interrupt (0).");
+	
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
 
 // Keyboard
 INTERRUPT_FUNCTION void handle_interrupt_request1(InterruptFrame* frame)
 {
+	UNUSED(frame);
 	// log_info("Keyboard interrupt (1).");
 
 	u8 scancode = port_in_8(0x60);
@@ -78,6 +81,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request1(InterruptFrame* frame)
 // EGA/VGA/bus mouse/network adaptors
 INTERRUPT_FUNCTION void handle_interrupt_request2(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Adaptors interrupt (2).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -85,6 +90,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request2(InterruptFrame* frame)
 // Second serial port
 INTERRUPT_FUNCTION void handle_interrupt_request3(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Second serial port interrupt (3).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -92,6 +99,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request3(InterruptFrame* frame)
 // First serial port
 INTERRUPT_FUNCTION void handle_interrupt_request4(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("First serial port interrupt (4).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -99,6 +108,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request4(InterruptFrame* frame)
 // Hard disk drive
 INTERRUPT_FUNCTION void handle_interrupt_request5(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Hard disk drive interrupt (5).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -106,6 +117,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request5(InterruptFrame* frame)
 // Floppy disk drive
 INTERRUPT_FUNCTION void handle_interrupt_request6(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Floppy disk drive interrupt (6).");
 	SEND_END_OF_INTERRUPT_SIGNAL();
 }
@@ -113,6 +126,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request6(InterruptFrame* frame)
 // Parallel printer port
 INTERRUPT_FUNCTION void handle_interrupt_request7(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	if (handle_potential_spurious_interrupt(false))
 	{
 		return;
@@ -125,6 +140,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request7(InterruptFrame* frame)
 // Motherboard real-time clock
 INTERRUPT_FUNCTION void handle_interrupt_request8(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Motherboard real-time clock interrupt (8).");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -132,6 +149,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request8(InterruptFrame* frame)
 // Works with IRQ2?
 INTERRUPT_FUNCTION void handle_interrupt_request9(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Interrupt request 9.");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -139,6 +158,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request9(InterruptFrame* frame)
 // Likely available
 INTERRUPT_FUNCTION void handle_interrupt_request10(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Interrupt request 10.");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -146,6 +167,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request10(InterruptFrame* frame)
 // Likely available
 INTERRUPT_FUNCTION void handle_interrupt_request11(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Interrupt request 11.");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -153,6 +176,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request11(InterruptFrame* frame)
 // Mouse / likely available
 INTERRUPT_FUNCTION void handle_interrupt_request12(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Interrupt request 12.");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -160,6 +185,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request12(InterruptFrame* frame)
 // Numeric coprocessor
 INTERRUPT_FUNCTION void handle_interrupt_request13(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Numeric coprocessor interrupt (13).");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -167,6 +194,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request13(InterruptFrame* frame)
 // Hard disk drive
 INTERRUPT_FUNCTION void handle_interrupt_request14(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	log_info("Hard disk drive interrupt (14).");
 	SEND_END_OF_INTERRUPT_SIGNAL_EXT();
 }
@@ -174,6 +203,8 @@ INTERRUPT_FUNCTION void handle_interrupt_request14(InterruptFrame* frame)
 // Likely available
 INTERRUPT_FUNCTION void handle_interrupt_request15(InterruptFrame* frame)
 {
+	UNUSED(frame);
+
 	if (handle_potential_spurious_interrupt(true))
 	{
 		return;

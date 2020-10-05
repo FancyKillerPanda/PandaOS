@@ -32,7 +32,7 @@ static_assert(STACK_ARRAY_LENGTH(options) * 2 == STACK_ARRAY_LENGTH(optionDescri
 
 bool is_argument(const u8* string)
 {
-	for (s32 i = 0; i < STACK_ARRAY_LENGTH(options); i++)
+	for (u32 i = 0; i < STACK_ARRAY_LENGTH(options); i++)
 	{
 		if (strcmp(string, options[i]) == 0)
 		{
@@ -51,7 +51,7 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments)
 		{
 			printf("Usage: genVDisk [options]\nOptions:\n");
 			
-			for (s32 i = 0; i < STACK_ARRAY_LENGTH(optionDescriptions); i += 2)
+			for (u32 i = 0; i < STACK_ARRAY_LENGTH(optionDescriptions); i += 2)
 			{
 				printf("\t[%-20s]: %s\n", optionDescriptions[i], optionDescriptions[i + 1]);
 			}
@@ -161,7 +161,7 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs* arguments)
 				arguments->numberOfOtherFiles = i - indexOfFilesArgument;
 				arguments->otherFiles = (const u8**) malloc(arguments->numberOfOtherFiles * sizeof(const u8**));
 
-				for (s32 j = 0; j < arguments->numberOfOtherFiles; j++)
+				for (u32 j = 0; j < arguments->numberOfOtherFiles; j++)
 				{
 					arguments->otherFiles[j] = argv[j + indexOfFilesArgument + 1];
 				}

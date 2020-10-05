@@ -24,7 +24,10 @@ if [ ! -e $binDir/genVDisk/genVDisk ]; then
 fi
 
 # Flags
-kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char -o pKernel.bin -target i386-pc-none-elf -I $kernelDir -I $kernelDir/system"
+kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-char \
+					-Wall -Wextra -Wno-char-subscripts \
+					-o pKernel.bin -target i386-pc-none-elf \
+					-I $kernelDir -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
 # kernelFiles="kernelEntry.o $kernelDir/*.cpp $kernelDir/system/*.cpp $kernelDir/interrupts/*.cpp"
 kernelFiles="kernelEntry.o $kernelDir/unityBuild.cpp"

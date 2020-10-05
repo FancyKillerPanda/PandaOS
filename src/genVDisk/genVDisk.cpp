@@ -29,7 +29,7 @@ s32 main(s32 argc, const u8* argv[])
 	u8* extentFileName = concat_strings(imagePathWithoutEnd, "-flat.vmdk");
 	u8* descriptorFileName = concat_strings(imagePathWithoutEnd, ".vmdk");	
 
-	if (!write_descriptor_file(descriptorFileName, extentFileName, arguments.hardDiskSize, &diskGeometry))
+	if (!write_descriptor_file(descriptorFileName, extentFileName, &diskGeometry))
 	{
 		free(descriptorFileName);
 		free(extentFileName);

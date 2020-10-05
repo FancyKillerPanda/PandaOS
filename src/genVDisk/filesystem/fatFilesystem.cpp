@@ -197,7 +197,7 @@ u32 allocate_clusters(FATFilesystem* fat, u32 numberOfRequiredClusters)
 	return firstCluster;
 }
 
-void store_file_in_root_directory(FATFilesystem* fat, FILE* file, const char* filename, u32 size, u32 cluster)
+void store_file_in_root_directory(FATFilesystem* fat, const char* filename, u32 size, u32 cluster)
 {
 	// Calculates the 8.3 filename/extension pair
 	RootDirectoryEntry entry;
@@ -302,7 +302,7 @@ bool store_file(FATFilesystem* fat, const char* prefix, const char* name)
 	fat->rawDataSize = newRawDataSize;
 	fat->rawData = newRawData;
 
-	store_file_in_root_directory(fat, file, name, fileSize, firstCluster);
+	store_file_in_root_directory(fat, name, fileSize, firstCluster);
 	fclose(file);
 	free(filename);
 	

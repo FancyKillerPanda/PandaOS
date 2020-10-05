@@ -19,6 +19,7 @@ extern "C" void start_kernel()
 	u32 a = 123456789;
 	u32 b = 0;
 	u32 c = a / b;
+	UNUSED(c);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);

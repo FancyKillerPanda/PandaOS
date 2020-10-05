@@ -7,7 +7,7 @@
 #include "filesystem/fatFilesystem.hpp"
 #include "filesystem/mbr.hpp"
 
-bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, usize hardDiskSize, const DiskGeometry* diskGeometry)
+bool write_descriptor_file(const u8* descriptorFileName, const char* extentFileName, const DiskGeometry* diskGeometry)
 {
 	printf("Info: Writing VMDK descriptor to '%s'\n", descriptorFileName);
 	

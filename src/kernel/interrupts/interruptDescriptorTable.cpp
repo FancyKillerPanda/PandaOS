@@ -110,7 +110,6 @@ void init_interrupt_descriptor_table()
 	u32 interruptDescriptorTablePointer[2];
 	constexpr u16 kernelCodeSegmentOffset = 0x08;
 	constexpr u8 interruptGate = 0x8e;
-	constexpr u8 firstInterrupt = 32;
 
 #define SET_UP_HANDLER(index, offset)									\
 	InterruptDescriptorTableEntry& entry##offset = interruptDescriptorTableEntries[index]; \

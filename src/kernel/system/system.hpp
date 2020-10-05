@@ -12,6 +12,8 @@
 
 #define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
 
+#define UNUSED(x) (void) (x)
+
 // Common types
 using s8 = signed char;
 using s16 = short;
