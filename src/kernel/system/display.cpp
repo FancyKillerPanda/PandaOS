@@ -3,7 +3,7 @@
 #include "display.hpp"
 #include "system.hpp"
 #include "io.hpp"
-#include "memory.hpp"
+#include "memory/operations.hpp"
 
 #define VIDEO_MEMORY ((u16*) 0xb8000)
 #define SCREEN_ROWS 25

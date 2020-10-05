@@ -6,7 +6,8 @@
 
 #include "system/display.cpp"
 #include "system/io.cpp"
-#include "system/memory.cpp"
+
+#include "memory/operations.cpp"
 
 #include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"
