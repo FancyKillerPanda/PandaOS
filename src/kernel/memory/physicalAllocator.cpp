@@ -32,8 +32,6 @@ u8* allocate_physical_page()
 					u32 index = (byte * 32) + bit;
 					pageStatusBitmap[byte] |= pageBit;
 					
-					log_info("Found free physical page at bit %d.", index);
-					
 					return (u8*) (PHYSICAL_ALLOCATOR_BASE + (index * PAGE_SIZE));
 				}
 			}
@@ -50,8 +48,15 @@ u8* allocate_physical_page()
 
 void free_physical_page(u8* pageFrame)
 {
-	// TODO(fkp): Check for alignment
-	u32 index = ((u32) pageFrame - PHYSICAL_ALLOCATOR_BASE) / PAGE_SIZE;
+	u32 pageOffset = (u32) pageFrame - PHYSICAL_ALLOCATOR_BASE;
+
+	if (pageOffset % PAGE_SIZE != 0)
+	{
+		log_warning("Page frame pointer must be aligned to the page size. Nothing freed...");
+		return;
+	}
+	
+	u32 index = pageOffset / PAGE_SIZE;
 	
 	u32 byte = index / 32;
 	u32 bit = index % 32;

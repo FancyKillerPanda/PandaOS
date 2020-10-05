@@ -24,6 +24,13 @@ extern "C" void start_kernel()
 	u8* p4 = allocate_physical_page();
 	u8* p5 = allocate_physical_page();
 	printf("P4: %x | P5: %x\n", p4, p5);
+
+	free_physical_page(p4 + 1);
+
+	for (u32 i = 0; i < 253; i++)
+	{
+		allocate_physical_page();
+	}
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
