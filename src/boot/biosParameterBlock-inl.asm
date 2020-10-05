@@ -12,7 +12,7 @@ biosParameterBlock:
 	FATCount				db 2
 	rootDirectoryEntries	dw 224
 	sectorsCount			dw 2880
-	mediaDescriptor			db 0xf0
+	mediaDescriptor			db 0xf8
 	oldSectorsPerFAT		dw 0
 	sectorsPerTrack			dw 63
 	headsCount				dw 2
@@ -20,12 +20,12 @@ biosParameterBlock:
 
 	; Extended BIOS parameter block
 	; totalSectorsCount		dd 0
-	; bootDriveNumber			db 0
+	; bootDriveNumber		db 0
 	; reserved				db 0
 	; bootSignature			db 0x29
 	; volumeID				dd 0
-	; volumeLabel				db "PandaVolume"
-	; filesystemType			db "FAT16   "
+	; volumeLabel			db "PandaVolume"
+	; filesystemType		db "FAT16   "
 
 	totalSectorsCount		dd 0
 	sectorsPerFAT			dw 9

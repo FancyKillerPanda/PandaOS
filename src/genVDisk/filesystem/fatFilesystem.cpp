@@ -23,8 +23,16 @@ FATFilesystem init_fat(FilesystemType type, const u8* vbrFileContents)
 	information.fatCount = vbrFileContents[0x10];
 	information.rootDirectoryEntries = read_word(vbrFileContents, 0x11);
 	information.mediaDescriptor = vbrFileContents[0x15];
-	information.sectorsPerFat = read_word(vbrFileContents, 0x16);
 
+	if (type == FilesystemType::Fat16)
+	{
+		information.sectorsPerFat = read_word(vbrFileContents, 0x16);
+	}
+	else if (type == FilesystemType::Fat32)
+	{
+		information.sectorsPerFat = read_word(vbrFileContents, 0x24);
+	}
+	
 	FATFilesystem result;
 	result.type = type;
 	result.information = information;
@@ -74,12 +82,16 @@ void put_entry(FATFilesystem* fat, u32 index, u32 value)
 	}
 	else if (fat->type == FilesystemType::Fat32)
 	{
+		/*
 		index *= 4;
 		
 		fat->table[index] = (u8) (value & 0x000000ff);
 		fat->table[index + 1] = (u8) ((value & 0x0000ff00) >> 8);
 		fat->table[index + 2] = (u8) ((value & 0x00ff0000) >> 16);
 		fat->table[index + 3] = (u8) ((value & 0xff000000) >> 24);
+		*/
+
+		((u32*) fat->table)[index] = value;
 	}
 }
 
@@ -111,12 +123,16 @@ u32 get_entry(FATFilesystem* fat, u32 index)
 	}
 	else if (fat->type == FilesystemType::Fat32)
 	{
+		/*
 		index *= 4;
 
 		entry = fat->table[index];
 		entry = entry | (fat->table[index + 1] << 8);
 		entry = entry | (fat->table[index + 2] << 16);
 		entry = entry | (fat->table[index + 3] << 24);
+		*/
+
+		entry = ((u32*) fat->table)[index];
 	}
 	
 	return entry;

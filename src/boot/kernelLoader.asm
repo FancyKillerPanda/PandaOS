@@ -12,7 +12,8 @@ main:
 	mov ds, ax
 	mov si, 0x7c03				; Actual data starts at 0x7c03
 	mov di, biosParameterBlock
-	mov cx, 34					; The size of the boot sector
+	; mov cx, 34					; The size of the boot sector
+	mov cx, 85					; The size of the boot sector
 	rep movsb
 	pop ds
 	

@@ -20,6 +20,7 @@ kernelDir=$srcDir/kernel
 
 # if [ ! -e $binDir/genVDisk/genVDisk ]; then
 	$prjRoot/tools/scripts/buildGenVDisk.sh
+	echo
 # fi
 
 # Flags
