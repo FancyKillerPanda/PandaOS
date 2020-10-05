@@ -18,15 +18,6 @@ biosParameterBlock:
 	headsCount				dw 2
 	hiddenSectors			dd 0
 
-	; Extended BIOS parameter block
-	; totalSectorsCount		dd 0
-	; bootDriveNumber		db 0
-	; reserved				db 0
-	; bootSignature			db 0x29
-	; volumeID				dd 0
-	; volumeLabel			db "PandaVolume"
-	; filesystemType		db "FAT16   "
-
 	totalSectorsCount		dd 0
 	sectorsPerFAT			dw 9
 	driveDescription		dw 0

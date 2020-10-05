@@ -4,7 +4,6 @@
 
 #include "disk/vmdk.cpp"
 
-// #include "filesystem/fat16.cpp"
 #include "filesystem/fatFilesystem.cpp"
 #include "filesystem/mbr.cpp"
 

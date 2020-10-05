@@ -140,40 +140,21 @@ LF: equ 0x0a
 	mov dx, FAT_LOAD_SEGMENT
 	mov ds, dx
 
-	; TODO(fkp): Clean this mess up
-	mov si, cx					; Source index is the current FAT entry
-	; mov dx, cx				; Offset = entry * 1.5 bytes
-	; shr dx, 1					; Shifts right
-	; add si, dx
-	; mov dx, cx
-	; shl dx, 2
-	; add si, dx
+	; Source index is the current FAT entry times 4
+	mov si, cx					
 	add si, cx
 	add si, cx
 	add si, cx
 
-	; mov dx, [ds:si]			; Reads the entry from memory
-
+	; Reads the entry from memory
 	mov ecx, [ds:si]
+
+	; Check for the end-of-chain mark
 	and ecx, 0x0fffffff
 	pop ds
 	cmp ecx, 0x0ffffff8
 	
 	jl %%.read_next_sector
-
-	; test cx, 1				; Checks which way to shift
-	; jnz %%.read_next_cluster_odd
-	; and dx, 0x0fff			; Masks out the top four bits
-	; jmp %%.read_next
-
-; %%.read_next_cluster_odd:
-	; shr dx, 4					; Shifts the new cluster to the right
-
-; %%.read_next:
-	; pop ds					; Restores to the normal data segment
-	; mov cx, dx				; Stores the new FAT entry in cx
-	; cmp cx, 0x0ff8			; Magic value signalling that this is the last segment
-	; jl %%.read_next_sector
 %endmacro
 
 	
