@@ -8,6 +8,7 @@
 #include "system/io.cpp"
 
 #include "memory/operations.cpp"
+#include "memory/physicalAllocator.cpp"
 
 #include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"

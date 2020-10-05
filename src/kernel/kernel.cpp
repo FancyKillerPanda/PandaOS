@@ -1,11 +1,9 @@
 /*  ===== Date Created: 11 September, 2020 =====  */
 
-#include "system.hpp"
-#include "display.hpp"
 #include "log.hpp"
 #include "display.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
-#include "interrupts/handleInterrupts.hpp"
+#include "memory/physicalAllocator.hpp"
 
 extern "C" void start_kernel()
 {
@@ -15,11 +13,17 @@ extern "C" void start_kernel()
 	move_cursor(8, 0); // This is because the bootloader logged some text
 	log_info("Starting kernel...");
 	log_init();
+	print("\n");
 
-	u32 a = 123456789;
-	u32 b = 0;
-	u32 c = a / b;
-	UNUSED(c);
+	u8* p1 = allocate_physical_page();
+	u8* p2 = allocate_physical_page();
+	u8* p3 = allocate_physical_page();
+	printf("P1: %x | P2: %x | P3: %x\n", p1, p2, p3);
+
+	free_physical_page(p2);
+	u8* p4 = allocate_physical_page();
+	u8* p5 = allocate_physical_page();
+	printf("P4: %x | P5: %x\n", p4, p5);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
