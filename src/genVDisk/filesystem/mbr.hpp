@@ -10,6 +10,7 @@ enum class PartitionType : u8
 {
 	Empty = 0x00,
 	Fat16Chs = 0x06,
+	Fat32Lba = 0x0c,
 };
 
 enum class PartitionStatus : u8
@@ -28,7 +29,7 @@ struct MBR
 };
 
 bool init_mbr(MBR* mbr, const u8* path);
-bool add_partition_to_mbr(MBR* mbr, const DiskGeometry* geometry, usize numberOfSectors);
+bool add_partition_to_mbr(MBR* mbr, const DiskGeometry* geometry, usize numberOfSectors, PartitionType type, bool bootable = false);
 
 struct CHS
 {

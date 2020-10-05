@@ -65,6 +65,16 @@ bool serialise_partition(u8* into, const DiskGeometry* geometry,
 		into[7] = cylinderEnd;		
 	} break;
 
+	case PartitionType::Fat32Lba:
+	{
+		into[1] = 0xff;
+		into[2] = 0xff;
+		into[3] = 0xff;
+		into[5] = 0xff;
+		into[6] = 0xff;
+		into[7] = 0xff;
+	} break;
+
 	default:
 	{
 	} break;
@@ -78,16 +88,27 @@ bool serialise_partition(u8* into, const DiskGeometry* geometry,
 	return true;
 }
 
-bool add_partition_to_mbr(MBR* mbr, const DiskGeometry* geometry, usize numberOfSectors)
+bool add_partition_to_mbr(MBR* mbr, const DiskGeometry* geometry, usize numberOfSectors, PartitionType type, bool bootable)
 {
 	usize partitionOffset = partitionBaseStart + (mbr->partitionNumber * partitionEntrySize);
 	usize partitionLBAOffset = mbr->lbaOffset;
 	mbr->lbaOffset += numberOfSectors;
 	mbr->partitionNumber += 1;
 
+	PartitionStatus status;
+
+	if (bootable)
+	{
+		status = PartitionStatus::Bootable;
+	}
+	else
+	{
+		status = PartitionStatus::Inactive;
+	}
+	
 	return serialise_partition(mbr->data + partitionOffset, geometry,
 							   numberOfSectors, partitionLBAOffset,
-							   PartitionType::Fat16Chs, PartitionStatus::Bootable);
+							   type, status);
 }
 	
 CHS convert_lba_to_chs(usize lba, const DiskGeometry* geometry)

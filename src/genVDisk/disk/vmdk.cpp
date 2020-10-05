@@ -75,7 +75,8 @@ bool write_extent_file(const u8* extentFileName, const CLArgs& arguments, const 
 		return false;
 	}
 
-	if (!add_partition_to_mbr(&masterBootRecord, diskGeometry, arguments.hardDiskSize / 512))
+	if (!add_partition_to_mbr(&masterBootRecord, diskGeometry, arguments.hardDiskSize / 512,
+							  PartitionType::Fat32Lba, true))
 	{
 		printf("Error: Failed to add a partition to the MBR.\n");
 		fclose(extentFile);
