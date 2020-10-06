@@ -1,3 +1,0 @@
-# TODO
-
-- Fix function casing
