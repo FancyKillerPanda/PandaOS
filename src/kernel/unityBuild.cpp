@@ -9,6 +9,7 @@
 
 #include "memory/operations.cpp"
 #include "memory/physicalAllocator.cpp"
+#include "memory/virtualAllocator.cpp"
 
 #include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"

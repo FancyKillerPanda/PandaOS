@@ -7,7 +7,6 @@
 // a proper memory map they will be changed to reflect that.
 constexpr u32 NUMBER_OF_PAGE_FRAMES = 256;
 constexpr u32 PHYSICAL_ALLOCATOR_BASE = 0xd0000000;
-constexpr u32 PAGE_SIZE = 4096;
 
 static_assert(NUMBER_OF_PAGE_FRAMES % 32 == 0, "Number of page frames must be a multiple of 32.");
 // NOTE(fkp): Zero is free, one is used

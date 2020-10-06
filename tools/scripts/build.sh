@@ -29,8 +29,7 @@ kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-ch
 					-o pKernel.bin -target i386-pc-none-elf \
 					-I $kernelDir -I $kernelDir/system"
 kernelLinkFlags="-Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
-# kernelFiles="kernelEntry.o $kernelDir/*.cpp $kernelDir/system/*.cpp $kernelDir/interrupts/*.cpp"
-kernelFiles="kernelEntry.o $kernelDir/unityBuild.cpp"
+kernelFiles="kernelEntry.o enablePaging.o $kernelDir/unityBuild.cpp"
 
 mkdir -p $binDir/PandaOS
 pushd $binDir/PandaOS > /dev/null
@@ -43,6 +42,7 @@ nasm -i $bootDir $bootDir/masterBootRecord.asm -o masterBootRecord.bin || exit_o
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
 nasm -i $bootDir $bootDir/kernelLoader.asm -o pkLoader.bin || exit_on_error
 nasm -felf32 $kernelDir/kernelEntry.asm -o kernelEntry.o || exit_on_error
+nasm -felf32 $kernelDir/memory/enablePaging.asm -o enablePaging.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nBuilding virtual hard disk..."

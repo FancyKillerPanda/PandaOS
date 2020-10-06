@@ -5,6 +5,8 @@
 
 #include "system.hpp"
 
+constexpr u32 PAGE_SIZE = 4096;
+
 u8* allocate_physical_page();
 void free_physical_page(u8* pageFrame);
 

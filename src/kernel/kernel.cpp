@@ -3,7 +3,7 @@
 #include "log.hpp"
 #include "display.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
-#include "memory/physicalAllocator.hpp"
+#include "memory/virtualAllocator.hpp"
 
 extern "C" void start_kernel()
 {
@@ -15,22 +15,7 @@ extern "C" void start_kernel()
 	log_init();
 	print("\n");
 
-	u8* p1 = allocate_physical_page();
-	u8* p2 = allocate_physical_page();
-	u8* p3 = allocate_physical_page();
-	printf("P1: %x | P2: %x | P3: %x\n", p1, p2, p3);
-
-	free_physical_page(p2);
-	u8* p4 = allocate_physical_page();
-	u8* p5 = allocate_physical_page();
-	printf("P4: %x | P5: %x\n", p4, p5);
-
-	free_physical_page(p4 + 1);
-
-	for (u32 i = 0; i < 253; i++)
-	{
-		allocate_physical_page();
-	}
+	init_virtual_allocator();
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
