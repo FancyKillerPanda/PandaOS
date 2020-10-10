@@ -8,6 +8,7 @@
 #include "system/io.cpp"
 
 #include "memory/operations.cpp"
+#include "memory/memoryMap.cpp"
 #include "memory/physicalAllocator.cpp"
 #include "memory/virtualAllocator.cpp"
 

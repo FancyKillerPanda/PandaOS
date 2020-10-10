@@ -300,7 +300,7 @@ try_enable:
 	inc dword [es:bx]
 	pop bx
 	
-	add dl, 24
+	add di, 24
 	mov eax, 0xe820
 	mov ecx, 24
 	mov edx, 0x534d4150

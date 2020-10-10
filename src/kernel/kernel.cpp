@@ -4,13 +4,7 @@
 #include "display.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
 #include "memory/virtualAllocator.hpp"
-
-// TODO(fkp): Move this
-struct MemoryMap
-{
-	u8* entries = nullptr;
-	u32 numberOfEntries = 0;
-};
+#include "memory/memoryMap.hpp"
 
 extern "C" void start_kernel(MemoryMap* memoryMap)
 {
@@ -22,8 +16,7 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	log_init();
 	print("\n");
 
-	log_info("Ptr = %x, Number = %d", memoryMap->entries, memoryMap->numberOfEntries);
-	
+	read_memory_map(memoryMap);
 	init_virtual_allocator();
 	
 	log_info("\nFinished, now hanging...");

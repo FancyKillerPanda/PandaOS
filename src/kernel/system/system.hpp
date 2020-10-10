@@ -18,10 +18,12 @@
 using s8 = signed char;
 using s16 = short;
 using s32 = int;
+using s64 = long long;
 
 using u8 = char; // NOTE(fkp): This is forced to by unsigned through compiler flags
 using u16 = unsigned short;
 using u32 = unsigned int;
+using u64 = unsigned long long;
 using usize = u32;
 
 using f32 = float;

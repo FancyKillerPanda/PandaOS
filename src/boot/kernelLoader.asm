@@ -31,10 +31,13 @@ main:
 	; Gets the memory map
 	get_memory_map memoryMapLocation, memoryMap
 	
+	xchg bx, bx
+	mov ax, memoryMapLocation
+	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
 	mov es, ax
-	mov di, memoryMap + SIZE_OF_MEMORY_MAP
+	mov di, memoryMapLocation + 120
 
 	; Interrupt descriptor table set up with empty bytes
 	mov cx, 2048
@@ -104,11 +107,13 @@ main:
 	
 gdtEntry:
 	dw 24
-	dd memoryMap + SIZE_OF_MEMORY_MAP + 2048
+;	dd memoryMap + SIZE_OF_MEMORY_MAP + 2048
+	dd memoryMapLocation + 120 + 2048
 
 idtEntry:
 	dw 2048
-	dd memoryMap + SIZE_OF_MEMORY_MAP
+;	dd memoryMap + SIZE_OF_MEMORY_MAP
+	dd memoryMapLocation + 120
 	
 
 SIZE_OF_MEMORY_MAP: equ 16
