@@ -28,10 +28,13 @@ main:
 	; Tries to enable to A20 line
 	try_enable_a20
 
+	; Gets the memory map
+	get_memory_map memoryMapLocation, memoryMap
+	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
 	mov es, ax
-	mov di, ax
+	mov di, memoryMap + SIZE_OF_MEMORY_MAP
 
 	; Interrupt descriptor table set up with empty bytes
 	mov cx, 2048
@@ -86,6 +89,10 @@ main:
 	mov ss, ax
 	mov esp, 0x00030000			; Stack grows downwards from 0x00030000
 
+	; Passes the memory map to the kernel
+	mov eax, memoryMap
+	push eax
+	
 	; Jumps to the kernel
 	db 0x66
 	db 0xea
@@ -97,12 +104,17 @@ main:
 	
 gdtEntry:
 	dw 24
-	dd 2048
+	dd memoryMap + SIZE_OF_MEMORY_MAP + 2048
 
 idtEntry:
 	dw 2048
-	dd 0
+	dd memoryMap + SIZE_OF_MEMORY_MAP
 	
+
+SIZE_OF_MEMORY_MAP: equ 16
+memoryMap:
+	.pointer: dd memoryMapLocation
+	.numberOfEntries dd 0
 	
 %include "biosParameterBlock-inl.asm"
 %include "commonUtility-inl.asm"
@@ -112,6 +124,12 @@ kernelLoaderMessage: db "Info: PandaOS kernel loader...", CR, LF, 0
 a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
 a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
 jumpingMessage: db "Info: Jumping to the kernel!", CR, LF, 0
+finishedReadingMemoryMessage: db "Info: Finished reading memory map!", CR, LF, 0
+memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
+memoryMapReadEntryMessage: db "Info: Read memory map entry.", CR, LF, 0
+memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
 kernelFile: db "pKernel bin"
 kernelFileCluster: dw 0
+
+memoryMapLocation:
