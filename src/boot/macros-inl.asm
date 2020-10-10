@@ -238,40 +238,6 @@ try_enable:
 	print a20SuccessMessage
 %endmacro
 	
-; void get_memory_map(buffer to read into, number of entries read)
-%if 0
-%macro get_memory_map 2
-	mov di, %1
-	
-	xor ebx, ebx
-	mov edx, 0x534d4150
-	
-%%.get_next_region:
-	mov eax, 0xe820
-	mov ecx, 24
-
-	int 0x15
-	jc %%.memory_map_not_detected
-	cmp eax, 0x534d4150
-	jne %%.memory_map_not_detected
-
-	cmp ebx, 0
-	je %%.end_of_list
-	
-	add dl, 24
-	log finishedReadingMemoryMessage
-	jmp %%.get_next_region
-
-%%.end_of_list:
-	log finishedReadingMemoryMessage
-	ret
-
-%%.memory_map_not_detected:
-	log memoryMapNotDetectedMessage
-	ret
-%endmacro
-%endif
-
 %macro get_memory_map 2
 	push es
 	xor ax, ax
