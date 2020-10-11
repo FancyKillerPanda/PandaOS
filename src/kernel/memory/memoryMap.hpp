@@ -12,6 +12,7 @@ enum class MemoryType : u32
 	Reclaimable = 3,
 	NonVolatile = 4,
 	Bad = 5,
+	Unknown = 6,
 };
 
 struct MemoryMapEntry
