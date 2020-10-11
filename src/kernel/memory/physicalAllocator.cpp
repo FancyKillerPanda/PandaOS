@@ -6,11 +6,25 @@
 // TODO(fkp): These values are just temporary. Once we plan
 // a proper memory map they will be changed to reflect that.
 constexpr u32 NUMBER_OF_PAGE_FRAMES = 256;
-constexpr u32 PHYSICAL_ALLOCATOR_BASE = 0xd0000000;
-
 static_assert(NUMBER_OF_PAGE_FRAMES % 32 == 0, "Number of page frames must be a multiple of 32.");
 // NOTE(fkp): Zero is free, one is used
 u32 pageStatusBitmap[NUMBER_OF_PAGE_FRAMES / 32] = { 0 };
+
+// Will be read from the memory map
+u32 physicalAllocatorBase = 0x00;
+
+void init_physical_allocator(MemoryMap* memoryMap)
+{
+	// Picks the last free block
+	for (s32 i = memoryMap->numberOfEntries - 1; i >= 0; i--)
+	{
+		if (memoryMap->entries[i].regionType == MemoryType::Free)
+		{
+			physicalAllocatorBase = memoryMap->entries[i].baseAddress;
+			break;
+		}
+	}
+}
 
 u8* allocate_physical_page()
 {
@@ -31,7 +45,7 @@ u8* allocate_physical_page()
 					u32 index = (byte * 32) + bit;
 					pageStatusBitmap[byte] |= pageBit;
 					
-					return (u8*) (PHYSICAL_ALLOCATOR_BASE + (index * PAGE_SIZE));
+					return (u8*) (physicalAllocatorBase + (index * PAGE_SIZE));
 				}
 			}
 
@@ -47,7 +61,7 @@ u8* allocate_physical_page()
 
 void free_physical_page(u8* pageFrame)
 {
-	u32 pageOffset = (u32) pageFrame - PHYSICAL_ALLOCATOR_BASE;
+	u32 pageOffset = (u32) pageFrame - physicalAllocatorBase;
 
 	if (pageOffset % PAGE_SIZE != 0)
 	{

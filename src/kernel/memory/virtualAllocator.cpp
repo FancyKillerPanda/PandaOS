@@ -25,9 +25,7 @@ void init_virtual_allocator()
 	{
 		pageDirectory[i] = readWriteFlag;
 	}
-
-	printf("%x %x %x %x\n", pageDirectory, pageDirectory[0], pageDirectory[1], pageDirectory[2]);
-
+	
 	// Initialises the first page table
 	u32* firstPageTable = (u32*) allocate_physical_page();
 
@@ -38,13 +36,7 @@ void init_virtual_allocator()
 
 	// Puts the first page table into the page directory and tells the
 	// processor to load it
-	// pageDirectory[0] = ((u32) firstPageTable) | presentFlag | readWriteFlag;
-	// printf("%x\n", pageDirectory[0]);
-	// pageDirectory[0] = 123456789;
-	// printf("%x\n", pageDirectory[0]);
-
-	while (true);
-	
+	pageDirectory[0] = ((u32) firstPageTable) | presentFlag | readWriteFlag;
 	load_page_directory(pageDirectory);
 	enable_paging();
 	
