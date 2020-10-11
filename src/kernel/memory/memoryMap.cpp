@@ -62,6 +62,9 @@ void adjust_memory_map(MemoryMap* memoryMap)
 				{
 					copy_memory(&nextEntry + 1, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
 					memoryMap->numberOfEntries -= 1;
+					
+					// NOTE(fkp): This should be ok as overflow is well defined for unsigned types
+					i -= 1;
 				}
 				else
 				{
@@ -76,6 +79,7 @@ void adjust_memory_map(MemoryMap* memoryMap)
 				{
 					copy_memory(&nextEntry, &currentEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i));
 					memoryMap->numberOfEntries -= 1;
+					i -= 1;
 				}
 				else
 				{
@@ -85,7 +89,22 @@ void adjust_memory_map(MemoryMap* memoryMap)
 		}
 	}
 
-	
+	// Adjacent regions of the same type
+	for (u32 i = 0; i < memoryMap->numberOfEntries - 1; i++)
+	{
+		MemoryMapEntry& currentEntry = memoryMap->entries[i];
+		MemoryMapEntry& nextEntry = memoryMap->entries[i + 1];
+
+		if (currentEntry.regionType == nextEntry.regionType &&
+			currentEntry.baseAddress + currentEntry.regionLength == nextEntry.baseAddress)
+		{
+			currentEntry.regionLength += nextEntry.regionLength;
+			memoryMap->numberOfEntries -= 1;
+			i -= 1;
+			
+			copy_memory(&nextEntry + 1, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
+		}
+	}
 }
 
 void print_memory_map(MemoryMap* memoryMap)
@@ -171,7 +190,7 @@ void read_memory_map(MemoryMap* memoryMap)
 	
 	memoryMap->entries[4].baseAddress = 0x0140;
 	memoryMap->entries[4].regionLength = 0x0010;
-	memoryMap->entries[4].regionType = MemoryType::Free;
+	memoryMap->entries[4].regionType = MemoryType::Unknown;
 	
 	adjust_memory_map(memoryMap);
 	print_memory_map(memoryMap);
