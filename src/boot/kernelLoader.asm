@@ -31,14 +31,20 @@ main:
 	; Gets the memory map
 	get_memory_map memoryMapLocation, memoryMap
 	
-	xchg bx, bx
-	mov ax, memoryMapLocation
-	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
 	mov es, ax
-	mov di, memoryMapLocation + 120
+	
+	mov ebx, memoryMap.numberOfEntries
+	mov ecx, [es:ebx]
+	mov eax, 24
+	mul ecx
+	add [idtEntry.pointer], eax
+	add [gdtEntry.pointer], eax
+	add dword [gdtEntry.pointer], 2048
 
+	mov di, [idtEntry.pointer]
+	
 	; Interrupt descriptor table set up with empty bytes
 	mov cx, 2048
 	rep stosb					; Gives 256 empty IDT entries
@@ -106,14 +112,14 @@ main:
 	call boot_failed
 	
 gdtEntry:
-	dw 24
-;	dd memoryMap + SIZE_OF_MEMORY_MAP + 2048
-	dd memoryMapLocation + 120 + 2048
+	.size: dw 24
+;	.pointer: dd memoryMapLocation + 120 + 2048
+	.pointer: dd memoryMapLocation
 
 idtEntry:
-	dw 2048
-;	dd memoryMap + SIZE_OF_MEMORY_MAP
-	dd memoryMapLocation + 120
+	.size: dw 2048
+;	.pointer: dd memoryMapLocation + 120
+	.pointer: dd memoryMapLocation
 	
 
 SIZE_OF_MEMORY_MAP: equ 16
