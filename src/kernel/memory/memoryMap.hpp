@@ -13,6 +13,8 @@ enum class MemoryType : u32
 	NonVolatile = 4,
 	Bad = 5,
 	Unknown = 6,
+
+	Count,
 };
 
 struct MemoryMapEntry

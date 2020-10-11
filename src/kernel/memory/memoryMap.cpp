@@ -5,6 +5,20 @@
 #include "log.hpp"
 #include "system/display.hpp"
 
+u32 get_memory_priority(MemoryMapEntry& entry)
+{
+	switch (entry.regionType)
+	{
+	case MemoryType::Bad:			return 5;
+	case MemoryType::NonVolatile:	return 4;
+	case MemoryType::Reserved:		return 3;
+	case MemoryType::Reclaimable:	return 2;
+	case MemoryType::Free:			return 1;
+	case MemoryType::Unknown:		return 0;
+	default:						return 0;
+	}
+}
+
 // TODO(fkp): Better sort algorithm
 void sort_memory_map(MemoryMap* memoryMap)
 {
@@ -28,25 +42,20 @@ void sort_memory_map(MemoryMap* memoryMap)
 	}
 }
 
-u32 get_memory_priority(MemoryMapEntry& entry)
+void identify_unknown_regions(MemoryMap* memoryMap)
 {
-	switch (entry.regionType)
+	for (u32 i = 0; i < memoryMap->numberOfEntries; i++)
 	{
-	case MemoryType::Reserved:		return 5;
-	case MemoryType::Bad:			return 4;
-	case MemoryType::NonVolatile:	return 3;
-	case MemoryType::Reclaimable:	return 2;
-	case MemoryType::Free:			return 1;
-	case MemoryType::Unknown:		return 0;
-	default:						return 0;
+		if ((u32) memoryMap->entries[i].regionType == 0 ||
+			memoryMap->entries[i].regionType >= MemoryType::Count)
+		{
+			memoryMap->entries[i].regionType = MemoryType::Unknown;
+		}
 	}
 }
 
-void adjust_memory_map(MemoryMap* memoryMap)
+void remove_overlapping_regions(MemoryMap* memoryMap)
 {
-	sort_memory_map(memoryMap);
-
-	// Overlapping regions
 	for (u32 i = 0; i < memoryMap->numberOfEntries - 1; i++)
 	{
 		MemoryMapEntry& currentEntry = memoryMap->entries[i];
@@ -88,8 +97,10 @@ void adjust_memory_map(MemoryMap* memoryMap)
 			}
 		}
 	}
+}
 
-	// Adjacent regions of the same type
+void combine_adjacent_regions(MemoryMap* memoryMap)
+{
 	for (u32 i = 0; i < memoryMap->numberOfEntries - 1; i++)
 	{
 		MemoryMapEntry& currentEntry = memoryMap->entries[i];
@@ -105,6 +116,14 @@ void adjust_memory_map(MemoryMap* memoryMap)
 			copy_memory(&nextEntry + 1, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
 		}
 	}
+}
+
+void adjust_memory_map(MemoryMap* memoryMap)
+{
+	identify_unknown_regions(memoryMap);
+	sort_memory_map(memoryMap);
+	remove_overlapping_regions(memoryMap);
+	combine_adjacent_regions(memoryMap);
 }
 
 void print_memory_map(MemoryMap* memoryMap)
@@ -172,26 +191,7 @@ void read_memory_map(MemoryMap* memoryMap)
 		return;
 	}
 	
-	memoryMap->entries[0].baseAddress = 0x0110;
-	memoryMap->entries[0].regionLength = 0x0010;
-	memoryMap->entries[0].regionType = MemoryType::Free;
-	
-	memoryMap->entries[1].baseAddress = 0x0110;
-	memoryMap->entries[1].regionLength = 0x0010;
-	memoryMap->entries[1].regionType = MemoryType::Reserved;
-	
-	memoryMap->entries[2].baseAddress = 0x0120;
-	memoryMap->entries[2].regionLength = 0x0010;
-	memoryMap->entries[2].regionType = MemoryType::Free;
-	
-	memoryMap->entries[3].baseAddress = 0x0130;
-	memoryMap->entries[3].regionLength = 0x0010;
-	memoryMap->entries[3].regionType = MemoryType::Free;
-	
-	memoryMap->entries[4].baseAddress = 0x0140;
-	memoryMap->entries[4].regionLength = 0x0010;
-	memoryMap->entries[4].regionType = MemoryType::Unknown;
-	
+	// TODO(fkp): Check ACPI attributes
 	adjust_memory_map(memoryMap);
 	print_memory_map(memoryMap);
 }
