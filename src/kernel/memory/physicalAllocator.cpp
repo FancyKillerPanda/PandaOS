@@ -20,9 +20,18 @@ void init_physical_allocator(MemoryMap* memoryMap)
 	{
 		if (memoryMap->entries[i].regionType == MemoryType::Free)
 		{
-			physicalAllocatorBase = memoryMap->entries[i].baseAddress;
-			break;
+			if (memoryMap->entries[i].regionLength >= NUMBER_OF_PAGE_FRAMES * PAGE_SIZE)
+			{
+				physicalAllocatorBase = memoryMap->entries[i].baseAddress;
+				break;
+			}
 		}
+	}
+
+	if (!physicalAllocatorBase)
+	{
+		log_error("Failed to pick a base address for the physical allocator.");
+		while (true);
 	}
 }
 
