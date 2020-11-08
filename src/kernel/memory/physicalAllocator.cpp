@@ -7,6 +7,7 @@
 // a proper memory map they will be changed to reflect that.
 constexpr u32 NUMBER_OF_PAGE_FRAMES = 256;
 static_assert(NUMBER_OF_PAGE_FRAMES % 32 == 0, "Number of page frames must be a multiple of 32.");
+
 // NOTE(fkp): Zero is free, one is used
 u32 pageStatusBitmap[NUMBER_OF_PAGE_FRAMES / 32] = { 0 };
 
@@ -35,7 +36,7 @@ void init_physical_allocator(MemoryMap* memoryMap)
 	}
 }
 
-u8* allocate_physical_page()
+void* allocate_physical_page()
 {
 	for (u32 byte = 0; byte < NUMBER_OF_PAGE_FRAMES / 32; byte++)
 	{
@@ -54,7 +55,7 @@ u8* allocate_physical_page()
 					u32 index = (byte * 32) + bit;
 					pageStatusBitmap[byte] |= pageBit;
 					
-					return (u8*) (physicalAllocatorBase + (index * PAGE_SIZE));
+					return (void*) (physicalAllocatorBase + (index * PAGE_SIZE));
 				}
 			}
 
@@ -68,7 +69,7 @@ u8* allocate_physical_page()
 	while (true);
 }
 
-void free_physical_page(u8* pageFrame)
+void free_physical_page(void* pageFrame)
 {
 	u32 pageOffset = (u32) pageFrame - physicalAllocatorBase;
 
