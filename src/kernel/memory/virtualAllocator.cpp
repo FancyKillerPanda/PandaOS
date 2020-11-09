@@ -78,7 +78,7 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 	return pageTable;
 }
 
-void map_address(void* virtualAddress, void* physicalAddress)
+void map_page_address(void* virtualAddress, void* physicalAddress)
 {
 	// TODO(fkp): Make sure addressses are page aligned
 	PageDirectoryEntry& pageDirectoryEntry = get_page_directory_entry(pageDirectoryTable, virtualAddress);
@@ -94,4 +94,21 @@ void map_address(void* virtualAddress, void* physicalAddress)
 	pageTableEntry = (PageTableEntry) (((u32) physicalAddress) | PRESENT_FLAG | READ_WRITE_FLAG);
 	
 	log_info("Mapped virtual address %x to physical address %x.", virtualAddress, physicalAddress);
+}
+
+void allocate_virtual_range(void* start, u32 length)
+{
+	if ((u32) start & 0x0fff)
+	{
+		log_warning("Start of virtual range must be page aligned for allocate.");
+		return;
+	}
+
+	u32 numberOfPages = ((length + PAGE_SIZE) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
+
+	for (u32 i = 0; i < numberOfPages; i++)
+	{
+		void* page = allocate_physical_page();
+		map_page_address((u8*) start + (i * PAGE_SIZE), page);
+	}
 }

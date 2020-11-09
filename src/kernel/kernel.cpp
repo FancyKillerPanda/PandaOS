@@ -22,11 +22,8 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	init_virtual_allocator();
 
 	// Debug testing
-	void map_address(void* virtualAddress, void* physicalAddress);
-	void* pagePtr = allocate_physical_page();
-	map_address((void*) 0x400000, pagePtr);
-	map_address((void*) 0x400000, pagePtr);
-	*((u32*) 0x400000) = 0x11223344;
+	allocate_virtual_range((void*) 0x400000, 9000);
+	asm volatile("xchg %%bx, %%bx" ::);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
