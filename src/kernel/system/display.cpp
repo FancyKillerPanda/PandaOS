@@ -64,7 +64,7 @@ void clear_screen(u8 attribute)
 {
 	// The space character
 	u16 blank = 0x20 | (attribute << 8);
-	set_memory_16(VIDEO_MEMORY, SCREEN_ROWS * SCREEN_COLS * 2, blank);
+	memset_16(VIDEO_MEMORY, blank, SCREEN_ROWS * SCREEN_COLS * 2);
 	move_cursor(0, 0);
 }
 
@@ -85,8 +85,8 @@ void scroll_screen_up(u8 numberOfLines, u8 attribute)
 		}
 	}
 
-	copy_memory(VIDEO_MEMORY + (numberOfLines * SCREEN_COLS), VIDEO_MEMORY, SCREEN_ROWS * SCREEN_COLS * 2);
-	set_memory_16(VIDEO_MEMORY + (SCREEN_ROWS - numberOfLines) * SCREEN_COLS, SCREEN_COLS * numberOfLines, blank);
+	memcpy(VIDEO_MEMORY, VIDEO_MEMORY + (numberOfLines * SCREEN_COLS), SCREEN_ROWS * SCREEN_COLS * 2);
+	memset_16(VIDEO_MEMORY + (SCREEN_ROWS - numberOfLines) * SCREEN_COLS, blank, SCREEN_COLS * numberOfLines);
 	move_cursor(cursorRow - numberOfLines, cursorCol);
 }
 
@@ -154,7 +154,7 @@ void print_integer(u32 integer, u8 attribute)
 	// NOTE(fkp): 32bit integer has 10 digits maximum in decimal
 	u8 digits[10];
 	u8 currentIndex = STACK_ARRAY_LENGTH(digits) - 1;
-	set_memory(digits, STACK_ARRAY_LENGTH(digits), 0);
+	memset(digits, 0, STACK_ARRAY_LENGTH(digits));
 
 	while (integer / 10)
 	{
@@ -191,7 +191,7 @@ void print_hex_integer(u32 integer, u8 attribute)
 	// NOTE(fkp): 32bit integer has 8 digits maximum in hex (plus 2 for '0x')
 	u8 digits[10];
 	u8 currentIndex = STACK_ARRAY_LENGTH(digits) - 1;
-	set_memory(digits, STACK_ARRAY_LENGTH(digits), 0);
+	memset(digits, 0, STACK_ARRAY_LENGTH(digits));
 	
 	while (integer / 16)
 	{

@@ -36,9 +36,9 @@ void sort_memory_map(MemoryMap* memoryMap)
 
 		// Swap
 		MemoryMapEntry temp;
-		copy_memory(&memoryMap->entries[i], &temp, sizeof(MemoryMapEntry));
-		copy_memory(&memoryMap->entries[indexOfSmallest], &memoryMap->entries[i], sizeof(MemoryMapEntry));
-		copy_memory(&temp, &memoryMap->entries[indexOfSmallest], sizeof(MemoryMapEntry));
+		memcpy(&temp, &memoryMap->entries[i], sizeof(MemoryMapEntry));
+		memcpy(&memoryMap->entries[i], &memoryMap->entries[indexOfSmallest], sizeof(MemoryMapEntry));
+		memcpy(&memoryMap->entries[indexOfSmallest], &temp, sizeof(MemoryMapEntry));
 	}
 }
 
@@ -69,7 +69,7 @@ void remove_overlapping_regions(MemoryMap* memoryMap)
 				// Checks if the next entry is completely inside this one
 				if ((u64) overlapSize > nextEntry.regionLength)
 				{
-					copy_memory(&nextEntry + 1, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
+					memcpy(&nextEntry, &nextEntry + 1, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
 					memoryMap->numberOfEntries -= 1;
 					
 					// NOTE(fkp): This should be ok as overflow is well defined for unsigned types
@@ -86,7 +86,7 @@ void remove_overlapping_regions(MemoryMap* memoryMap)
 				// Checks if this entry and the next one are exactly the same region
 				if ((u64) overlapSize == currentEntry.regionLength)
 				{
-					copy_memory(&nextEntry, &currentEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i));
+					memcpy(&currentEntry, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i));
 					memoryMap->numberOfEntries -= 1;
 					i -= 1;
 				}
@@ -113,7 +113,7 @@ void combine_adjacent_regions(MemoryMap* memoryMap)
 			memoryMap->numberOfEntries -= 1;
 			i -= 1;
 			
-			copy_memory(&nextEntry + 1, &nextEntry, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
+			memcpy(&nextEntry, &nextEntry + 1, sizeof(MemoryMapEntry) * (memoryMap->numberOfEntries - i + 2));
 		}
 	}
 }

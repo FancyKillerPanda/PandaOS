@@ -5,8 +5,8 @@
 
 #include "system.hpp"
 
-void set_memory(void* dest, usize count, u8 value);
-void set_memory_16(void* dest, usize count, u16 value);
-void copy_memory(const void* src, void* dest, usize count);
+void memset(void* dest, u8 value, usize count);
+void memset_16(void* dest, u16 value, usize count);
+void memcpy(void* dest, const void* src, usize count);
 
 #endif

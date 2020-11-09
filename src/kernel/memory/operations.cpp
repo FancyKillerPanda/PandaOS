@@ -2,7 +2,7 @@
 
 #include "memory/operations.hpp"
 
-void set_memory(void* dest, usize count, u8 value)
+void memset(void* dest, u8 value, usize count)
 {
 	u8* dest_u8 = (u8*) dest;
 	
@@ -13,7 +13,7 @@ void set_memory(void* dest, usize count, u8 value)
 	}
 }
 
-void set_memory_16(void* dest, usize count, u16 value)
+void memset_16(void* dest, u16 value, usize count)
 {
 	u16* dest_u16 = (u16*) dest;
 	
@@ -24,7 +24,7 @@ void set_memory_16(void* dest, usize count, u16 value)
 	}
 }
 
-void copy_memory(const void* src, void* dest, usize count)
+void memcpy(void* dest, const void* src, usize count)
 {
 	const u8* src_u8 = (u8*) src;
 	u8* dest_u8 = (u8*) dest;
