@@ -13,6 +13,7 @@
 #define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
 
 #define UNUSED(x) (void) (x)
+#define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
 
 // Common types
 using s8 = signed char;

@@ -23,7 +23,7 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 
 	// Debug testing
 	allocate_virtual_range((void*) 0x400000, 9000);
-	asm volatile("xchg %%bx, %%bx" ::);
+	BREAK_POINT();
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
