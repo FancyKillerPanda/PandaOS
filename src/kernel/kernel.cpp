@@ -22,8 +22,13 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	init_virtual_allocator();
 
 	// Debug testing
+	u32 a = 1;
+	u32 b = 2;
+	u32 c = 2;
+	ASSERT(b == c);
+	ASSERT(a == b);
+	
 	allocate_virtual_range((void*) 0x400000, 9000);
-	BREAK_POINT();
 	
 	log_info("\nFinished, now hanging...");
 	while (true);

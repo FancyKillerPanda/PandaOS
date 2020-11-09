@@ -132,6 +132,7 @@ void log_warning_plain(const u8* message)
 	
 void log_error_plain(const u8* message)
 {
+	print("\n");
 	do_prefix_formatting(message);
 	
 	print("Error: ", 0x04);
@@ -190,6 +191,7 @@ void log_error(const u8* message, ...)
 	va_list argsPointer;
 	va_start(argsPointer, message);
 	
+	print("\n");
 	do_prefix_formatting(message);
 	
 	print("Error: ", 0x04);

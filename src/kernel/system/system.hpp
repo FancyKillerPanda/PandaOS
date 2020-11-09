@@ -15,6 +15,19 @@
 #define UNUSED(x) (void) (x)
 #define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
 
+#if defined(PANDAOS_DEBUG)
+#define ASSERT(x)												\
+	if (!(x))													\
+	{															\
+		log_error("Assertion failed ('%s')\n"					\
+				  "       File: %s\n"							\
+				  "       Line: %d", #x, __FILE__, __LINE__);	\
+		while (true);											\
+	}
+#else
+#define ASSERT(x)
+#endif
+
 // Common types
 using s8 = signed char;
 using s16 = short;
