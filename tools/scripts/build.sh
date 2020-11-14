@@ -28,7 +28,7 @@ kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -nostdlib -funsigned-ch
 					-Wall -Wextra -Wno-char-subscripts \
 					-o pKernel.bin -target i386-pc-none-elf \
 					-I $kernelDir -I $kernelDir/system \
-					-DPANDAOS_DEBUG"
+					-DPANDAOS_DEBUG -DPROJECT_ROOT_STRING_LENGTH=${#prjRoot}"
 kernelLinkFlags="-Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
 kernelFiles="kernelEntry.o enablePaging.o $kernelDir/unityBuild.cpp"
 
