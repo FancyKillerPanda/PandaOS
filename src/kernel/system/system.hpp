@@ -22,7 +22,7 @@
 		log_error("Assertion failed ('%s')\n"							\
 				  "       File: PandaOS%s\n"							\
 				  "       Line: %d",									\
-				  #x, __FILE__ + PROJECT_ROOT_STRING_LENGTH, __LINE__); \
+				  #x, &__FILE__[PROJECT_ROOT_STRING_LENGTH], __LINE__); \
 		while (true);													\
 	}
 #else
