@@ -28,6 +28,11 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	u32* memory2 = (u32*) malloc(57);
 	u32* memory3 = (u32*) malloc(1004);
 
+//	UNUSED(memory0);
+//	UNUSED(memory1);
+//	UNUSED(memory2);
+//	UNUSED(memory3);
+	
 	*memory0 = 1234;
 	*memory1 = 1234;
 	*memory2 = 1234;

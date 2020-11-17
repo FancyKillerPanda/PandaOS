@@ -93,7 +93,7 @@ void map_page_address(void* virtualAddress, void* physicalAddress)
 
 	pageTableEntry = (PageTableEntry) (((u32) physicalAddress) | PRESENT_FLAG | READ_WRITE_FLAG);
 	
-	log_info("Mapped virtual address %x to physical address %x.", virtualAddress, physicalAddress);
+	// log_info("Mapped virtual address %x to physical address %x.", virtualAddress, physicalAddress);
 }
 
 void allocate_virtual_range(void* start, u32 length)
