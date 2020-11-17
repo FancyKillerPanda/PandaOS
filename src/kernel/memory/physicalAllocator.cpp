@@ -5,7 +5,9 @@
 
 // TODO(fkp): These values are just temporary. Once we plan
 // a proper memory map they will be changed to reflect that.
-constexpr u32 NUMBER_OF_PAGE_FRAMES = 256;
+// NOTE(fkp): This assumes we have 8 MB of free RAM available in one
+// location, which we probably shouldn't assume.
+constexpr u32 NUMBER_OF_PAGE_FRAMES = 2048;
 static_assert(NUMBER_OF_PAGE_FRAMES % 32 == 0, "Number of page frames must be a multiple of 32.");
 
 // NOTE(fkp): Zero is free, one is used
@@ -16,24 +18,40 @@ u32 physicalAllocatorBase = 0x00;
 
 void init_physical_allocator(MemoryMap* memoryMap)
 {
-	// Picks the last free block
-	for (s32 i = memoryMap->numberOfEntries - 1; i >= 0; i--)
+	// Picks the largest free region above 1 MB
+	u64 largestRegionLength = 0;
+	
+	for (u32 i = 0; i < memoryMap->numberOfEntries; i++)
 	{
-		if (memoryMap->entries[i].regionType == MemoryType::Free)
+		if (memoryMap->entries[i].baseAddress < 0x100000)
 		{
-			if (memoryMap->entries[i].regionLength >= NUMBER_OF_PAGE_FRAMES * PAGE_SIZE)
-			{
-				physicalAllocatorBase = memoryMap->entries[i].baseAddress;
-				break;
-			}
+			continue;
+		}
+
+		if (memoryMap->entries[i].regionType == MemoryType::Free &&
+			memoryMap->entries[i].regionLength > largestRegionLength)
+		{
+			largestRegionLength = memoryMap->entries[i].regionLength;
+			physicalAllocatorBase = memoryMap->entries[i].baseAddress;
 		}
 	}
-
+	
 	if (!physicalAllocatorBase)
 	{
 		log_error("Failed to pick a base address for the physical allocator.");
 		while (true);
 	}
+
+	if (largestRegionLength < NUMBER_OF_PAGE_FRAMES * PAGE_SIZE)
+	{
+		log_error("Failed to find a large enough region of physical memory.");
+		while (true);
+	}
+
+	log_info("Physical allocator using memory from %x to %x (%x bytes).",
+			 physicalAllocatorBase,
+			 (u32) (physicalAllocatorBase + largestRegionLength),
+			 (u32) largestRegionLength);
 }
 
 void* allocate_physical_page()

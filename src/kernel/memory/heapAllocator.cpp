@@ -5,7 +5,7 @@
 
 constexpr u32 HEAP_START = 0x400000;
 // constexpr u32 HEAP_SIZE = 0x400000;
-constexpr u32 HEAP_SIZE = 0x40000;
+constexpr u32 HEAP_SIZE = 0x400000;
 
 u32 nextToAllocate = HEAP_START;
 
