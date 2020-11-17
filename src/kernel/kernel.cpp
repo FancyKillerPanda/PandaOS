@@ -5,6 +5,7 @@
 #include "interrupts/interruptDescriptorTable.hpp"
 #include "memory/physicalAllocator.hpp"
 #include "memory/virtualAllocator.hpp"
+#include "memory/heapAllocator.hpp"
 #include "memory/memoryMap.hpp"
 
 extern "C" void start_kernel(MemoryMap* memoryMap)
@@ -20,15 +21,17 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
 	init_virtual_allocator();
+	init_heap_allocator();
 
-	// Debug testing
-	u32 a = 1;
-	u32 b = 2;
-	u32 c = 2;
-	ASSERT(b == c);
-	ASSERT(a == b);
-	
-	allocate_virtual_range((void*) 0x400000, 9000);
+	u32* memory0 = (u32*) malloc(32);
+	u32* memory1 = (u32*) malloc(11);
+	u32* memory2 = (u32*) malloc(57);
+	u32* memory3 = (u32*) malloc(1004);
+
+	*memory0 = 1234;
+	*memory1 = 1234;
+	*memory2 = 1234;
+	*memory3 = 1234;
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
