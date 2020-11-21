@@ -73,6 +73,14 @@ void* malloc(usize size)
 	while (true);
 }
 
+void* calloc(usize count, usize size)
+{
+	void* allocation = malloc(count * size);
+	memset(allocation, 0, count * size);
+
+	return allocation;
+}
+
 void free(void* pointer)
 {
 	if (!pointer)
