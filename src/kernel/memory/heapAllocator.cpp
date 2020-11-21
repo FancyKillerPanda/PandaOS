@@ -42,25 +42,6 @@ void init_heap_allocator()
 
 void* malloc(usize size)
 {
-#if 0
-	if (nextToAllocate > HEAP_START + HEAP_SIZE)
-	{
-		log_error("Next address to allocate is after the heap.");
-		while (true);
-	}
-
-	if (nextToAllocate + size > HEAP_START + HEAP_SIZE)
-	{
-		log_error("Trying to allocate too much memory.");
-		while (true);
-	}
-
-	void* allocation = (void*) nextToAllocate;
-	nextToAllocate += size;
-
-	return allocation;
-#endif
-
 	for (u32 i = 0; i < freeRegionsCount; i++)
 	{
 		FreeRegion& region = freeRegionsList[i];
@@ -75,7 +56,7 @@ void* malloc(usize size)
 			region.address = (void*) (((u8*) region.address) + allocationSize);
 			region.length -= allocationSize;
 			
-			return (MallocInfoBlock*) allocation + 1;
+			return (void*) ((MallocInfoBlock*) allocation + 1);
 		}
 	}
 

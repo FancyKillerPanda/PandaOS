@@ -104,7 +104,7 @@ void allocate_virtual_range(void* start, u32 length)
 		return;
 	}
 
-	u32 numberOfPages = ((length + PAGE_SIZE) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
+	u32 numberOfPages = ((length + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
 
 	for (u32 i = 0; i < numberOfPages; i++)
 	{
