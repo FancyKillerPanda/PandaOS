@@ -4,13 +4,13 @@ rem  ===== Date Created: 03 September, 2020 =====
 set scriptDir=%~dp0
 set prjRoot=%scriptDir%\..\..
 set debug=false
-set gui=false
+set gui=true
 
 for %%a in (%*) do (
 	if [%%a]==[-debug] (
 		set debug=true
-	) else if [%%a]==[-gui] (
-		set gui=true
+	) else if [%%a]==[-nogui] (
+		set gui=false
 	)
 )
 
