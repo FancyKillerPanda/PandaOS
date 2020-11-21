@@ -98,9 +98,14 @@ main:
 	mov ss, ax
 	mov esp, 0x00030000			; Stack grows downwards from 0x00030000
 
-	; Passes the memory map to the kernel
+	; Debug testing
+	mov word [videoMode.screenWidth], 960
+	mov word [videoMode.screenHeight], 540
+	mov byte [videoMode.bitsPerPixel], 24
+	
+	; Passes the memory map and video mode data to the kernel
 	mov eax, memoryMap
-	push eax
+	mov ebx, videoMode
 	
 	; Jumps to the kernel
 	db 0x66
@@ -113,12 +118,10 @@ main:
 	
 gdtEntry:
 	.size: dw 24
-;	.pointer: dd memoryMapLocation + 120 + 2048
 	.pointer: dd memoryMapLocation
 
 idtEntry:
 	.size: dw 2048
-;	.pointer: dd memoryMapLocation + 120
 	.pointer: dd memoryMapLocation
 	
 
@@ -126,6 +129,12 @@ SIZE_OF_MEMORY_MAP: equ 16
 memoryMap:
 	.pointer: dd memoryMapLocation
 	.numberOfEntries dd 0
+
+videoMode:
+	.screenWidth: dw 0
+	.screenHeight: dw 0
+	.bitsPerPixel: db 0
+	.frameBufferPointer: dd 0
 	
 %include "biosParameterBlock-inl.asm"
 %include "commonUtility-inl.asm"

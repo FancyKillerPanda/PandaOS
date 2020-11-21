@@ -6,6 +6,7 @@ extern start_kernel
 global start
 start:
 	mov esp, kernel_stack_start
+	push ebx					; The video mode
 	push eax					; The memory map pointer
 	call start_kernel
 
