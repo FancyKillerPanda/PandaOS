@@ -47,14 +47,20 @@ void* malloc(usize size)
 		FreeRegion& region = freeRegionsList[i];
 		usize allocationSize = size + sizeof(MallocInfoBlock);
 
-		// TODO(fkp): Handle if region is exactly the right size
-		if (region.length > allocationSize)
+		if (region.length >= allocationSize)
 		{
 			void* allocation = region.address;
 			*((MallocInfoBlock*) allocation) = MallocInfoBlock { size };
 			
 			region.address = (void*) (((u8*) region.address) + allocationSize);
 			region.length -= allocationSize;
+			
+			if (region.length == 0)
+			{
+				// The free region block was exactly the right size
+				freeRegionsCount -= 1;
+				memcpy(freeRegionsList + i, freeRegionsList + i + 1, freeRegionsCount - i);
+			}
 			
 			return (void*) ((MallocInfoBlock*) allocation + 1);
 		}
