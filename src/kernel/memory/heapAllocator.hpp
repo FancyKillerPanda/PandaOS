@@ -7,5 +7,6 @@
 
 void init_heap_allocator();
 void* malloc(usize size);
+void free(void* pointer);
 
 #endif

@@ -28,15 +28,24 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 	u32* memory2 = (u32*) malloc(57);
 	u32* memory3 = (u32*) malloc(1004);
 
-//	UNUSED(memory0);
-//	UNUSED(memory1);
-//	UNUSED(memory2);
-//	UNUSED(memory3);
-	
 	*memory0 = 1234;
 	*memory1 = 1234;
 	*memory2 = 1234;
 	*memory3 = 1234;
+
+	printf("Before: %x, %x, %x, %x\n", memory0, memory1, memory2, memory3);
+	
+	free(memory0);
+	free(memory1);
+	free(memory2);
+	free(memory3);
+	
+	memory0 = (u32*) malloc(16);
+	memory1 = (u32*) malloc(108);
+	memory2 = (u32*) malloc(5);
+	memory3 = (u32*) malloc(17);
+
+	printf("After: %x, %x, %x, %x\n", memory0, memory1, memory2, memory3);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
