@@ -16,17 +16,18 @@
 #define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
 
 #if defined(PANDAOS_DEBUG)
-#define ASSERT(x)														\
+#define ASSERT(x, msg)													\
 	if (!(x))															\
 	{																	\
 		log_error("Assertion failed ('%s')\n"							\
 				  "       File: PandaOS%s\n"							\
-				  "       Line: %d",									\
-				  #x, &__FILE__[PROJECT_ROOT_STRING_LENGTH], __LINE__); \
+				  "       Line: %d\n"									\
+				  "       Message: %s",									\
+				  #x, &__FILE__[PROJECT_ROOT_STRING_LENGTH], __LINE__, msg); \
 		while (true);													\
 	}
 #else
-#define ASSERT(x)
+#define ASSERT(x, msg)
 #endif
 
 // Common types

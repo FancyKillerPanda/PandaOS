@@ -47,6 +47,8 @@ extern "C" void start_kernel(MemoryMap* memoryMap)
 
 	printf("After: %x, %x, %x, %x\n", memory0, memory1, memory2, memory3);
 	
+	ASSERT(false, "Failed the check.");
+	
 	log_info("\nFinished, now hanging...");
 	while (true);
 }

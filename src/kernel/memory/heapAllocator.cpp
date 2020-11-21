@@ -93,14 +93,14 @@ void free(void* pointer)
 	FreeRegion newFreeRegion = { &infoBlock, infoBlock.size };
 	FreeRegion& firstFreeRegion = freeRegionsList[0];
 
-	ASSERT(freeRegionsCount >= 1);
+	ASSERT(freeRegionsCount >= 1, "There should always be at least one free region.");
 	
 	// TODO(fkp): Code duplication. Might be able to use an
 	// i == -1 in the loop.
 	if ((u32) firstFreeRegion.address > (u32) newFreeRegion.address)
 	{
-		ASSERT((u32) newFreeRegion.address + newFreeRegion.size <= (u32) firstFreeRegion.address);
-		ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS);
+		ASSERT((u32) newFreeRegion.address + newFreeRegion.size <= (u32) firstFreeRegion.address, "Trying to free an already free region.");
+		ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS, "Too many free regions.");
 		
 		memcpy(freeRegionsList + 1, freeRegionsList, freeRegionsCount);
 		firstFreeRegion = newFreeRegion;
@@ -114,8 +114,8 @@ void free(void* pointer)
 			
 			if (region.address < newFreeRegion.address)
 			{
-				ASSERT((u32) region.address + region.size <= (u32) newFreeRegion.address);
-				ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS);
+				ASSERT((u32) region.address + region.size <= (u32) newFreeRegion.address, "Trying to free an already free region.");
+				ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS, "Too many free regions.");
 				
 				memcpy(freeRegionsList + i + 2, freeRegionsList + i + 1, (freeRegionsCount - i - 1) * sizeof(FreeRegion));
 				freeRegionsList[i + 1] = newFreeRegion;
