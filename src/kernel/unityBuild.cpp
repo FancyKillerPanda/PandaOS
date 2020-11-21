@@ -1,8 +1,10 @@
 //  ===== Date Created: 01 October, 2020 =====
 
 #include "kernel.cpp"
-#include "keyboard.cpp"
-#include "log.cpp"
+
+#include "input/keyboard.cpp"
+
+#include "utility/log.cpp"
 
 #include "system/display.cpp"
 #include "system/io.cpp"

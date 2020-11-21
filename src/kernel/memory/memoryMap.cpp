@@ -2,7 +2,7 @@
 
 #include "memory/memoryMap.hpp"
 #include "memory/operations.hpp"
-#include "log.hpp"
+#include "utility/log.hpp"
 #include "system/display.hpp"
 
 u32 get_memory_priority(MemoryMapEntry& entry)

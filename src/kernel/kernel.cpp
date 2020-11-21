@@ -1,6 +1,6 @@
 /*  ===== Date Created: 11 September, 2020 =====  */
 
-#include "log.hpp"
+#include "utility/log.hpp"
 #include "display.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
 #include "memory/physicalAllocator.hpp"

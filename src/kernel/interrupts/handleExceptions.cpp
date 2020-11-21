@@ -1,7 +1,7 @@
 //  ===== Date Created: 26 September, 2020 =====
 
 #include "handleExceptions.hpp"
-#include "log.hpp"
+#include "utility/log.hpp"
 
 void dump_registers(InterruptFrame* frame)
 {

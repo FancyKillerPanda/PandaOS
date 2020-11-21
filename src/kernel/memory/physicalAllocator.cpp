@@ -1,7 +1,7 @@
 //  ===== Date Created: 05 October, 2020 =====
 
 #include "physicalAllocator.hpp"
-#include "log.hpp"
+#include "utility/log.hpp"
 
 // TODO(fkp): These values are just temporary. Once we plan
 // a proper memory map they will be changed to reflect that.

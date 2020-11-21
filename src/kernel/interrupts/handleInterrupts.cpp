@@ -1,10 +1,10 @@
 //  ===== Date Created: 24 September, 2020 ===== 
 
 #include "handleInterrupts.hpp"
-#include "log.hpp"
 #include "io.hpp"
-#include "keyboard.hpp"
 #include "display.hpp"
+#include "utility/log.hpp"
+#include "input/keyboard.hpp"
 
 #define SEND_END_OF_INTERRUPT_SIGNAL() port_out_8(0x20, 0x20)
 #define SEND_END_OF_INTERRUPT_SIGNAL_EXT() port_out_8(0xa0, 0x20); port_out_8(0x20, 0x20)

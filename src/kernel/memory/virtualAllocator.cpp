@@ -1,7 +1,7 @@
 //  ===== Date Created: 05 October, 2020 =====
 
 #include "virtualAllocator.hpp"
-#include "log.hpp"
+#include "utility/log.hpp"
 #include "display.hpp"
 #include "physicalAllocator.hpp"
 
