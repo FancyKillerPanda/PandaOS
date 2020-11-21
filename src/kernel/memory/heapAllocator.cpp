@@ -12,7 +12,7 @@ constexpr u32 FREE_REGIONS_LIST_ADDRESS = 0x400000;
 struct FreeRegion
 {
 	void* address = nullptr;
-	usize length = 0;
+	usize size = 0;
 };
 
 // Because we allocate a page for the free regions list
@@ -21,7 +21,7 @@ constexpr u32 MAX_NUMBER_OF_FREE_REGIONS = PAGE_SIZE / sizeof(FreeRegion);
 FreeRegion* freeRegionsList = nullptr;
 u32 freeRegionsCount = 0;
 
-struct MallocInfoBlock
+struct AllocationInfoBlock
 {
 	usize size;
 };
@@ -48,24 +48,24 @@ void* malloc(usize size)
 	for (u32 i = 0; i < freeRegionsCount; i++)
 	{
 		FreeRegion& region = freeRegionsList[i];
-		usize allocationSize = size + sizeof(MallocInfoBlock);
+		usize allocationSize = size + sizeof(AllocationInfoBlock);
 
-		if (region.length >= allocationSize)
+		if (region.size >= allocationSize)
 		{
 			void* allocation = region.address;
-			*((MallocInfoBlock*) allocation) = MallocInfoBlock { allocationSize };
+			*((AllocationInfoBlock*) allocation) = AllocationInfoBlock { allocationSize };
 			
 			region.address = (void*) (((u8*) region.address) + allocationSize);
-			region.length -= allocationSize;
+			region.size -= allocationSize;
 			
-			if (region.length == 0)
+			if (region.size == 0)
 			{
 				// The free region block was exactly the right size
 				freeRegionsCount -= 1;
 				memcpy(freeRegionsList + i, freeRegionsList + i + 1, (freeRegionsCount - i) * sizeof(FreeRegion));
 			}
 			
-			return (void*) ((MallocInfoBlock*) allocation + 1);
+			return (void*) ((AllocationInfoBlock*) allocation + 1);
 		}
 	}
 
@@ -89,7 +89,7 @@ void free(void* pointer)
 	}
 
 	// TODO(fkp): Combining adjacent free regions
-	MallocInfoBlock& infoBlock = *(((MallocInfoBlock*) pointer) - 1);
+	AllocationInfoBlock& infoBlock = *(((AllocationInfoBlock*) pointer) - 1);
 	FreeRegion newFreeRegion = { &infoBlock, infoBlock.size };
 	FreeRegion& firstFreeRegion = freeRegionsList[0];
 
@@ -99,7 +99,7 @@ void free(void* pointer)
 	// i == -1 in the loop.
 	if ((u32) firstFreeRegion.address > (u32) newFreeRegion.address)
 	{
-		ASSERT((u32) newFreeRegion.address + newFreeRegion.length <= (u32) firstFreeRegion.address);
+		ASSERT((u32) newFreeRegion.address + newFreeRegion.size <= (u32) firstFreeRegion.address);
 		ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS);
 		
 		memcpy(freeRegionsList + 1, freeRegionsList, freeRegionsCount);
@@ -114,7 +114,7 @@ void free(void* pointer)
 			
 			if (region.address < newFreeRegion.address)
 			{
-				ASSERT((u32) region.address + region.length <= (u32) newFreeRegion.address);
+				ASSERT((u32) region.address + region.size <= (u32) newFreeRegion.address);
 				ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS);
 				
 				memcpy(freeRegionsList + i + 2, freeRegionsList + i + 1, (freeRegionsCount - i - 1) * sizeof(FreeRegion));
