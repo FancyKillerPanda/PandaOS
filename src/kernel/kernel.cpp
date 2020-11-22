@@ -31,7 +31,8 @@ extern "C" void start_kernel(MemoryMap* memoryMap, VideoMode* videoMode)
 
 	init_video(videoMode);
 	draw_rect(100, 100, 200, 100, 0xff0000);
-	// draw_rect(0, 0, 300, 300, 0x00ff0000);
+	draw_rect(400, 100, 200, 100, 0x00ff00);
+	draw_rect(150, 300, 300, 200, 0x0000ff);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
