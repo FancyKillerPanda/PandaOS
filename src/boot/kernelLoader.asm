@@ -33,7 +33,9 @@ main:
 	
 	; Enables graphical mode (VESA)
 	get_vesa_bios_information vbeInfo
-	select_vesa_mode vbeInfo, vbeModeInfo, 1280, 768, 32
+	; select_vesa_mode vbeInfo, vbeModeInfo, 1280, 768, 32
+	select_vesa_mode vbeInfo, vbeModeInfo, 800, 600, 24
+	set_vesa_mode				; Sets the mode contained in ax
 	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
@@ -102,13 +104,6 @@ main:
 	mov ss, ax
 	mov esp, 0x00030000			; Stack grows downwards from 0x00030000
 
-%if 0
-	; Debug testing
-	mov word [videoMode.screenWidth], 960
-	mov word [videoMode.screenHeight], 540
-	mov byte [videoMode.bitsPerPixel], 24
-%endif
-	
 	; Passes the memory map and video mode data to the kernel
 	mov eax, memoryMap
 	mov ebx, videoMode
@@ -210,7 +205,8 @@ memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 vesaBiosSupportedMessage: db "Info: VESA BIOS is supported.", CR, LF, 0
 vesaBiosNotSupportedMessage: db "Error: VESA BIOS is not supported.", CR, LF, 0
 vesaModeFoundMessage: db "Info: VESA mode found!", CR, LF, 0
-vesaModeNotFoundMessage: db "Info: No VESA mode found!", CR, LF, 0
+vesaModeNotFoundMessage: db "Error: No VESA mode found!", CR, LF, 0
+vesaSetModeFailedMessage: db "Error: Failed to set VESA mode!", CR, LF, 0
 	
 kernelFile: db "pKernel bin"
 kernelFileCluster: dw 0

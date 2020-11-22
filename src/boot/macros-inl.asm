@@ -370,11 +370,32 @@ try_enable:
 	mov eax, [es:%2.frameBuffer]
 	mov dword [es:videoMode.frameBufferPointer], eax
 
+	mov ax, [fs:si]
+	
 %%.finished:
 	cmp dword [es:videoMode.frameBufferPointer], 0x12345678
 	je %%.error
 
 	pop es
+%endmacro
+
+; void set_vesa_mode(ax: mode)
+%macro set_vesa_mode 0
+	mov bx, ax
+	and bx, 0x7fff
+	or bx, 0x4000
+	
+	mov ax, 0x4f02
+	int 0x10
+
+	cmp ax, 0x004f
+	je %%.finished
+
+%%.error:
+	log vesaSetModeFailedMessage
+	call reboot
+	
+%%.finished:
 %endmacro
 	
 %endif
