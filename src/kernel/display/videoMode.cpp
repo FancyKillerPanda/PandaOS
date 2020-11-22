@@ -3,11 +3,10 @@
 #include "videoMode.hpp"
 #include "memory/virtualAllocator.hpp"
 
-constexpr u32 VIDEO_MEMORY = 0xe0000000;
-
 void init_video(VideoMode* videoMode)
 {
-	u32 frameBufferSize = videoMode->pitch * videoMode->screenHeight;
+	videoInfo = *videoMode;
+	u32 frameBufferSize = videoInfo.pitch * videoInfo.screenHeight;
 	
 	// TODO(fkp): A very similar calculation is used in quite a few places.
 	// Maybe abstract it out into a utility function.
@@ -15,12 +14,15 @@ void init_video(VideoMode* videoMode)
 
 	for (u32 i = 0; i < numberOfPages; i++)
 	{
-		map_page_address((void*) (VIDEO_MEMORY + (i * PAGE_SIZE)), (void*) (videoMode->frameBufferPointer + (i * PAGE_SIZE)));
+		map_page_address((void*) (VIDEO_MEMORY + (i * PAGE_SIZE)), (void*) (videoInfo.frameBufferPointer + (i * PAGE_SIZE)));
 	}
 
 	log_info("Video Mode: %dx%d px (pitch: %d), %d bits per pixel.",
-			 videoMode->screenWidth, videoMode->screenHeight,
-			 videoMode->pitch, videoMode->bitsPerPixel);
+			 videoInfo.screenWidth, videoInfo.screenHeight,
+			 videoInfo.pitch, videoInfo.bitsPerPixel);
 	log_info("Allocated %d pages from %x for video framebuffer.",
-			 numberOfPages, videoMode->frameBufferPointer);
+			 numberOfPages, videoInfo.frameBufferPointer);
+
+	// TODO(fkp): Support this
+	ASSERT(videoInfo.bitsPerPixel == 24, "Unsupported number of bits per pixel.");
 }

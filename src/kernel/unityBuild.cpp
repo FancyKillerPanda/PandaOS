@@ -20,3 +20,4 @@
 
 #include "display/videoMode.cpp"
 #include "display/textDisplay.cpp"
+#include "display/graphicalDisplay.cpp"

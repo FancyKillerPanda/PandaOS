@@ -1,6 +1,7 @@
 /*  ===== Date Created: 11 September, 2020 =====  */
 
 #include "display/textDisplay.hpp"
+#include "display/graphicalDisplay.hpp"
 
 #include "utility/log.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"
@@ -29,6 +30,8 @@ extern "C" void start_kernel(MemoryMap* memoryMap, VideoMode* videoMode)
 	init_heap_allocator();
 
 	init_video(videoMode);
+	draw_rect(100, 100, 200, 100, 0xff0000);
+	// draw_rect(0, 0, 300, 300, 0x00ff0000);
 	
 	log_info("\nFinished, now hanging...");
 	while (true);
