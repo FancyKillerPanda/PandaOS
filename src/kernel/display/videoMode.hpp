@@ -10,6 +10,7 @@ struct PACKED_STRUCT VideoMode
 	u16 screenWidth = 0;
 	u16 screenHeight = 0;
 	u8 bitsPerPixel = 0;
+	u16 pitch = 0;
 	u32 frameBufferPointer = 0;
 };
 

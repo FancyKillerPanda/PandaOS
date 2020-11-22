@@ -135,6 +135,7 @@ videoMode:
 	.screenWidth: dw 0
 	.screenHeight: dw 0
 	.bitsPerPixel: db 0
+	.pitch: dw 0
 	.frameBufferPointer: dd 0
 	
 vbeInfo:

@@ -367,6 +367,8 @@ try_enable:
 	mov word [es:videoMode.screenHeight], ax
 	mov al, [es:%2.bitsPerPixel]
 	mov byte [es:videoMode.bitsPerPixel], al
+	mov ax, [es:%2.pitch]
+	mov word [es:videoMode.pitch], ax
 	mov eax, [es:%2.frameBuffer]
 	mov dword [es:videoMode.frameBufferPointer], eax
 

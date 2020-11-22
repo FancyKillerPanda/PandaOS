@@ -22,7 +22,10 @@ extern "C" void start_kernel(MemoryMap* memoryMap, VideoMode* videoMode)
 	log_init();
 	print("\n");
 
-	log_info("Video Mode: %dx%dpx, %dbpp, framebuffer at %x\n", videoMode->screenWidth, videoMode->screenHeight, videoMode->bitsPerPixel, videoMode->frameBufferPointer);
+	log_info("Video Mode: %dx%dpx, %dbpp, pitch: %d, framebuffer at %x\n",
+			 videoMode->screenWidth, videoMode->screenHeight,
+			 videoMode->bitsPerPixel, videoMode->pitch,
+			 videoMode->frameBufferPointer);
 	
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
