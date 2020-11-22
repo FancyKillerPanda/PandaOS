@@ -311,8 +311,8 @@ try_enable:
 	log vesaBiosSupportedMessage
 %endmacro
 	
-; void select_vesa_mode(VESA info, VESA mode info to fill, width, height)
-%macro select_vesa_mode 4
+; void select_vesa_mode(VESA info, VESA mode info to fill, width, height, bpp)
+%macro select_vesa_mode 5
 	push es
 	xor ax, ax
 	mov es, ax
@@ -323,7 +323,7 @@ try_enable:
 	mov fs, ax
 
 	; This can be checked later to make sure we've actually set it
-	mov dword [es:videoMode.frameBufferPointer], 0
+	mov dword [es:videoMode.frameBufferPointer], 0x12345678
 	
 %%.mode:
 	cmp word [fs:si], 0xffff
@@ -343,6 +343,9 @@ try_enable:
 	jne %%.go_to_next_mode
 
 	cmp word [es:%2.height], %4
+	jne %%.go_to_next_mode
+
+	cmp byte [es:%2.bitsPerPixel], %5
 	jne %%.go_to_next_mode
 
 	jmp %%.mode_found
@@ -368,7 +371,7 @@ try_enable:
 	mov dword [es:videoMode.frameBufferPointer], eax
 
 %%.finished:
-	cmp dword [es:videoMode.frameBufferPointer], 0
+	cmp dword [es:videoMode.frameBufferPointer], 0x12345678
 	je %%.error
 
 	pop es

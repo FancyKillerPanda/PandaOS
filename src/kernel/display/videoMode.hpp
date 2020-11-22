@@ -5,7 +5,7 @@
 
 #include "system.hpp"
 
-struct VideoMode
+struct PACKED_STRUCT VideoMode
 {
 	u16 screenWidth = 0;
 	u16 screenHeight = 0;
