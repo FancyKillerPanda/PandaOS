@@ -289,4 +289,89 @@ try_enable:
 	pop es
 %endmacro
 	
+; Pass in the location of the structure to fill
+%macro get_vesa_bios_information 1
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov di, %1
+
+	mov ax, 0x4f00
+	int 0x10
+	pop es
+	
+	cmp ax, 0x004f
+	je %%.vesa_supported
+	
+%%.vesa_not_supported:
+	log vesaBiosNotSupportedMessage
+	call reboot
+
+%%.vesa_supported:
+	log vesaBiosSupportedMessage
+%endmacro
+	
+; void select_vesa_mode(VESA info, VESA mode info to fill, width, height)
+%macro select_vesa_mode 4
+	push es
+	xor ax, ax
+	mov es, ax
+	
+	mov eax, [%1.videoModes]
+	mov si, ax
+	shr eax, 16
+	mov fs, ax
+
+	; This can be checked later to make sure we've actually set it
+	mov dword [es:videoMode.frameBufferPointer], 0
+	
+%%.mode:
+	cmp word [fs:si], 0xffff
+	je %%.finished
+
+	push es
+	mov ax, 0x4f01
+	mov cx, word [fs:si]
+	mov di, %2
+	int 0x10
+	pop es
+
+	cmp ax, 0x004f
+	jne %%.go_to_next_mode
+	
+	cmp word [es:%2.width], %3
+	jne %%.go_to_next_mode
+
+	cmp word [es:%2.height], %4
+	jne %%.go_to_next_mode
+
+	jmp %%.mode_found
+	
+%%.go_to_next_mode:
+	add si, 4
+	jmp %%.mode
+
+%%.error:
+	log vesaModeNotFoundMessage
+	call reboot
+	
+%%.mode_found:
+	log vesaModeFoundMessage
+
+	mov ax, [es:%2.width]
+	mov word [es:videoMode.screenWidth], ax
+	mov ax, [es:%2.height]
+	mov word [es:videoMode.screenHeight], ax
+	mov al, [es:%2.bitsPerPixel]
+	mov byte [es:videoMode.bitsPerPixel], al
+	mov eax, [es:%2.frameBuffer]
+	mov dword [es:videoMode.frameBufferPointer], eax
+
+%%.finished:
+	cmp dword [es:videoMode.frameBufferPointer], 0
+	je %%.error
+
+	pop es
+%endmacro
+	
 %endif

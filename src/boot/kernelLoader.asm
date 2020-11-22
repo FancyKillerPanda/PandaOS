@@ -31,6 +31,10 @@ main:
 	; Gets the memory map
 	get_memory_map memoryMapLocation, memoryMap
 	
+	; Enables graphical mode (VESA)
+	get_vesa_bios_information vbeInfo
+	select_vesa_mode vbeInfo, vbeModeInfo, 640, 480
+	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
 	mov es, ax
@@ -98,10 +102,12 @@ main:
 	mov ss, ax
 	mov esp, 0x00030000			; Stack grows downwards from 0x00030000
 
+%if 0
 	; Debug testing
 	mov word [videoMode.screenWidth], 960
 	mov word [videoMode.screenHeight], 540
 	mov byte [videoMode.bitsPerPixel], 24
+%endif
 	
 	; Passes the memory map and video mode data to the kernel
 	mov eax, memoryMap
@@ -136,6 +142,58 @@ videoMode:
 	.bitsPerPixel: db 0
 	.frameBufferPointer: dd 0
 	
+vbeInfo:
+	.signature: db "VBE2"
+	.version: dw 0
+	.oem: dd 0
+	.capabilities: dd 0
+	.videoModes: dd 0
+	.videoMemorySize: dw 0
+	.softwareRevision: dw 0
+	.vendor: dd 0
+	.productName: dd 0
+	.productRevision: dd 0
+	.reserved: times 222 db 0
+	.oemData: times 256 db 0
+
+vbeModeInfo:
+	.attributes: dw 0
+	.windowA: db 0
+	.windowB: db 0
+	.granularity: dw 0
+	.windowSize: dw 0
+	.segmentA: dw 0
+	.segmentB: dw 0
+	.windowFunctionPointer: dd 0
+	.pitch: dw 0
+	.width: dw 0
+	.height: dw 0
+	.wChar: db 0
+	.yChar: db 0
+	.planes: db 0
+	.bitsPerPixel: db 0
+	.banks: db 0
+	.memoryModel: db 0
+	.bankSize: db 0
+	.imagePages: db 0
+	.reserved0: db 0
+	
+	.redMask: db 0
+	.redPosition: db 0
+	.greenMask: db 0
+	.greenPosition: db 0
+	.blueMask: db 0
+	.bluePosition: db 0
+	.reservedMask: db 0
+	.reservedPosition: db 0
+	.directColourAttributes: db 0
+	
+	.frameBuffer: dd 0
+	.offScreenMemoryOffset: dd 0
+	.offScreenMemorySize: dw 0
+	
+	.reserved1: times 206 db 0
+	
 %include "biosParameterBlock-inl.asm"
 %include "commonUtility-inl.asm"
 %include "loaderUtility-inl.asm"
@@ -148,7 +206,12 @@ finishedReadingMemoryMessage: db "Info: Finished reading memory map!", CR, LF, 0
 memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
 memoryMapReadEntryMessage: db "Info: Read memory map entry.", CR, LF, 0
 memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
-
+	
+vesaBiosSupportedMessage: db "Info: VESA BIOS is supported.", CR, LF, 0
+vesaBiosNotSupportedMessage: db "Error: VESA BIOS is not supported.", CR, LF, 0
+vesaModeFoundMessage: db "Info: VESA mode found!", CR, LF, 0
+vesaModeNotFoundMessage: db "Info: No VESA mode found!", CR, LF, 0
+	
 kernelFile: db "pKernel bin"
 kernelFileCluster: dw 0
 

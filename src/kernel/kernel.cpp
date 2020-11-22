@@ -16,12 +16,13 @@ extern "C" void start_kernel(MemoryMap* memoryMap, VideoMode* videoMode)
 	init_interrupt_descriptor_table();
 
 	// clear_screen();
-	move_cursor(14, 0); // This is because the bootloader logged some text
+	// move_cursor(14, 0); // This is because the bootloader logged some text
+	move_cursor(16, 0); // This is because the bootloader logged some text
 	log_info("Starting kernel...");
 	log_init();
 	print("\n");
 
-	printf("Video Mode: %dx%dpx, %dbpp, framebuffer at %x\n", videoMode->screenWidth, videoMode->screenHeight, videoMode->bitsPerPixel, videoMode->frameBufferPointer);
+	log_info("Video Mode: %dx%dpx, %dbpp, framebuffer at %x\n", videoMode->screenWidth, videoMode->screenHeight, videoMode->bitsPerPixel, videoMode->frameBufferPointer);
 	
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
