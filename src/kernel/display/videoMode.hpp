@@ -14,4 +14,6 @@ struct PACKED_STRUCT VideoMode
 	u32 frameBufferPointer = 0;
 };
 
+void init_video(VideoMode* videoMode);
+
 #endif

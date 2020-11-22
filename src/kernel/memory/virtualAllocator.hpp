@@ -4,6 +4,7 @@
 #define VIRTUALALLOCATOR_HPP
 
 void init_virtual_allocator();
+void map_page_address(void* virtualAddress, void* physicalAddress);
 void allocate_virtual_range(void* start, u32 length);
 
 #endif

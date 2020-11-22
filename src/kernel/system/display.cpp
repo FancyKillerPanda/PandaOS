@@ -5,7 +5,7 @@
 #include "io.hpp"
 #include "memory/operations.hpp"
 
-#define VIDEO_MEMORY ((u16*) 0xb8000)
+#define TEXT_VIDEO_MEMORY ((u16*) 0xb8000)
 #define SCREEN_ROWS 25
 #define SCREEN_COLS 80
 
@@ -64,7 +64,7 @@ void clear_screen(u8 attribute)
 {
 	// The space character
 	u16 blank = 0x20 | (attribute << 8);
-	memset_16(VIDEO_MEMORY, blank, SCREEN_ROWS * SCREEN_COLS * 2);
+	memset_16(TEXT_VIDEO_MEMORY, blank, SCREEN_ROWS * SCREEN_COLS * 2);
 	move_cursor(0, 0);
 }
 
@@ -85,8 +85,8 @@ void scroll_screen_up(u8 numberOfLines, u8 attribute)
 		}
 	}
 
-	memcpy(VIDEO_MEMORY, VIDEO_MEMORY + (numberOfLines * SCREEN_COLS), SCREEN_ROWS * SCREEN_COLS * 2);
-	memset_16(VIDEO_MEMORY + (SCREEN_ROWS - numberOfLines) * SCREEN_COLS, blank, SCREEN_COLS * numberOfLines);
+	memcpy(TEXT_VIDEO_MEMORY, TEXT_VIDEO_MEMORY + (numberOfLines * SCREEN_COLS), SCREEN_ROWS * SCREEN_COLS * 2);
+	memset_16(TEXT_VIDEO_MEMORY + (SCREEN_ROWS - numberOfLines) * SCREEN_COLS, blank, SCREEN_COLS * numberOfLines);
 	move_cursor(cursorRow - numberOfLines, cursorCol);
 }
 
@@ -101,7 +101,7 @@ void print_char(u8 character, u8 attribute)
 		if (cursorCol > 0)
 		{
 			u16 blank = 0x20 | (attribute << 8);
-			*(VIDEO_MEMORY + location - 1) = blank;
+			*(TEXT_VIDEO_MEMORY + location - 1) = blank;
 			move_cursor(cursorRow, cursorCol - 1);
 		}
 	} break;
@@ -128,7 +128,7 @@ void print_char(u8 character, u8 attribute)
 		if (character >= ' ')
 		{
 			u16 data = character | (attribute << 8);
-			*(VIDEO_MEMORY + location) = data;
+			*(TEXT_VIDEO_MEMORY + location) = data;
 			move_cursor(cursorRow, cursorCol + 1);
 		}
 	} break;

@@ -18,3 +18,5 @@
 #include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"
 #include "interrupts/interruptDescriptorTable.cpp"
+
+#include "display/videoMode.cpp"
