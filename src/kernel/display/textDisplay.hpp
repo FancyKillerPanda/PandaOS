@@ -1,7 +1,7 @@
 //  ===== Date Created: 12 September, 2020 ===== 
 
-#if !defined(DISPLAY_HPP)
-#define DISPLAY_HPP
+#if !defined(TEXTDISPLAY_HPP)
+#define TEXTDISPLAY_HPP
 
 #include "system.hpp"
 

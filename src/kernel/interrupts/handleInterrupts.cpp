@@ -2,7 +2,7 @@
 
 #include "handleInterrupts.hpp"
 #include "io.hpp"
-#include "display.hpp"
+#include "display/textDisplay.hpp"
 #include "utility/log.hpp"
 #include "input/keyboard.hpp"
 

@@ -1,6 +1,6 @@
 /*  ===== Date Created: 11 September, 2020 =====  */
 
-#include "display.hpp"
+#include "display/textDisplay.hpp"
 
 #include "utility/log.hpp"
 #include "interrupts/interruptDescriptorTable.hpp"

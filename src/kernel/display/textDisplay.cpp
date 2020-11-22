@@ -1,6 +1,6 @@
 /*  ===== Date Created: 12 September, 2020 =====  */
 
-#include "display.hpp"
+#include "display/textDisplay.hpp"
 #include "system.hpp"
 #include "io.hpp"
 #include "memory/operations.hpp"

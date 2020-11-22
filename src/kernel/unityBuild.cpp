@@ -6,7 +6,6 @@
 
 #include "utility/log.cpp"
 
-#include "system/display.cpp"
 #include "system/io.cpp"
 
 #include "memory/operations.cpp"
@@ -20,3 +19,4 @@
 #include "interrupts/interruptDescriptorTable.cpp"
 
 #include "display/videoMode.cpp"
+#include "display/textDisplay.cpp"

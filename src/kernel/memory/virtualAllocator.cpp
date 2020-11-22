@@ -2,7 +2,7 @@
 
 #include "virtualAllocator.hpp"
 #include "utility/log.hpp"
-#include "display.hpp"
+#include "display/textDisplay.hpp"
 #include "physicalAllocator.hpp"
 
 using PageTableEntry = u32;

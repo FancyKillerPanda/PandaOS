@@ -3,7 +3,7 @@
 #include "memory/memoryMap.hpp"
 #include "memory/operations.hpp"
 #include "utility/log.hpp"
-#include "system/display.hpp"
+#include "display/textDisplay.hpp"
 
 u32 get_memory_priority(MemoryMapEntry& entry)
 {

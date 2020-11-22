@@ -2,7 +2,7 @@
 
 #include "log.hpp"
 #include "io.hpp"
-#include "display.hpp"
+#include "display/textDisplay.hpp"
 
 // A toggle for outputting to the host stdout
 bool shouldUseSerialPort = true;
