@@ -312,7 +312,7 @@ try_enable:
 %endmacro
 	
 ; void select_vesa_mode(VESA info, VESA mode info to fill, width, height, bpp)
-%macro select_vesa_mode 5
+%macro select_vesa_mode 4
 	push es
 	xor ax, ax
 	mov es, ax
@@ -339,15 +339,48 @@ try_enable:
 	cmp ax, 0x004f
 	jne %%.go_to_next_mode
 	
+	; Checks width and height
 	cmp word [es:%2.width], %3
-	jne %%.go_to_next_mode
-
+	jl %%.go_to_next_mode
 	cmp word [es:%2.height], %4
+	jl %%.go_to_next_mode
+
+	; Checks for correct bits per pixel
+	cmp byte [es:%2.bitsPerPixel], 24
+	jl %%.go_to_next_mode
+
+	; Checks for correct memory model (direct colour)
+	cmp byte [es:%2.memoryModel], 0x06
 	jne %%.go_to_next_mode
 
-	cmp byte [es:%2.bitsPerPixel], %5
+	; Checks masks
+	cmp byte [es:%2.redMask], 8
+	jne %%.go_to_next_mode
+	cmp byte [es:%2.greenMask], 8
+	jne %%.go_to_next_mode
+	cmp byte [es:%2.blueMask], 8
 	jne %%.go_to_next_mode
 
+	; Checks positions
+	cmp byte [es:%2.redPosition], 16
+	jne %%.go_to_next_mode
+	cmp byte [es:%2.greenPosition], 8
+	jne %%.go_to_next_mode
+	cmp byte [es:%2.bluePosition], 0
+	jne %%.go_to_next_mode
+
+	; If we're only 24bpp, we can continue
+	cmp byte [es:%2.bitsPerPixel], 32
+	jg %%.go_to_next_mode
+	jl %%.mode_found
+
+	; Checks mask and position of the reserved bits
+	cmp byte [es:%2.reservedMask], 8
+	jne %%.go_to_next_mode
+	cmp byte [es:%2.reservedPosition], 24
+	jne %%.go_to_next_mode
+
+	; TODO(fkp): Select the best mode, not just the first
 	jmp %%.mode_found
 	
 %%.go_to_next_mode:

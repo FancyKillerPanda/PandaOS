@@ -34,7 +34,7 @@ main:
 	; Enables graphical mode (VESA)
 	get_vesa_bios_information vbeInfo
 	; select_vesa_mode vbeInfo, vbeModeInfo, 1280, 768, 32
-	select_vesa_mode vbeInfo, vbeModeInfo, 800, 600, 24
+	select_vesa_mode vbeInfo, vbeModeInfo, 800, 600
 	set_vesa_mode				; Sets the mode contained in ax
 	
 	; Global descriptor table set up at 0x0000:0x0800
