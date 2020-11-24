@@ -290,6 +290,50 @@ try_enable:
 %endmacro
 	
 ; Pass in the location of the structure to fill
+%macro get_edid_info 1
+	push es
+	mov ax, ds
+	mov es, ax
+	mov di, %1
+	
+	; Calls the bios interrupt
+	mov ax, 0x4f15
+	mov bl, 0x01
+	xor cx, cx
+	xor dx, dx
+	int 0x10
+
+	; Checks that it worked
+	cmp ax, 0x004f
+	je %%.edid_supported
+
+%%.edid_not_supported:
+	mov word [edidResults.pixelWidth], 1024
+	mov word [edidResults.pixelHeight], 768
+	jmp %%.get_edid_info_finished
+
+%%.edid_supported:
+	; Calculates the width
+	movzx ax, byte [edidInfo.widthLower8]
+	movzx bx, byte [edidInfo.widthUpper4]
+	and bl, 0xf0
+	shl bx, 4
+	add ax, bx
+	mov [edidResults.pixelWidth], ax
+
+	; Calculates the height
+	movzx ax, byte [edidInfo.heightLower8]
+	movzx bx, byte [edidInfo.heightUpper4]
+	and bl, 0xf0
+	shl bx, 4
+	add ax, bx
+	mov [edidResults.pixelHeight], ax
+
+%%.get_edid_info_finished:
+	pop es
+%endmacro
+	
+; Pass in the location of the structure to fill
 %macro get_vesa_bios_information 1
 	push es
 	mov ax, 0x1000
@@ -311,8 +355,8 @@ try_enable:
 	log vesaBiosSupportedMessage
 %endmacro
 	
-; void select_vesa_mode(VESA info, VESA mode info to fill, width, height, bpp)
-%macro select_vesa_mode 4
+; void select_vesa_mode(VESA info, EDID results, VESA mode info to fill)
+%macro select_vesa_mode 3
 	push es
 	xor ax, ax
 	mov es, ax
@@ -332,52 +376,56 @@ try_enable:
 	push es
 	mov ax, 0x4f01
 	mov cx, word [fs:si]
-	mov di, %2
+	mov di, %3
 	int 0x10
 	pop es
 
 	cmp ax, 0x004f
 	jne %%.go_to_next_mode
 	
+	xchg bx, bx
+	
 	; Checks width and height
-	cmp word [es:%2.width], %3
-	jl %%.go_to_next_mode
-	cmp word [es:%2.height], %4
-	jl %%.go_to_next_mode
+	mov ax, [%2.pixelWidth]
+	cmp word [es:%3.width], ax
+	jg %%.go_to_next_mode
+	mov ax, [%2.pixelHeight]
+	cmp word [es:%3.height], ax
+	jg %%.go_to_next_mode
 
 	; Checks for correct bits per pixel
-	cmp byte [es:%2.bitsPerPixel], 24
+	cmp byte [es:%3.bitsPerPixel], 24
 	jl %%.go_to_next_mode
 
 	; Checks for correct memory model (direct colour)
-	cmp byte [es:%2.memoryModel], 0x06
+	cmp byte [es:%3.memoryModel], 0x06
 	jne %%.go_to_next_mode
 
 	; Checks masks
-	cmp byte [es:%2.redMask], 8
+	cmp byte [es:%3.redMask], 8
 	jne %%.go_to_next_mode
-	cmp byte [es:%2.greenMask], 8
+	cmp byte [es:%3.greenMask], 8
 	jne %%.go_to_next_mode
-	cmp byte [es:%2.blueMask], 8
+	cmp byte [es:%3.blueMask], 8
 	jne %%.go_to_next_mode
 
 	; Checks positions
-	cmp byte [es:%2.redPosition], 16
+	cmp byte [es:%3.redPosition], 16
 	jne %%.go_to_next_mode
-	cmp byte [es:%2.greenPosition], 8
+	cmp byte [es:%3.greenPosition], 8
 	jne %%.go_to_next_mode
-	cmp byte [es:%2.bluePosition], 0
+	cmp byte [es:%3.bluePosition], 0
 	jne %%.go_to_next_mode
 
 	; If we're only 24bpp, we can continue
-	cmp byte [es:%2.bitsPerPixel], 32
+	cmp byte [es:%3.bitsPerPixel], 32
 	jg %%.go_to_next_mode
 	jl %%.mode_found
 
 	; Checks mask and position of the reserved bits
-	cmp byte [es:%2.reservedMask], 8
+	cmp byte [es:%3.reservedMask], 8
 	jne %%.go_to_next_mode
-	cmp byte [es:%2.reservedPosition], 24
+	cmp byte [es:%3.reservedPosition], 24
 	jne %%.go_to_next_mode
 
 	; TODO(fkp): Select the best mode, not just the first
@@ -394,15 +442,15 @@ try_enable:
 %%.mode_found:
 	log vesaModeFoundMessage
 
-	mov ax, [es:%2.width]
+	mov ax, [es:%3.width]
 	mov word [es:videoMode.screenWidth], ax
-	mov ax, [es:%2.height]
+	mov ax, [es:%3.height]
 	mov word [es:videoMode.screenHeight], ax
-	mov al, [es:%2.bitsPerPixel]
+	mov al, [es:%3.bitsPerPixel]
 	mov byte [es:videoMode.bitsPerPixel], al
-	mov ax, [es:%2.pitch]
+	mov ax, [es:%3.pitch]
 	mov word [es:videoMode.pitch], ax
-	mov eax, [es:%2.frameBuffer]
+	mov eax, [es:%3.frameBuffer]
 	mov dword [es:videoMode.frameBufferPointer], eax
 
 	mov ax, [fs:si]
@@ -413,7 +461,7 @@ try_enable:
 
 	pop es
 %endmacro
-
+	
 ; void set_vesa_mode(ax: mode)
 %macro set_vesa_mode 0
 	mov bx, ax

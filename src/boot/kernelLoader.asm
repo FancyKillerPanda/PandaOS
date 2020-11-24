@@ -32,9 +32,10 @@ main:
 	get_memory_map memoryMapLocation, memoryMap
 	
 	; Enables graphical mode (VESA)
+	get_edid_info edidInfo
 	get_vesa_bios_information vbeInfo
-	; select_vesa_mode vbeInfo, vbeModeInfo, 1280, 768, 32
-	select_vesa_mode vbeInfo, vbeModeInfo, 800, 600
+	; select_vesa_mode vbeInfo, vbeModeInfo, 800, 600
+	select_vesa_mode vbeInfo, edidResults, vbeModeInfo
 	set_vesa_mode				; Sets the mode contained in ax
 	
 	; Global descriptor table set up at 0x0000:0x0800
@@ -189,6 +190,25 @@ vbeModeInfo:
 	.offScreenMemorySize: dw 0
 	
 	.reserved1: times 206 db 0
+	
+edidResults:
+	.pixelWidth: dw 0
+	.pixelHeight: dw 0
+
+edidInfo:
+	; NOTE(fkp): The blank areas are not needed by us
+	times 54 db 0
+	
+	; Here starts the detailed timing description
+	times 2 db 0
+	.widthLower8 db 0
+	db 0
+	.widthUpper4 db 0
+	.heightLower8 db 0
+	db 0
+	.heightUpper4 db 0
+
+	times 128 - ($ - edidInfo) db 0
 	
 %include "biosParameterBlock-inl.asm"
 %include "commonUtility-inl.asm"
