@@ -367,11 +367,16 @@ try_enable:
 	mov fs, ax
 
 	; This can be checked later to make sure we've actually set it
-	mov dword [es:videoMode.frameBufferPointer], 0x12345678
+	mov word [bestVESAMode], 0
+	mov word [bestVESAWidth], 0
+	mov word [bestVESAHeight], 0
+	mov byte [bestVESABitsPerPixel], 0
+	mov word [bestVESAPitch], 0
+	mov dword [bestVESAFrameBuffer], 0
 	
 %%.mode:
 	cmp word [fs:si], 0xffff
-	je %%.finished
+	je %%.end_of_mode_list
 
 	push es
 	mov ax, 0x4f01
@@ -382,8 +387,6 @@ try_enable:
 
 	cmp ax, 0x004f
 	jne %%.go_to_next_mode
-	
-	xchg bx, bx
 	
 	; Checks width and height
 	mov ax, [%2.pixelWidth]
@@ -420,7 +423,7 @@ try_enable:
 	; If we're only 24bpp, we can continue
 	cmp byte [es:%3.bitsPerPixel], 32
 	jg %%.go_to_next_mode
-	jl %%.mode_found
+	jl %%.skip_32_bits_per_pixel_check
 
 	; Checks mask and position of the reserved bits
 	cmp byte [es:%3.reservedMask], 8
@@ -428,8 +431,31 @@ try_enable:
 	cmp byte [es:%3.reservedPosition], 24
 	jne %%.go_to_next_mode
 
-	; TODO(fkp): Select the best mode, not just the first
-	jmp %%.mode_found
+%%.skip_32_bits_per_pixel_check:
+	; Compares with the current best mode
+	mov ax, [bestVESAWidth]
+	cmp [es:%3.width], ax
+	jl %%.go_to_next_mode
+	mov ax, [bestVESAHeight]
+	cmp [es:%3.height], ax
+	jl %%.go_to_next_mode
+	mov al, [bestVESABitsPerPixel]
+	cmp [es:%3.bitsPerPixel], al
+	jl %%.go_to_next_mode
+
+	; We are the best mode so far, set the values
+	mov ax, [fs:si]
+	mov word [bestVESAMode], ax
+	mov ax, [es:%3.width]
+	mov word [bestVESAWidth], ax
+	mov ax, [es:%3.height]
+	mov word [bestVESAHeight], ax
+	mov al, [es:%3.bitsPerPixel]
+	mov byte [bestVESABitsPerPixel], al
+	mov ax, [es:%3.pitch]
+	mov word [bestVESAPitch], ax
+	mov eax, [es:%3.frameBuffer]
+	mov dword [bestVESAFrameBuffer], eax
 	
 %%.go_to_next_mode:
 	add si, 4
@@ -439,26 +465,28 @@ try_enable:
 	log vesaModeNotFoundMessage
 	call reboot
 	
+%%.end_of_mode_list:
+	; Errors out if we have not found a valid mode
+	cmp word [bestVESAMode], 0
+	je %%.error
+	
 %%.mode_found:
 	log vesaModeFoundMessage
 
-	mov ax, [es:%3.width]
+	mov ax, [bestVESAWidth]
 	mov word [es:videoMode.screenWidth], ax
-	mov ax, [es:%3.height]
+	mov ax, [bestVESAHeight]
 	mov word [es:videoMode.screenHeight], ax
-	mov al, [es:%3.bitsPerPixel]
+	mov al, [bestVESABitsPerPixel]
 	mov byte [es:videoMode.bitsPerPixel], al
-	mov ax, [es:%3.pitch]
+	mov ax, [bestVESAPitch]
 	mov word [es:videoMode.pitch], ax
-	mov eax, [es:%3.frameBuffer]
+	mov eax, [bestVESAFrameBuffer]
 	mov dword [es:videoMode.frameBufferPointer], eax
 
-	mov ax, [fs:si]
+	mov ax, [bestVESAMode]
 	
 %%.finished:
-	cmp dword [es:videoMode.frameBufferPointer], 0x12345678
-	je %%.error
-
 	pop es
 %endmacro
 	

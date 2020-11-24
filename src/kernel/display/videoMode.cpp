@@ -23,6 +23,6 @@ void init_video(VideoMode* videoMode)
 	log_info("Allocated %d pages from %x for video framebuffer.",
 			 numberOfPages, videoInfo.frameBufferPointer);
 
-	// TODO(fkp): Support this
-	ASSERT(videoInfo.bitsPerPixel == 24, "Unsupported number of bits per pixel.");
+	ASSERT(videoInfo.bitsPerPixel == 24 || videoInfo.bitsPerPixel == 32,
+		   "Unsupported number of bits per pixel.");
 }

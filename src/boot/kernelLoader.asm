@@ -232,4 +232,12 @@ vesaSetModeFailedMessage: db "Error: Failed to set VESA mode!", CR, LF, 0
 kernelFile: db "pKernel bin"
 kernelFileCluster: dw 0
 
+; Variables for VESA mode selection
+bestVESAMode: dw 0
+bestVESAWidth: dw 0
+bestVESAHeight: dw 0
+bestVESABitsPerPixel: db 0
+bestVESAPitch: dw 0
+bestVESAFrameBuffer: dd 0
+	
 memoryMapLocation:
