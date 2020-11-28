@@ -25,3 +25,20 @@ void draw_rect(u32 x, u32 y, u32 width, u32 height, u32 colour)
 		location += videoInfo.pitch;
 	}
 }
+
+void draw_bitmap(u8* bitmap, u32 x, u32 y, u32 width, u32 height, u32 colour)
+{
+	for (u32 currentY = 0; currentY < height; currentY++)
+	{
+		for (u32 currentX = 0; currentX < width; currentX++)
+		{
+			u32 index = (currentY * width) + currentX;
+			u8 byte = bitmap[index / 8];
+
+			if (byte & (1 << (index % 8)))
+			{
+				draw_rect(x + currentX, y + currentY, 1, 1, colour);
+			}
+		}
+	}
+}
