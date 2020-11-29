@@ -36,7 +36,7 @@ main:
 	get_vesa_bios_information vbeInfo
 	; select_vesa_mode vbeInfo, vbeModeInfo, 800, 600
 	select_vesa_mode vbeInfo, edidResults, vbeModeInfo
-	set_vesa_mode				; Sets the mode contained in ax
+	; set_vesa_mode				; Sets the mode contained in ax
 	
 	; Global descriptor table set up at 0x0000:0x0800
 	xor ax, ax
