@@ -8,8 +8,12 @@ start:
 	jmp short main
 	nop
 
+; There is a short form of the FAT32 BPB
+; biosParameterBlock: times 68 db 0
+biosParameterBlock: times 87 db 0
+
 main:
-	mov si, testString
+	mov si, welcomeMessage
 	call print_string
 
 	jmp $
@@ -33,8 +37,19 @@ print_string:
 		ret
 
 ; Data
-testString: db "Hello, world!", CR, LF, 0
+welcomeMessage: db "PandaOS", CR, LF, 0
 
 end:
-	times 510 - ($ - $$) db 0
+	times 504 - ($ - $$) db 0
+
+	; NOTE(fkp): Keep at the end (magic)!
+	; This will be filled in by the hard disk creator
+	bootloaderNumberOfSectors: dw 0
+	kernelStartSector: dw 0
+	kernelNumberOfSectors: dw 0
+
 	dw 0xaa55
+
+; NOTE(fkp): From here on is just a test for the bootloader loading
+times 540 db 0
+testMessage: db "Test from extra bootloader.", CR, LF, 0
