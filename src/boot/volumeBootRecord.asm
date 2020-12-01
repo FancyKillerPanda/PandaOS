@@ -18,6 +18,7 @@ main:
 	mov si, welcomeMessage
 	call print_string
 
+	%if 0
 	; TODO(fkp): Check if the BIOS supports LBA addressing
 	; Reads rest of the bootloader to 0x7e00
 	; mov ax, 0x07e0
@@ -29,6 +30,14 @@ main:
 	mov eax, 129
 	mov dl, [bootDriveNumber]
 ;	mov word [diskAddressPacket.sectorsToRead], 4
+	call read_disk
+	%endif
+
+	mov ax, 0x07e0
+	mov es, ax
+	xor bx, bx
+	mov cl, 2
+	mov al, 4
 	call read_disk
 
 	mov si, testMessage
@@ -66,6 +75,24 @@ reboot:
 
 MAX_SECTORS_PER_READ: equ 127
 
+; NOTE(fkp): This is currently limited to reading up to sector 63
+; void read_disk(cl sector, al number to read, es:bx into)
+read_disk:
+	.read:
+		mov dl, [bootDriveNumber]
+		xor ch, ch
+		xor dh, dh
+		mov ah, 0x02
+		int 0x13
+
+		jc .read_failed
+		ret
+
+	.read_failed:
+		mov si, diskErrorMessage
+		call print_string
+		call reboot
+
 %if 0
 ; void read_disk(eax start, es:di into, dl drive)
 read_disk:
@@ -98,7 +125,6 @@ read_disk:
 		mov si, diskErrorMessage
 		call print_string
 		call reboot
-%endif
 
 read_disk:
 	push ax
@@ -135,6 +161,7 @@ read_disk:
 
 .here:
 	call reboot
+%endif
 
 ; Data
 bootDriveNumber: db 0
@@ -142,6 +169,7 @@ welcomeMessage: db "PandaOS", CR, LF, 0
 rebootMessage: db "Reboot?", CR, LF, 0
 diskErrorMessage: db "Failed to read disk!", CR, LF, 0
 
+%if 0
 diskAddressPacket:
 	.size: db 16
 	.unused: db 0
@@ -150,6 +178,7 @@ diskAddressPacket:
 	.segmentToReadInto: dw 0
 	.startLow: dd 0
 	.startHigh: dd 0
+%endif
 
 end:
 	times 504 - ($ - $$) db 0
