@@ -14,6 +14,7 @@ exit_on_error()
 
 # Directories
 srcDir=$prjDir/src
+bootDir=$srcDir/boot
 
 # Build
 mkdir -p $binDir/PandaOS
@@ -23,8 +24,13 @@ print $BLUE "Cleaning..."
 rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
+nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
 
 print $GREEN "\nBuild succeeded!\n"
 
+# Run
+$scriptDir/run.sh
+
+# Exit
 cd $originalDir
 exit 0
