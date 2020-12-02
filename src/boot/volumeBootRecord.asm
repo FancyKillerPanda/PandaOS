@@ -89,7 +89,7 @@ end:
 
 	; NOTE(fkp): Keep at the end (magic)!
 	; TODO(fkp): This should be filled in by the hard disk creator
-	bootloaderNumberOfExtraSectors: dw 3
+	bootloaderNumberOfExtraSectors: dw 0
 	kernelStartSector: dw 0
 	kernelNumberOfSectors: dw 0
 

@@ -45,5 +45,16 @@ int main(s32 argc, const u8* argv[])
 	} break;
 	}
 
+	// Writes magic numbers for the bootloader
+	// NOTE(fkp): The minus 1 is because we don't want to include
+	// the first sector in what we load.
+	u16 bootloaderSectors = ((bootloaderSize + 511) / 512) - 1;
+	u16 magicBootloaderSize = (bootloaderSectors & 0x00ff) << 8;
+	magicBootloaderSize |= (bootloaderSectors & 0xff00) >> 8;
+		
+	fseek(outputFile, 503, SEEK_SET);
+	fwrite(&magicBootloaderSize, 1, 2, outputFile);
+	printf("Info: Wrote magic numbers for bootloader.\n");
+	
 	fclose(outputFile);
 }
