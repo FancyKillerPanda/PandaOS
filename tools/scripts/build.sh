@@ -13,8 +13,13 @@ exit_on_error()
 }
 
 # Directories
-srcDir=$prjDir/src
 bootDir=$srcDir/boot
+
+# Builds genVDisk if necessary
+if [ ! -e $binDir/genVDisk/genVDisk ]; then
+	$prjDir/tools/scripts/buildGenVDisk.sh
+	echo
+fi
 
 # Build
 mkdir -p $binDir/PandaOS

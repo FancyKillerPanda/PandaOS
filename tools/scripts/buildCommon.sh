@@ -16,4 +16,5 @@ print()
 
 # Directories
 prjDir=$scriptDir/../..
+srcDir=$prjDir/src
 binDir=$prjDir/bin
