@@ -65,7 +65,7 @@ end_of_first_sector:
 	dw 0xaa55
 
 %include "a20Utility-inl.asm"
-%include "descriptorTables-inl.asm"
+%include "descriptorTableUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
 a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
