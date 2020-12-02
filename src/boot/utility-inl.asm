@@ -1,7 +1,7 @@
 ; ===== Date Created: 02 December, 2020 ===== 
 
 ; void print_string(ds:si string)
-; This function will mangle si
+; This function will clobber si
 print_string:
 	.print_char:
 		mov al, [ds:si]

@@ -36,17 +36,16 @@ main:
 
 %include "utility-inl.asm"
 
-; Data
+; Data (to be used by bootloader expander)
 bootDriveNumber: db 0
 welcomeMessage: db "PandaOS", CR, LF, 0
 rebootMessage: db "Press any key to reboot...", CR, LF, 0
 diskErrorMessage: db "Error: Failed to read disk!", CR, LF, 0
 
-end:
+end_of_first_sector:
 	times 504 - ($ - $$) db 0
 
 	; NOTE(fkp): Keep at the end (magic)!
-	; TODO(fkp): This should be filled in by the hard disk creator
 	bootloaderNumberOfExtraSectors: dw 0
 	kernelStartSector: dw 0
 	kernelNumberOfSectors: dw 0
