@@ -43,6 +43,25 @@ main:
 		call describe_idt
 		call load_descriptor_tables
 
+		; Enables protected mode
+		mov eax, cr0
+		or eax, 1
+		mov cr0, eax
+
+		; Clears the prefetch queue
+		jmp .clear_prefetch_queue
+		nop
+		nop
+	.clear_prefetch_queue:
+
+		; Selects the data descriptor for all segments (except cs)
+		mov ax, 0x10
+		mov ds, ax
+		mov es, ax
+		mov fs, ax
+		mov gs, ax
+		mov ss, ax
+
 		jmp $
 
 %include "utility-inl.asm"
