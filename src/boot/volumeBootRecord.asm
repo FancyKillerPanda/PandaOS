@@ -11,33 +11,18 @@ start:
 ; There is a short form of the FAT32 BPB
 ; biosParameterBlock: times 68 db 0
 biosParameterBlock: times 87 db 0
-
+	
 main:
 	mov [bootDriveNumber], dl
 
 	mov si, welcomeMessage
 	call print_string
 
-	%if 0
-	; TODO(fkp): Check if the BIOS supports LBA addressing
-	; Reads rest of the bootloader to 0x7e00
-	; mov ax, 0x07e0
-	; mov es, ax
-	; xor di, di
-	mov ax, 0
-	mov es, ax
-	mov di, 0x00
-	mov eax, 129
-	mov dl, [bootDriveNumber]
-;	mov word [diskAddressPacket.sectorsToRead], 4
-	call read_disk
-	%endif
-
 	mov ax, 0x07e0
 	mov es, ax
 	xor bx, bx
-	mov cl, 2
-	mov al, 4
+	mov cl, 2					; Start sector (one-based)
+	mov al, [bootloaderNumberOfExtraSectors]
 	call read_disk
 
 	mov si, testMessage
@@ -66,6 +51,7 @@ print_string:
 ; void reboot()
 reboot:
 	mov si, rebootMessage
+	call print_string
 
 	; Waits for a key to be pressed
 	xor ax, ax
@@ -73,13 +59,12 @@ reboot:
 
 	jmp word 0xffff:0x0000
 
-MAX_SECTORS_PER_READ: equ 127
-
 ; NOTE(fkp): This is currently limited to reading up to sector 63
 ; void read_disk(cl sector, al number to read, es:bx into)
 read_disk:
 	.read:
 		mov dl, [bootDriveNumber]
+
 		xor ch, ch
 		xor dh, dh
 		mov ah, 0x02
@@ -93,99 +78,18 @@ read_disk:
 		call print_string
 		call reboot
 
-%if 0
-; void read_disk(eax start, es:di into, dl drive)
-read_disk:
-	MAX_SECTORS_PER_READ: equ 127
-
-	.check_read_length:
-		cmp word [diskAddressPacket.sectorsToRead], MAX_SECTORS_PER_READ
-		jg .read_failed
-
-	.initialise_dap:
-		mov [diskAddressPacket.startLow], eax
-		mov [diskAddressPacket.segmentToReadInto], es
-		mov [diskAddressPacket.offsetToReadInto], di
-
-		push ax
-		push si
-		mov ax, diskAddressPacket
-		mov si, ax
-
-	.read:
-		mov ah, 0x42
-		int 0x13
-		jc .read_failed
-
-		pop si
-		pop ax
-		ret
-
-	.read_failed:
-		mov si, diskErrorMessage
-		call print_string
-		call reboot
-
-read_disk:
-	push ax
-	push si
-	cmp [diskAddressPacket.sectorsToRead], word MAX_SECTORS_PER_READ
-	jg .read_failed
-
-.initialise_dap:
-	mov [diskAddressPacket.startLow], eax
-	mov [diskAddressPacket.segmentToReadInto], es
-	mov [diskAddressPacket.offsetToReadInto], di
-	mov ax, diskAddressPacket
-
-	mov si, ax
-
-.read:
-	mov ah, 0x42
-	int 0x13
-	jc .read_failed
-
-	pop si
-	pop ax
-	ret
-
-.read_failed:
-	mov ah, 0x01
-	int 0x13
-
-	cmp ah, 0x01
-	je .here
-
-	mov si, diskErrorMessage
-	call print_string
-
-.here:
-	call reboot
-%endif
-
 ; Data
 bootDriveNumber: db 0
 welcomeMessage: db "PandaOS", CR, LF, 0
 rebootMessage: db "Reboot?", CR, LF, 0
 diskErrorMessage: db "Failed to read disk!", CR, LF, 0
 
-%if 0
-diskAddressPacket:
-	.size: db 16
-	.unused: db 0
-	.sectorsToRead: dw 1
-	.offsetToReadInto: dw 0
-	.segmentToReadInto: dw 0
-	.startLow: dd 0
-	.startHigh: dd 0
-%endif
-
 end:
 	times 504 - ($ - $$) db 0
 
 	; NOTE(fkp): Keep at the end (magic)!
-	; This will be filled in by the hard disk creator
-	bootloaderNumberOfSectors: dw 0
+	; TODO(fkp): This should be filled in by the hard disk creator
+	bootloaderNumberOfExtraSectors: dw 3
 	kernelStartSector: dw 0
 	kernelNumberOfSectors: dw 0
 
