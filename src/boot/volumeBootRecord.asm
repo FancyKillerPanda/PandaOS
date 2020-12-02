@@ -13,19 +13,26 @@ start:
 biosParameterBlock: times 87 db 0
 	
 main:
-	mov [bootDriveNumber], dl
+	.setup:
+		mov [bootDriveNumber], dl
 
-	mov si, welcomeMessage
-	call print_string
+		mov si, welcomeMessage
+		call print_string
 
-	mov ax, 0x07e0
-	mov es, ax
-	xor bx, bx
-	mov cl, 2					; Start sector (one-based)
-	mov al, [bootloaderNumberOfExtraSectors]
-	call read_disk
+		; We don't want to try expand if the bootloader
+		; fits in one sector
+		cmp byte [bootloaderNumberOfExtraSectors], 0
+		je .after_expansion
+	
+		mov ax, 0x07e0
+		mov es, ax
+		xor bx, bx
+		mov cl, 2				; Start sector (one-based)
+		mov al, [bootloaderNumberOfExtraSectors]
+		call read_disk
 
-	jmp $
+	.after_expansion:
+		jmp $
 
 ; void print_string(ds:si string)
 ; This function will mangle si
