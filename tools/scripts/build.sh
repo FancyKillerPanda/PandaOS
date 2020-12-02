@@ -32,6 +32,12 @@ rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
 
+print $BLUE "\nGenerating virtual disk..."
+$binDir/genVDisk/genVDisk --output PandaOS.img \
+						  --floppy \
+						  --bootloader volumeBootRecord.bin \
+	|| exit_on_error
+
 print $GREEN "\nBuild succeeded!\n"
 
 # Run

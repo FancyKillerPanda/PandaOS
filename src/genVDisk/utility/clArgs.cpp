@@ -6,11 +6,13 @@
 constexpr const u8* options[] = {
 	"--help",
 	"--output",
+	"--floppy",
 	"--bootloader",
 };
 constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
-	"--output <name>", "The name of the output file.",
+	"--output <path>", "The name of the output file.",
+	"--floppy", "Sets the disk type to be \"Floppy Disk\".",
 	"--bootloader <path>", "Specifies the bootloader file.",
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0,
@@ -46,19 +48,6 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 			
 			return false;
 		}
-		else if (strcmp(argv[i], "--bootloader") == 0)
-		{
-			if (i + 1 < argc)
-			{
-				arguments.bootloaderFile = argv[i + 1];
-				i += 1;
-			}
-			else
-			{
-				printf("Error: No bootloader file given.\n");
-				return false;
-			}
-		}
 		else if (strcmp(argv[i], "--output") == 0)
 		{
 			if (i + 1 < argc)
@@ -69,6 +58,23 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 			else
 			{
 				printf("Error: No output name given.\n");
+				return false;
+			}
+		}
+		else if (strcmp(argv[i], "--floppy") == 0)
+		{
+			arguments.diskType = DiskType::FloppyDisk;
+		}
+		else if (strcmp(argv[i], "--bootloader") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				arguments.bootloaderFile = argv[i + 1];
+				i += 1;
+			}
+			else
+			{
+				printf("Error: No bootloader file given.\n");
 				return false;
 			}
 		}

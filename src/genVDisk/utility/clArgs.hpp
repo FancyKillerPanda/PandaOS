@@ -5,9 +5,15 @@
 
 #include "utility/common.hpp"
 
+enum class DiskType
+{
+	FloppyDisk,
+};
+
 struct CLArgs
 {
 	const u8* outputName = "";
+	DiskType diskType = DiskType::FloppyDisk;
 	const u8* bootloaderFile = "";
 };
 
