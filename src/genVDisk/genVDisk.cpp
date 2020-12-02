@@ -38,7 +38,10 @@ int main(s32 argc, const u8* argv[])
 	case DiskType::FloppyDisk:
 	{
 		usize numberOfBlocksWritten = 0;
+		printf("Info: Writing floppy disk.\n");
+		
 		numberOfBlocksWritten += write_data_as_blocks(outputFile, bootloaderData, bootloaderSize, 0);
+		printf("Info: Wrote bootloader to disk (%zu sectors).\n", numberOfBlocksWritten);
 	} break;
 	}
 
