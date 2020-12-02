@@ -14,6 +14,16 @@ exit_on_error()
 
 # Directories
 bootDir=$srcDir/boot
+kernelDir=$srcDir/kernel
+
+# Flags
+kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -funsigned-char \
+					-Wall -Wextra -Wno-char-subscripts \
+					-o kernel.bin -target i386-pc-none-elf \
+					-I $kernelDir -I $kernelDir/system \
+					-DPANDAOS_DEBUG"
+kernelLinkFlags="-nostdlib -Wl,--oformat=binary"
+kernelFiles="$kernelDir/unityBuild.cpp"
 
 # Builds genVDisk if necessary
 if [ ! -e $binDir/genVDisk/genVDisk ]; then
@@ -30,11 +40,13 @@ rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
+clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nGenerating virtual disk..."
 $binDir/genVDisk/genVDisk --output PandaOS.img \
 						  --floppy \
 						  --bootloader volumeBootRecord.bin \
+						  --kernel kernel.bin \
 	|| exit_on_error
 
 print $GREEN "\nBuild succeeded!\n"

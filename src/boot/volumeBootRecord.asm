@@ -23,7 +23,10 @@ main:
 		; fits in one sector
 		cmp byte [bootloaderNumberOfExtraSectors], 0
 		je .after_expansion
-	
+
+		mov si, expandingMessage
+		call print_string
+
 		mov ax, 0x07e0
 		mov es, ax
 		xor bx, bx
@@ -39,6 +42,7 @@ main:
 ; Data (to be used by bootloader expander)
 bootDriveNumber: db 0
 welcomeMessage: db "PandaOS", CR, LF, 0
+expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
 rebootMessage: db "Press any key to reboot...", CR, LF, 0
 diskErrorMessage: db "Error: Failed to read disk!", CR, LF, 0
 

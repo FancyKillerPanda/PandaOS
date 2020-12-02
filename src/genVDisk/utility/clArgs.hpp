@@ -15,6 +15,7 @@ struct CLArgs
 	const u8* outputName = "";
 	DiskType diskType = DiskType::FloppyDisk;
 	const u8* bootloaderFile = "";
+	const u8* kernelFile = "";
 };
 
 bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments);

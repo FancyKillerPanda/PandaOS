@@ -8,12 +8,14 @@ constexpr const u8* options[] = {
 	"--output",
 	"--floppy",
 	"--bootloader",
+	"--kernel",
 };
 constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
 	"--output <path>", "The name of the output file.",
 	"--floppy", "Sets the disk type to be \"Floppy Disk\".",
 	"--bootloader <path>", "Specifies the bootloader file.",
+	"--kernel <path>", "Specifies the kernel file.",
 };
 static_assert(STACK_ARRAY_LENGTH(optionDescriptions) % 2 == 0,
 			  "All options must have a description.");
@@ -78,6 +80,19 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 				return false;
 			}
 		}
+		else if (strcmp(argv[i], "--kernel") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				arguments.kernelFile = argv[i + 1];
+				i += 1;
+			}
+			else
+			{
+				printf("Error: No kernel file given.\n");
+				return false;
+			}
+		}
 		else
 		{
 			if (i != 0)
@@ -91,6 +106,11 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 	if (strcmp(arguments.bootloaderFile, "") == 0)
 	{
 		printf("Error: Bootloader file must be supplied.\n");
+		return false;
+	}
+	else if (strcmp(arguments.kernelFile, "") == 0)
+	{
+		printf("Error: Kernel file must be supplied.\n");
 		return false;
 	}
 	else if (strcmp(arguments.outputName, "") == 0)
