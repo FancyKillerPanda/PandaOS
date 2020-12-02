@@ -17,7 +17,7 @@ bootDir=$srcDir/boot
 
 # Builds genVDisk if necessary
 if [ ! -e $binDir/genVDisk/genVDisk ]; then
-	$prjDir/tools/scripts/buildGenVDisk.sh
+	$prjRoot/tools/scripts/buildGenVDisk.sh
 	echo
 fi
 

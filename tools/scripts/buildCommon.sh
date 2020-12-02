@@ -15,6 +15,6 @@ print()
 }
 
 # Directories
-prjDir=$scriptDir/../..
-srcDir=$prjDir/src
-binDir=$prjDir/bin
+prjRoot=$scriptDir/../..
+srcDir=$prjRoot/src
+binDir=$prjRoot/bin
