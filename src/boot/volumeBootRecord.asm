@@ -25,9 +25,6 @@ main:
 	mov al, [bootloaderNumberOfExtraSectors]
 	call read_disk
 
-	mov si, testMessage
-	call print_string
-
 	jmp $
 
 ; void print_string(ds:si string)
@@ -94,9 +91,3 @@ end:
 	kernelNumberOfSectors: dw 0
 
 	dw 0xaa55
-
-; NOTE(fkp): From here on is just a test for the bootloader loading
-times 540 db 0
-testMessage: db "Test from extra bootloader.", CR, LF, 0
-
-times 2048 - ($ - $$) db 0
