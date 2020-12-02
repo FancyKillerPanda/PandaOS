@@ -65,15 +65,12 @@ int main(s32 argc, const u8* argv[])
 	// the first sector in what we load.
 	// TODO(fkp): Make a macro for the little-endian stuff
 	u16 bootloaderSectors = ((bootloaderSize + 511) / 512) - 1;
-	u16 magicBootloaderSize = (bootloaderSectors & 0x00ff) << 8;
-	magicBootloaderSize |= (bootloaderSectors & 0xff00) >> 8;
+	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 
 	u16 kernelSectors = ((kernelSize + 511) / 512) - 1;
-	u16 magicKernelSize = (kernelSectors & 0x00ff) << 8;
-	magicKernelSize |= (kernelSectors & 0xff00) >> 8;
+	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	
-	// Adds 1 (but in little endian)
-	u16 magicKernelStart = magicBootloaderSize + 0x0100;
+	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderSectors + 1);
 	
 	fseek(outputFile, 503, SEEK_SET);
 	fwrite(&magicBootloaderSize, 1, 2, outputFile);

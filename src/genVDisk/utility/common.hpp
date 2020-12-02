@@ -19,4 +19,7 @@ using f64 = double;
 // Gets the number of elements in a stack array
 #define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
 
+// Works only on 16bit unsigned integers
+#define ENDIAN_SWAP_16(num) (((num) >> 8) | ((num) << 8))
+
 #endif
