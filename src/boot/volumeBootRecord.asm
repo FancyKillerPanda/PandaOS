@@ -35,6 +35,8 @@ main:
 		call read_disk
 
 	.after_expansion:
+		call try_enable_a20
+
 		jmp $
 
 %include "utility-inl.asm"
@@ -55,3 +57,9 @@ end_of_first_sector:
 	kernelNumberOfSectors: dw 0
 
 	dw 0xaa55
+
+%include "a20Utility-inl.asm"
+
+; Data (to be used by the extended bootloader)
+a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
+a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
