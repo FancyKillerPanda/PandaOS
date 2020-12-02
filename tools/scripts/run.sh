@@ -12,8 +12,7 @@ exit_on_error()
 }
 
 cd $binDir/PandaOS > /dev/null 2> /dev/null || exit_on_error
-# qemu-system-i386 --drive format=raw,file=volumeBootRecord.bin || exit_on_error
-qemu-system-i386 -fda volumeBootRecord.bin || exit_on_error
+qemu-system-i386 -drive if=floppy,index=0,format=raw,file=volumeBootRecord.bin || exit_on_error
 
 # Exit
 cd $originalDir

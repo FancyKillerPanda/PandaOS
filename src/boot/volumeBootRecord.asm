@@ -81,8 +81,8 @@ read_disk:
 ; Data
 bootDriveNumber: db 0
 welcomeMessage: db "PandaOS", CR, LF, 0
-rebootMessage: db "Reboot?", CR, LF, 0
-diskErrorMessage: db "Failed to read disk!", CR, LF, 0
+rebootMessage: db "Press any key to reboot...", CR, LF, 0
+diskErrorMessage: db "Error: Failed to read disk!", CR, LF, 0
 
 end:
 	times 504 - ($ - $$) db 0
