@@ -16,4 +16,7 @@ using usize = size_t;
 using f32 = float;
 using f64 = double;
 
+// Gets the number of elements in a stack array
+#define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
+
 #endif

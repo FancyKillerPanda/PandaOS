@@ -16,7 +16,7 @@ exit_on_error()
 genVDiskDir=$srcDir/genVDisk
 
 # Flags
-compileFlags="-o genVDisk -I $srcDir -funsigned-char -O3 -Wall -Wextra"
+compileFlags="-o genVDisk -I $genVDiskDir -funsigned-char -O3 -Wall -Wextra"
 linkFlags=""
 files="$genVDiskDir/unityBuild.cpp"
 

@@ -16,10 +16,11 @@ exit_on_error()
 bootDir=$srcDir/boot
 
 # Builds genVDisk if necessary
-if [ ! -e $binDir/genVDisk/genVDisk ]; then
+# NOTE(fkp): Rebuild genVDisk every time for easier debugging
+# if [ ! -e $binDir/genVDisk/genVDisk ]; then
 	$prjRoot/tools/scripts/buildGenVDisk.sh
 	echo
-fi
+# fi
 
 # Build
 mkdir -p $binDir/PandaOS
