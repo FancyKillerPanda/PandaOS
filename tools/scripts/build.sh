@@ -22,8 +22,8 @@ kernelCompileFlags="-ffreestanding -nostdinc -nostdinc++ -funsigned-char \
 					-o kernel.bin -target i386-pc-none-elf \
 					-I $kernelDir -I $kernelDir/system \
 					-DPANDAOS_DEBUG"
-kernelLinkFlags="-nostdlib -Wl,--oformat=binary"
-kernelFiles="$kernelDir/unityBuild.cpp"
+kernelLinkFlags="-nostdlib -Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
+kernelFiles="$kernelDir/unityBuild.cpp kernelEntryPoint.o"
 
 # Builds genVDisk if necessary
 if [ ! -e $binDir/genVDisk/genVDisk ]; then
@@ -40,6 +40,7 @@ rm *.bin *.img *.iso *.o *.vmdk 2> /dev/null
 
 print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
+nasm -felf32 $kernelDir/entryPoint.asm -o kernelEntryPoint.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nGenerating virtual disk..."

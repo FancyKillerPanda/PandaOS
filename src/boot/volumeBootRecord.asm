@@ -1,4 +1,5 @@
 ; ===== Date Created: 01 December, 2020 ===== 
+bits 16
 org 0x7c00
 
 CR: equ 0x0d
