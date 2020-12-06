@@ -9,11 +9,14 @@ describe_gdt:
 		mov di, [gdtEntry.pointer]
 
 	.describe:
+		gdtStart:
 		; NULL descriptor
+		gdtNullOffset: equ $ - gdtStart
 	    mov cx, 8
 	    rep stosb
 
 	    ; Code segment descriptor
+		gdtCode32Offset: equ $ - gdtStart
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits
@@ -24,6 +27,7 @@ describe_gdt:
 	    add di, 8
 
 	    ; Data segment descriptor
+		gdtData32Offset: equ $ - gdtStart
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits

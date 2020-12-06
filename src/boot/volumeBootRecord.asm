@@ -56,7 +56,7 @@ main:
 	.clear_prefetch_queue:
 
 		; Selects the data descriptor for all segments (except cs)
-		mov ax, 0x10
+		mov ax, gdtData32Offset
 		mov ds, ax
 		mov es, ax
 		mov fs, ax
