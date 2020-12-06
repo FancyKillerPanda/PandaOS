@@ -15,7 +15,27 @@ describe_gdt:
 	    mov cx, 8
 	    rep stosb
 
-	    ; Code segment descriptor
+	    ; Code segment descriptor (16-bit)
+		gdtCode16Offset: equ $ - gdtStart
+	    mov [es:di],     word 0xffff ; Limit of 4GB
+	    mov [es:di + 2], word 0x0000 ; Base
+	    mov [es:di + 4], byte 0x00	; More base bits
+	    mov [es:di + 5], byte 0x98	; Access (present and executable are set)
+	    mov [es:di + 6], byte 0x00	; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00	; More base bits
+	
+	    add di, 8
+
+	    ; Data segment descriptor (16-bit)
+		gdtData16Offset: equ $ - gdtStart
+	    mov [es:di],     word 0xffff ; Limit of 4GB
+	    mov [es:di + 2], word 0x0000 ; Base
+	    mov [es:di + 4], byte 0x00	; More base bits
+	    mov [es:di + 5], byte 0x92	; Access (present and writable are set)
+	    mov [es:di + 6], byte 0x00	; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00	; More base bits
+
+	    ; Code segment descriptor (32-bit)
 		gdtCode32Offset: equ $ - gdtStart
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
@@ -26,7 +46,7 @@ describe_gdt:
 	
 	    add di, 8
 
-	    ; Data segment descriptor
+	    ; Data segment descriptor (32-bit)
 		gdtData32Offset: equ $ - gdtStart
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
