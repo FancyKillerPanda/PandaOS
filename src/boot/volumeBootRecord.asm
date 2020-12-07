@@ -198,6 +198,32 @@ load_kernel:
 		mov ax, word [numberOfSectorsToReadNext]
 		call read_disk
 
+	.copy_to_real_location:
+		enable_protected_mode
+
+		; Source location
+		mov eax, tempBufferSegment
+		mov ecx, 0x10
+		mul ecx
+		mov esi, eax
+
+		; Destination location
+		movzx eax, word [sectorsAlreadyRead]
+		mov ecx, 512
+		mul ecx
+		mov edx, KERNEL_FLAT_ADDRESS
+		add edx, eax
+		mov edi, edx
+
+		; We are moving ((512 / 4) * number of sectors) DWORDs
+		mov eax, 128
+		movzx ecx, word [numberOfSectorsToReadNext]
+		mul ecx
+		mov ecx, eax
+
+		rep movsd
+		enable_real_mode
+
 	.read_again_or_finish:
 		mov ax, word [sectorsAlreadyRead]
 		add ax, word [numberOfSectorsToReadNext]
