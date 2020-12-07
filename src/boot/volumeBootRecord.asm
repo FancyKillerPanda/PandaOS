@@ -5,6 +5,34 @@ org 0x7c00
 CR: equ 0x0d
 LF: equ 0x0a
 
+%macro enable_protected_mode 0
+	%%.setup:
+		; NOTE(fkp): This requires that we have already
+		; described the GDT and IDT tables.
+		call load_descriptor_tables
+
+	%%.enable:
+		; Enables protected mode
+		mov eax, cr0
+		or eax, 1
+		mov cr0, eax
+
+		; Clears the prefetch queue
+		jmp gdtCode32Offset:%%.setup_segments
+		nop
+		nop
+
+	%%.setup_segments:
+		; Selects the data descriptor for all segments (except cs)
+		mov ax, gdtData32Offset
+		mov ds, ax
+		mov es, ax
+		mov fs, ax
+		mov gs, ax
+		mov ss, ax
+		mov esp, 0x20000		; Still within usable memory
+%endmacro
+
 start:
 	jmp short main
 	nop
@@ -42,26 +70,9 @@ main:
 		; Desriptor tables
 		call describe_gdt
 		call describe_idt
-		call load_descriptor_tables
 
-		; Enables protected mode
-		mov eax, cr0
-		or eax, 1
-		mov cr0, eax
-
-		; Clears the prefetch queue
-		jmp .clear_prefetch_queue
-		nop
-		nop
-	.clear_prefetch_queue:
-
-		; Selects the data descriptor for all segments (except cs)
-		mov ax, gdtData32Offset
-		mov ds, ax
-		mov es, ax
-		mov fs, ax
-		mov gs, ax
-		mov ss, ax
+		; To protected mode and beyond
+		enable_protected_mode
 
 		jmp $
 
