@@ -5,6 +5,8 @@ org 0x7c00
 CR: equ 0x0d
 LF: equ 0x0a
 
+KERNEL_FLAT_ADDRESS: equ 0x00100000
+
 %macro enable_protected_mode 0
 	%%.setup:
 		mov si, enableProtectedModeMessage
@@ -78,7 +80,6 @@ LF: equ 0x0a
 		lidt [idtEntryRealMode]
 
 	%%.cleanup:
-		xchg bx, bx
 		sti
 		mov si, enableRealModeMessage
 		call print_string
@@ -122,11 +123,10 @@ main:
 		call describe_gdt
 		call describe_idt
 
+		call load_kernel
+
 		; To protected mode and beyond
 		enable_protected_mode
-
-		; Debug testing
-		call debug_test_mode_switching
 
 		jmp $
 
@@ -158,13 +158,55 @@ a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
 a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
 enableProtectedModeMessage: db "Info: Enabling protected mode!", CR, LF, 0
 enableRealModeMessage: db "Info: Enabled real mode!", CR, LF, 0
+loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
+loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
 
-bits 32
-debug_test_mode_switching:
-	enable_real_mode
-	enable_protected_mode
-	enable_real_mode
-	enable_protected_mode
-	enable_real_mode
-	enable_protected_mode
-	ret
+debugMessage: db "Here", CR, LF, 0
+
+; TODO(fkp): Move this somewhere else
+; void load_kernel()
+load_kernel:
+	.setup:
+		mov si, loadingKernelMessage
+		call print_string
+
+		; Temporary buffer will be 32 sectors at 0x3000
+		tempBufferSegment: equ 0x0200
+		maxSectorsPerRead: equ 32
+
+		sectorsAlreadyRead: dw 0
+		numberOfSectorsToReadNext: dw 0
+
+	.calculate_number_of_sectors:
+		mov dx, word [kernelNumberOfSectors]
+		sub dx, word [sectorsAlreadyRead]
+		cmp dx, 32
+		jle .do_read
+		mov dx, 32
+
+	.do_read:
+		mov [numberOfSectorsToReadNext], dx
+
+		; Sets es:bx to be destination
+		mov dx, tempBufferSegment
+		mov es, dx
+		xor bx, bx
+		
+		mov cx, word [kernelStartSector]
+		add cx, word [sectorsAlreadyRead]
+		add cx, 1				; Sectors are one-based
+		mov ax, word [numberOfSectorsToReadNext]
+		call read_disk
+
+	.read_again_or_finish:
+		mov ax, word [sectorsAlreadyRead]
+		add ax, word [numberOfSectorsToReadNext]
+		mov word [sectorsAlreadyRead], ax
+
+		cmp ax, word [kernelNumberOfSectors]
+		jl .calculate_number_of_sectors
+
+	.done:
+		mov si, loadedKernelMessage
+		call print_string
+		ret
