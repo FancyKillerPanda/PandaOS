@@ -100,3 +100,7 @@ gdtEntry:
 idtEntry:
 	.size: dw 1024
 	.pointer: dd 0x7100
+
+idtEntryRealMode:
+	.size: dw 1024
+	.pointer: dd 0x0000
