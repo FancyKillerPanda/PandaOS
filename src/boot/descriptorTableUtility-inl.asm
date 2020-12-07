@@ -11,12 +11,18 @@ describe_gdt:
 	.describe:
 		gdtStart:
 		; NULL descriptor
-		gdtNullOffset: equ $ - gdtStart
-	    mov cx, 8
-	    rep stosb
+		gdtNullOffset: equ 0
+	    mov [es:di],     word 0x0000
+	    mov [es:di + 2], word 0x0000
+	    mov [es:di + 4], byte 0x00
+	    mov [es:di + 5], byte 0x00
+	    mov [es:di + 6], byte 0x00
+	    mov [es:di + 7], byte 0x00
+
+		add di, 8
 
 	    ; Code segment descriptor (16-bit)
-		gdtCode16Offset: equ $ - gdtStart
+		gdtCode16Offset: equ 8
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits
@@ -27,7 +33,7 @@ describe_gdt:
 	    add di, 8
 
 	    ; Data segment descriptor (16-bit)
-		gdtData16Offset: equ $ - gdtStart
+		gdtData16Offset: equ 16
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits
@@ -35,8 +41,10 @@ describe_gdt:
 	    mov [es:di + 6], byte 0x00	; Flags (granularity and size) and limit
 	    mov [es:di + 7], byte 0x00	; More base bits
 
+	    add di, 8
+
 	    ; Code segment descriptor (32-bit)
-		gdtCode32Offset: equ $ - gdtStart
+		gdtCode32Offset: equ 24
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits
@@ -47,7 +55,7 @@ describe_gdt:
 	    add di, 8
 
 	    ; Data segment descriptor (32-bit)
-		gdtData32Offset: equ $ - gdtStart
+		gdtData32Offset: equ 32
 	    mov [es:di],     word 0xffff ; Limit of 4GB
 	    mov [es:di + 2], word 0x0000 ; Base
 	    mov [es:di + 4], byte 0x00	; More base bits
@@ -55,8 +63,11 @@ describe_gdt:
 	    mov [es:di + 6], byte 0xcf	; Flags (granularity and size) and limit
 	    mov [es:di + 7], byte 0x00	; More base bits
 
+		add di, 8
+
 	.cleanup:
 		pop es
+		ret
 
 ; void describe_idt()
 describe_idt:
@@ -64,7 +75,7 @@ describe_idt:
 		push es
 		xor ax, ax
 		mov es, ax
-		mov di, [gdtEntry.pointer]
+		mov di, [idtEntry.pointer]
 
 	.describe:
 		mov cx, 1024
@@ -72,6 +83,7 @@ describe_idt:
 
 	.cleanup:
 		pop es
+		ret
 
 ; void load_descriptor_tables()
 load_descriptor_tables:
@@ -79,8 +91,10 @@ load_descriptor_tables:
 	lgdt [gdtEntry]
 	lidt [idtEntry]
 
+	ret
+
 gdtEntry:
-	.size: dw 24
+	.size: dw 40
 	.pointer: dd 0x7000
 
 idtEntry:
