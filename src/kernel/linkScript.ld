@@ -3,7 +3,6 @@ ENTRY(start)
 
 SECTIONS
 {
-
 	/* The kernel begins at the 1MB physical mark. */
 	. = 0x00100000;
 

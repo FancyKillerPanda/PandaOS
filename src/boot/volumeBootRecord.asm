@@ -6,6 +6,7 @@ CR: equ 0x0d
 LF: equ 0x0a
 
 KERNEL_FLAT_ADDRESS: equ 0x00100000
+BOOTLOADER_STACK_ADDRESS: equ 0xb000
 
 %macro enable_protected_mode 0
 	%%.setup:
@@ -15,6 +16,8 @@ KERNEL_FLAT_ADDRESS: equ 0x00100000
 		; NOTE(fkp): This requires that we have already
 		; described the GDT and IDT tables.
 		call load_descriptor_tables
+
+		mov word [bootloaderStackPointer], sp
 
 	%%.enable:
 		; Enables protected mode
@@ -74,7 +77,7 @@ KERNEL_FLAT_ADDRESS: equ 0x00100000
 		mov fs, ax
 		mov gs, ax
 		mov ss, ax
-		mov sp, 0x7c00
+		mov sp, word [bootloaderStackPointer]
 
 	%%.load_real_mode_idt:
 		lidt [idtEntryRealMode]
@@ -95,11 +98,19 @@ biosParameterBlock: times 87 db 0
 	
 main:
 	.setup:
+		; Sets up starting segments
+		xor ax, ax
+		mov ds, ax
+		mov es, ax
+		mov ss, ax
+		mov sp, BOOTLOADER_STACK_ADDRESS
+
 		mov [bootDriveNumber], dl
 
 		mov si, welcomeMessage
 		call print_string
 
+	.expand_bootloader:
 		; We don't want to try expand if the bootloader
 		; fits in one sector
 		cmp byte [bootloaderNumberOfExtraSectors], 0
@@ -123,11 +134,13 @@ main:
 		call describe_gdt
 		call describe_idt
 
+		; To the kernel and beyond!
 		call load_kernel
-
-		; To protected mode and beyond
 		enable_protected_mode
+		xchg bx, bx
+		jmp KERNEL_FLAT_ADDRESS
 
+		; Should never get here
 		jmp $
 
 bits 16
@@ -161,7 +174,7 @@ enableRealModeMessage: db "Info: Enabled real mode!", CR, LF, 0
 loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
 loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
 
-debugMessage: db "Here", CR, LF, 0
+bootloaderStackPointer: dw 0
 
 ; TODO(fkp): Move this somewhere else
 ; void load_kernel()
