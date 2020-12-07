@@ -4,89 +4,9 @@ org 0x7c00
 
 CR: equ 0x0d
 LF: equ 0x0a
-
-KERNEL_FLAT_ADDRESS: equ 0x00100000
 BOOTLOADER_STACK_ADDRESS: equ 0xb000
 
-%macro enable_protected_mode 0
-	%%.setup:
-		mov si, enableProtectedModeMessage
-		call print_string
-
-		; NOTE(fkp): This requires that we have already
-		; described the GDT and IDT tables.
-		call load_descriptor_tables
-
-		mov word [bootloaderStackPointer], sp
-
-	%%.enable:
-		; Enables protected mode
-		mov eax, cr0
-		or eax, 1
-		mov cr0, eax
-
-		; Also clears the prefetch queue
-		jmp gdtCode32Offset:%%.setup_segments
-		nop
-		nop
-
-	%%.setup_segments:
-		bits 32
-		; Selects the data descriptor for all segments (except cs)
-		mov ax, gdtData32Offset
-		mov ds, ax
-		mov es, ax
-		mov fs, ax
-		mov gs, ax
-		mov ss, ax
-		mov esp, 0x20000		; Still within usable memory
-%endmacro
-
-%macro enable_real_mode 0
-	%%.setup:
-		cli
-
-		; Also clears the prefetch queue
-		jmp gdtCode16Offset:%%.switch_to_16_bit_gdt
-		nop
-		nop
-
-	%%.switch_to_16_bit_gdt:
-		bits 16
-		mov eax, gdtData16Offset
-		mov ds, eax
-		mov es, eax
-		mov fs, eax
-		mov gs, eax
-		mov ss, eax
-
-	%%.disable_protected_mode:
-		mov eax, cr0
-		and eax, 0x7ffffffe		; Disables protected mode and paging
-		mov cr0, eax
-
-		; Also clears the prefetch queue
-		jmp 0x00:%%.reset_gdt_selector
-		nop
-		nop
-
-	%%.reset_gdt_selector:
-		xor ax, ax
-		mov ds, ax
-		mov es, ax
-		mov fs, ax
-		mov gs, ax
-		mov ss, ax
-		mov sp, word [bootloaderStackPointer]
-
-	%%.load_real_mode_idt:
-		lidt [idtEntryRealMode]
-
-	%%.cleanup:
-		sti
-		mov si, enableRealModeMessage
-		call print_string
-%endmacro
+%include "kernelLoadMacros-inl.asm"
 
 start:
 	jmp short main
@@ -165,6 +85,7 @@ end_of_first_sector:
 
 %include "a20Utility-inl.asm"
 %include "descriptorTableUtility-inl.asm"
+%include "kernelLoadUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
 a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
@@ -175,77 +96,3 @@ loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
 loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
 
 bootloaderStackPointer: dw 0
-
-; TODO(fkp): Move this somewhere else
-; void load_kernel()
-load_kernel:
-	.setup:
-		mov si, loadingKernelMessage
-		call print_string
-
-		; Temporary buffer will be 32 sectors at 0x3000
-		tempBufferSegment: equ 0x0200
-		maxSectorsPerRead: equ 32
-
-		sectorsAlreadyRead: dw 0
-		numberOfSectorsToReadNext: dw 0
-
-	.calculate_number_of_sectors:
-		mov dx, word [kernelNumberOfSectors]
-		sub dx, word [sectorsAlreadyRead]
-		cmp dx, 32
-		jle .do_read
-		mov dx, 32
-
-	.do_read:
-		mov [numberOfSectorsToReadNext], dx
-
-		; Sets es:bx to be destination
-		mov dx, tempBufferSegment
-		mov es, dx
-		xor bx, bx
-		
-		mov cx, word [kernelStartSector]
-		add cx, word [sectorsAlreadyRead]
-		add cx, 1				; Sectors are one-based
-		mov ax, word [numberOfSectorsToReadNext]
-		call read_disk
-
-	.copy_to_real_location:
-		enable_protected_mode
-
-		; Source location
-		mov eax, tempBufferSegment
-		mov ecx, 0x10
-		mul ecx
-		mov esi, eax
-
-		; Destination location
-		movzx eax, word [sectorsAlreadyRead]
-		mov ecx, 512
-		mul ecx
-		mov edx, KERNEL_FLAT_ADDRESS
-		add edx, eax
-		mov edi, edx
-
-		; We are moving ((512 / 4) * number of sectors) DWORDs
-		mov eax, 128
-		movzx ecx, word [numberOfSectorsToReadNext]
-		mul ecx
-		mov ecx, eax
-
-		rep movsd
-		enable_real_mode
-
-	.read_again_or_finish:
-		mov ax, word [sectorsAlreadyRead]
-		add ax, word [numberOfSectorsToReadNext]
-		mov word [sectorsAlreadyRead], ax
-
-		cmp ax, word [kernelNumberOfSectors]
-		jl .calculate_number_of_sectors
-
-	.done:
-		mov si, loadedKernelMessage
-		call print_string
-		ret
