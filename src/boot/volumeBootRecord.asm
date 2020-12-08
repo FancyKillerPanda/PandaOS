@@ -64,6 +64,7 @@ main:
 
 		; Passes parameters to the kernel
 		mov eax, memoryMap
+		movzx bx, byte [numberOfLinesPrinted]
 		jmp KERNEL_FLAT_ADDRESS
 
 		; Should never get here
@@ -78,6 +79,8 @@ welcomeMessage: db "PandaOS", CR, LF, 0
 expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
 rebootMessage: db "Press any key to reboot...", CR, LF, 0
 diskErrorMessage: db "Error: Failed to read disk!", CR, LF, 0
+
+numberOfLinesPrinted: db 0
 
 end_of_first_sector:
 	times 504 - ($ - $$) db 0

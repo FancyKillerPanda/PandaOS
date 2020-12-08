@@ -21,6 +21,11 @@ clear_screen:
 ; void print_string(ds:si string)
 ; This function will clobber si
 print_string:
+	.check_for_newline:
+		cmp byte [ds:si], LF
+		jne .print_char
+		inc byte [numberOfLinesPrinted]
+
 	.print_char:
 		mov al, [ds:si]
 		cmp al, 0
@@ -31,7 +36,7 @@ print_string:
 		int 0x10
 
 		inc si
-		jmp .print_char
+		jmp .check_for_newline
 
 	.done:
 		ret

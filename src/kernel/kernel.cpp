@@ -5,10 +5,9 @@
 #include "system/common.hpp"
 #include "utility/log.hpp"
 
-extern "C" void kmain(MemoryMap* memoryMap)
+extern "C" void kmain(u16 bootloaderLinesPrinted, MemoryMap* memoryMap)
 {
-	// TODO(fkp): Get number of lines logged from bootloader
-	move_cursor(12, 0);
+	move_cursor(bootloaderLinesPrinted + 1, 0);
 	log_info("PandaOS kernel!");
 	
 	// Testing grounds:

@@ -9,7 +9,8 @@ section .entry
 global start
 start:
 	mov esp, kernelStackStart
-	push eax
+	push eax					; Memory map
+	push bx					; Number of lines printed
 	call kmain
 
 hang:
