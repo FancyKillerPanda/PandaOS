@@ -5,10 +5,11 @@ extern kmain
 
 section .entry
 
-; void start()
+; void start(eax: memory map)
 global start
 start:
 	mov esp, kernelStackStart
+	push eax
 	call kmain
 
 hang:

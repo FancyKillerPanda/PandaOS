@@ -4,6 +4,7 @@
 
 #include "display/textDisplay.cpp"
 
+#include "memory/memoryMap.cpp"
 #include "memory/operations.cpp"
 
 #include "system/io.cpp"

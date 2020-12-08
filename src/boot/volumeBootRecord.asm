@@ -51,6 +51,9 @@ main:
 		; A20 line
 		call try_enable_a20
 
+		; Memory map
+		call get_memory_map
+
 		; Desriptor tables
 		call describe_gdt
 		call describe_idt
@@ -58,7 +61,9 @@ main:
 		; To the kernel and beyond!
 		call load_kernel
 		enable_protected_mode
-		xchg bx, bx
+
+		; Passes parameters to the kernel
+		mov eax, memoryMap
 		jmp KERNEL_FLAT_ADDRESS
 
 		; Should never get here
@@ -87,6 +92,7 @@ end_of_first_sector:
 %include "a20Utility-inl.asm"
 %include "descriptorTableUtility-inl.asm"
 %include "kernelLoadUtility-inl.asm"
+%include "memoryMapUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
 a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
@@ -95,5 +101,8 @@ enableProtectedModeMessage: db "Info: Enabling protected mode!", CR, LF, 0
 enableRealModeMessage: db "Info: Enabled real mode!", CR, LF, 0
 loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
 loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
+memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
+memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
 bootloaderStackPointer: dw 0
+memoryMapLocation:
