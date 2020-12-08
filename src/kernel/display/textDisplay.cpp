@@ -1,6 +1,7 @@
 //  ===== Date Created: 08 December, 2020 ===== 
 
 #include "display/textDisplay.hpp"
+#include "memory/operations.hpp"
 #include "system/io.hpp"
 
 static u16* const TEXT_VIDEO_MEMORY = (u16*) 0xb8000;

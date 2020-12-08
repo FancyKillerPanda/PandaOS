@@ -2,8 +2,10 @@
 
 #include "kernel.cpp"
 
-#include "system/io.cpp"
+#include "display/textDisplay.cpp"
 
 #include "memory/operations.cpp"
 
-#include "display/textDisplay.cpp"
+#include "system/io.cpp"
+
+#include "utility/log.cpp"

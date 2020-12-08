@@ -1,22 +1,21 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
-#include "system/common.hpp"
 #include "display/textDisplay.hpp"
+#include "system/common.hpp"
+#include "utility/log.hpp"
 
 extern "C" void kmain()
 {
 	move_cursor(11, 0);
 	print("Hello, world!\n");
-	print("This is a message from the kernel...\n");
+	print("This is a message from the kernel...\n\n");
 	
 	// Testing grounds:
-	u8 small = 4;
-	u16 medium = 250;
 	u32 large = 0x12345678;
 	
-	printf("Small: %d\nMedium: %d\nLarge: %d\n\n"
-		   "Small: %x\nMedium: %x\nLarge: %x\n",
-		   small, medium, large, small, medium, large);
+	log_info("Hello there!");
+	log_warning("This is a number: %d", 5);
+	log_error("This is another number: %x", large);
 	
 	while (true);
 }
