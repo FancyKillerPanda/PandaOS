@@ -3,3 +3,5 @@
 #include "kernel.cpp"
 
 #include "system/io.cpp"
+
+#include "display/textDisplay.cpp"
