@@ -64,7 +64,7 @@ main:
 
 		; Passes parameters to the kernel
 		mov eax, memoryMap
-		movzx bx, byte [numberOfLinesPrinted]
+		movzx ebx, byte [numberOfLinesPrinted]
 		jmp KERNEL_FLAT_ADDRESS
 
 		; Should never get here

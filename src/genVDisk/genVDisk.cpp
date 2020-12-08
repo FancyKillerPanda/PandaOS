@@ -63,7 +63,6 @@ int main(s32 argc, const u8* argv[])
 	// Writes magic numbers for the bootloader
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
-	// TODO(fkp): Make a macro for the little-endian stuff
 	u16 bootloaderSectors = ((bootloaderSize + 511) / 512) - 1;
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 
