@@ -8,7 +8,6 @@ section .entry
 ; void start()
 global start
 start:
-	xchg bx, bx
 	mov esp, kernelStackStart
 	call kmain
 

@@ -8,7 +8,7 @@ load_kernel:
 		mov si, loadingKernelMessage
 		call print_string
 
-		; Temporary buffer will be 32 sectors at 0x3000
+		; Temporary buffer will be 32 sectors at 0x2000
 		tempBufferSegment: equ 0x0200
 		maxSectorsPerRead: equ 32
 
@@ -16,6 +16,8 @@ load_kernel:
 		numberOfSectorsToReadNext: dw 0
 
 	.calculate_number_of_sectors:
+		xchg bx, bx
+
 		mov dx, word [kernelNumberOfSectors]
 		sub dx, word [sectorsAlreadyRead]
 		cmp dx, 32
@@ -32,7 +34,6 @@ load_kernel:
 		
 		mov cx, word [kernelStartSector]
 		add cx, word [sectorsAlreadyRead]
-		add cx, 1				; Sectors are one-based
 		mov ax, word [numberOfSectorsToReadNext]
 		call read_disk
 

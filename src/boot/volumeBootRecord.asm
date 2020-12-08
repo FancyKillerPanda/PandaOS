@@ -43,7 +43,7 @@ main:
 		mov ax, 0x07e0
 		mov es, ax
 		xor bx, bx
-		mov cl, 1				; Start sector (one-based)
+		mov cl, 1				; Start sector
 		mov al, [bootloaderNumberOfExtraSectors]
 		call read_disk
 

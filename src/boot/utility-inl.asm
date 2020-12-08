@@ -47,11 +47,9 @@ reboot:
 
 	jmp word 0xffff:0x0000
 
-; NOTE(fkp): This is currently limited to reading up to sector 63
 ; void read_disk(cx sector, al number-to-read, es:bx into)
 read_disk:
 	.read:
-		xchg bx, bx
 		push ax
 		push bx
 		call calculate_chs
