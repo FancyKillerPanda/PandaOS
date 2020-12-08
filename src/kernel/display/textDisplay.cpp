@@ -8,6 +8,9 @@ static u16* const TEXT_VIDEO_MEMORY = (u16*) 0xb8000;
 constexpr u16 SCREEN_ROWS = 25;
 constexpr u16 SCREEN_COLS = 80;
 
+#define ENABLE_HOST_CONSOLE_LOG 1
+constexpr u16 HOST_CONSOLE_LOG_PORT = 0xe9;
+
 static u8 cursorRow = 0;
 static u8 cursorCol = 0;
 
@@ -113,6 +116,10 @@ void print_char(u8 character, u8 attribute)
 	{
 		scroll_screen_up();
 	}
+
+#if ENABLE_HOST_CONSOLE_LOG
+	port_out_8(HOST_CONSOLE_LOG_PORT, character);
+#endif
 }
 
 void print(const u8* string, u8 attribute)
