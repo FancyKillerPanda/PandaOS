@@ -33,6 +33,32 @@ void move_cursor(u8 row, u8 col)
 	}
 }
 
+void scroll_screen_up(u8 numberOfLines, u8 attribute)
+{
+	u16 blank = ' ' | (attribute << 8);
+
+	if (numberOfLines == 0)
+	{
+		// Scrolls enough to have one line available
+		if (cursorRow >= SCREEN_ROWS)
+		{
+			numberOfLines = cursorRow + 1 - SCREEN_ROWS;
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	memcpy(TEXT_VIDEO_MEMORY,
+		   TEXT_VIDEO_MEMORY + (numberOfLines * SCREEN_COLS),
+		   SCREEN_ROWS * SCREEN_COLS * 2);
+	memset_16(TEXT_VIDEO_MEMORY + (SCREEN_ROWS - numberOfLines) * SCREEN_COLS,
+			  blank,
+			  SCREEN_COLS * numberOfLines);
+	move_cursor(cursorRow - numberOfLines, cursorCol);
+}
+
 void print_char(u8 character, u8 attribute)
 {
 	u16 location = (cursorRow * SCREEN_COLS) + cursorCol;
@@ -80,6 +106,11 @@ void print_char(u8 character, u8 attribute)
 	if (cursorCol >= SCREEN_COLS)
 	{
 		move_cursor(cursorRow + 1, 0);
+	}
+
+	if (cursorRow >= SCREEN_ROWS)
+	{
+		scroll_screen_up();
 	}
 }
 

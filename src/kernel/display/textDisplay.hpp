@@ -6,6 +6,7 @@
 #include "system/common.hpp"
 
 void move_cursor(u8 row, u8 col);
+void scroll_screen_up(u8 numberOfLines = 0, u8 attribute = 0x07);
 
 void print_char(u8 character, u8 attribute = 0x07);
 void print(const u8* string, u8 attribute = 0x07);
