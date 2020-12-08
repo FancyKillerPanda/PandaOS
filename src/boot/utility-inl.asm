@@ -1,5 +1,23 @@
 ; ===== Date Created: 02 December, 2020 ===== 
 
+; void clear_screen()
+clear_screen:
+	.clear:
+		mov ax, 0x0700				; Entire screen
+		mov bx, 0x07				; Colour
+		xor cx, cx					; Top-left of screen is (0, 0)
+		mov dx, 0x184f				; Screen size: 24 rows x 79 columns
+		int 0x10
+
+	.move_cursor:
+		xor dx, dx
+		mov ax, 0x02
+		xor bh, bh
+		int 0x10
+
+	.cleanup:
+		ret
+
 ; void print_string(ds:si string)
 ; This function will clobber si
 print_string:

@@ -27,6 +27,7 @@ main:
 
 		mov [bootDriveNumber], dl
 
+		call clear_screen
 		mov si, welcomeMessage
 		call print_string
 
