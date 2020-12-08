@@ -1,7 +1,6 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
-using u8 = char; // NOTE(fkp): Forced to be unsigned through compiler flags
-using u16 = unsigned short;
+#include "system/common.hpp"
 
 void test_print_string()
 {
