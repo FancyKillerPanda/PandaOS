@@ -16,13 +16,11 @@ load_kernel:
 		numberOfSectorsToReadNext: dw 0
 
 	.calculate_number_of_sectors:
-		xchg bx, bx
-
 		mov dx, word [kernelNumberOfSectors]
 		sub dx, word [sectorsAlreadyRead]
-		cmp dx, 32
+		cmp dx, maxSectorsPerRead
 		jle .do_read
-		mov dx, 32
+		mov dx, maxSectorsPerRead
 
 	.do_read:
 		mov [numberOfSectorsToReadNext], dx
