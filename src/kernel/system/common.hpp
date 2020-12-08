@@ -3,6 +3,12 @@
 #if !defined(SYSTEM_HPP)
 #define SYSTEM_HPP
 
+#if !defined(__clang__)
+#error Clang is the only compiler supported right now...
+#endif
+
+#define PACKED_STRUCT __attribute__((packed))
+
 #define UNUSED(x) (void) (x)
 #define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
 #define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))

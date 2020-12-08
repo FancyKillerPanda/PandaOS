@@ -17,8 +17,7 @@ enum class MemoryType : u32
 	Count,
 };
 
-// TODO(fkp): Packed struct?
-struct MemoryMapEntry
+struct PACKED_STRUCT MemoryMapEntry
 {
 	u64 baseAddress = 0;
 	u64 regionLength = 0;
