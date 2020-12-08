@@ -127,3 +127,78 @@ void print(const u8* string, u8 attribute)
 	shouldMoveCursor = true;
 	move_cursor(cursorRow, cursorCol);
 }
+
+void print_integer(u32 integer, u8 attribute)
+{
+	// NOTE(fkp): 32-bit integer has 10 digits maximum in decimal
+	u8 digits[10];
+	u8 currentIndex = STACK_ARRAY_LENGTH(digits) - 1;
+	memset(digits, 0, STACK_ARRAY_LENGTH(digits));
+
+	while (integer / 10)
+	{
+		digits[currentIndex] = '0' + (integer % 10);
+		integer /= 10;
+		currentIndex -= 1;
+	}
+
+	digits[currentIndex] = '0' + (integer % 10);
+
+	for (u8 digit : digits)
+	{
+		if (digit)
+		{
+			print_char(digit, attribute);
+		}
+	}
+}
+
+u8 format_hex_digit(u8 digit)
+{
+	if (digit % 16 <= 9)
+	{
+		return '0' + (digit % 16);
+	}
+	else
+	{
+		return 'a' + ((digit % 16) - 10);
+	}
+}
+
+void print_hex_integer(u32 integer, u8 attribute)
+{
+	// NOTE(fkp): 32-bit integer has 8 digits maximum in hex (plus 2 for '0x')
+	u8 digits[10];
+	u8 currentIndex = STACK_ARRAY_LENGTH(digits) - 1;
+	memset(digits, 0, STACK_ARRAY_LENGTH(digits));
+	
+	while (integer / 16)
+	{
+		digits[currentIndex] = format_hex_digit(integer % 16);
+		integer /= 16;
+		currentIndex -= 1;
+	}
+
+	digits[currentIndex] = format_hex_digit(integer % 16);
+	currentIndex -= 1;
+
+	while (STACK_ARRAY_LENGTH(digits) - 1 - currentIndex != 2 &&
+		   STACK_ARRAY_LENGTH(digits) - 1 - currentIndex != 4 &&
+		   STACK_ARRAY_LENGTH(digits) - 1 - currentIndex != 8)
+	{
+		digits[currentIndex] = '0';
+		currentIndex -= 1;
+	}
+	
+	digits[currentIndex] = 'x';
+	currentIndex -= 1;
+	digits[currentIndex] = '0';
+	
+	for (u8 digit : digits)
+	{
+		if (digit)
+		{
+			print_char(digit, attribute);
+		}
+	}
+}
