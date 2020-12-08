@@ -48,13 +48,17 @@ reboot:
 	jmp word 0xffff:0x0000
 
 ; NOTE(fkp): This is currently limited to reading up to sector 63
-; void read_disk(cl sector, al number to read, es:bx into)
+; void read_disk(cx sector, al number-to-read, es:bx into)
 read_disk:
 	.read:
-		mov dl, [bootDriveNumber]
+		xchg bx, bx
+		push ax
+		push bx
+		call calculate_chs
+		pop bx
+		pop ax
 
-		xor ch, ch
-		xor dh, dh
+		mov dl, [bootDriveNumber]
 		mov ah, 0x02
 		int 0x13
 
@@ -65,3 +69,44 @@ read_disk:
 		mov si, diskErrorMessage
 		call print_string
 		call reboot
+
+; (ch cylinder, cl sector, dh head) calculate_chs(cx LBA-sector)
+calculate_chs:
+	sectorsPerTrack: equ 63
+	headsPerCylinder: equ 16
+
+	.calculate_sector:
+		xor dx, dx
+		mov ax, cx
+		mov bx, sectorsPerTrack
+		div bx					; LBA div/mod SPT
+		inc dx
+		mov [tempSector], dl
+
+	.calculate_head:
+		; ax already contains quotient of LBA / SPT
+		xor dx, dx
+		mov bx, headsPerCylinder
+		div bx
+		mov [tempHead], dl
+
+	.calculate_cylinder:
+		xor dx, dx
+		mov ax, cx
+		mov bx, sectorsPerTrack * headsPerCylinder
+		div bx
+		mov [tempCylinder], ax
+
+	.finish:
+		; cx: CCCCCCCC CCSSSSSS
+		movzx cx, byte [tempSector]
+		mov ax, word [tempCylinder]
+		shl ax, 6
+		or cx, ax
+		mov dh, byte [tempHead]
+
+		ret
+
+tempCylinder: dw 0
+tempHead: db 0
+tempSector: db 0
