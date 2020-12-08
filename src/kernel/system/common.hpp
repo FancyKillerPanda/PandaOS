@@ -7,7 +7,20 @@
 #define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
 #define STACK_ARRAY_LENGTH(array) (sizeof(array) / sizeof(*array))
 
-
+#if defined(PANDAOS_DEBUG)
+#define ASSERT(x, msg)													\
+	if (!(x))															\
+	{																	\
+		log_error("Assertion failed ('%s')\n"							\
+				  "       File: PandaOS%s\n"							\
+				  "       Line: %d\n"									\
+				  "       Message: %s",									\
+				  #x, &__FILE__[PROJECT_ROOT_STRING_LENGTH], __LINE__, msg); \
+		while (true);													\
+	}
+#else
+#define ASSERT(x, msg)
+#endif
 
 // Common types
 using s8 = signed char;

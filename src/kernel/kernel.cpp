@@ -16,6 +16,10 @@ extern "C" void kmain()
 	log_info("Hello there!");
 	log_warning("This is a number: %d", 5);
 	log_error("This is another number: %x", large);
+
+	ASSERT(large == 0x12345678, "Large equal!");
+	ASSERT(large != 0x12345678, "Large not equal!");
 	
+	log_info("Finished, now hanging...");
 	while (true);
 }
