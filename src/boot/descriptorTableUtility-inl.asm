@@ -9,7 +9,6 @@ describe_gdt:
 		mov di, [gdtEntry.pointer]
 
 	.describe:
-		gdtStart:
 		; NULL descriptor
 		gdtNullOffset: equ 0
 	    mov [es:di],     word 0x0000

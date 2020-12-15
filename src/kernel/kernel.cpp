@@ -1,6 +1,7 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
 #include "display/textDisplay.hpp"
+#include "interrupts/interruptDescriptorTable.hpp"
 #include "memory/memoryMap.hpp"
 #include "memory/physicalAllocator.hpp"
 #include "system/common.hpp"
@@ -10,7 +11,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 {
 	move_cursor(bootloaderLinesPrinted + 1, 0);
 	log_info("PandaOS kernel!");
-	
+
+	init_interrupt_descriptor_table();
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
 	

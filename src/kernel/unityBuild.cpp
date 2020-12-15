@@ -4,6 +4,9 @@
 
 #include "display/textDisplay.cpp"
 
+#include "interrupts/handleInterrupts.cpp"
+#include "interrupts/interruptDescriptorTable.cpp"
+
 #include "memory/memoryMap.cpp"
 #include "memory/operations.cpp"
 #include "memory/physicalAllocator.cpp"

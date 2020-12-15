@@ -8,6 +8,7 @@
 #endif
 
 #define PACKED_STRUCT __attribute__((packed))
+#define INTERRUPT_FUNCTION __attribute__((interrupt))
 
 #define UNUSED(x) (void) (x)
 #define BREAK_POINT() asm volatile("xchg %%bx, %%bx" ::)
