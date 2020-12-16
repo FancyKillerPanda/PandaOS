@@ -59,12 +59,6 @@ void set_up_idt_entries()
 	constexpr u16 KERNEL_CODE_SEGEMENT_SELECTOR = 0x18;
 	constexpr u16 INTERRUPT_GATE = 0x8e;
 
-	// TODO(fkp): Fix the global variable bug. It is causing this to
-	// not be set correctly at program startup (in QEMU, Bochs is
-	// fine). This is a temporary measure to get interrupts working
-	// for now.
-	idtEntries = (IDTEntry*) IDT_ADDRESS;
-	
 #define SET_UP_HANDLER(index, function)									\
 	IDTEntry& entry##index = idtEntries[index];							\
 	entry##index.offsetLow = (u16) (((u32) function) & 0x0000ffff);		\
