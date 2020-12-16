@@ -12,11 +12,10 @@ struct PACKED_STRUCT IDTEntry
 	u8 type = 0;
 	u16 offsetHigh = 0;
 };
-static_assert(sizeof(IDTEntry) == 8,
-			  "IDTEntry must be 8 bytes in size.");
+static_assert(sizeof(IDTEntry) == 8, "IDTEntry must be 8 bytes in size.");
 
 constexpr u32 IDT_ADDRESS = 0x7100;
-IDTEntry* idtEntries =  (IDTEntry*) IDT_ADDRESS;
+static IDTEntry* idtEntries =  (IDTEntry*) IDT_ADDRESS;
 
 // Reprograms the PIC to stop it using the default interrupt
 // service routines.
@@ -49,9 +48,9 @@ void remap_pic()
 	port_wait();
 	port_out_8(SLAVE_PIC_DATA, MODE_8086);
 	port_wait();
-	port_out_8(MASTER_PIC_DATA, 0x00);
+	port_out_8(MASTER_PIC_DATA, 0x00); // Masks all interrupts (enable)
 	port_wait();
-	port_out_8(SLAVE_PIC_DATA, 0x00);
+	port_out_8(SLAVE_PIC_DATA, 0x00); // Masks all interrupts (enable)
 	port_wait();
 }
 
@@ -59,6 +58,12 @@ void set_up_idt_entries()
 {
 	constexpr u16 KERNEL_CODE_SEGEMENT_SELECTOR = 0x18;
 	constexpr u16 INTERRUPT_GATE = 0x8e;
+
+	// TODO(fkp): Fix the global variable bug. It is causing this to
+	// not be set correctly at program startup (in QEMU, Bochs is
+	// fine). This is a temporary measure to get interrupts working
+	// for now.
+	idtEntries = (IDTEntry*) IDT_ADDRESS;
 	
 #define SET_UP_HANDLER(index, function)									\
 	IDTEntry& entry##index = idtEntries[index];							\
