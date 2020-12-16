@@ -26,3 +26,7 @@ align 16
 kernelStackEnd:
 	times 16384 db 0
 kernelStackStart:
+
+section .magic
+	global pandaOSMagicString
+	pandaOSMagicString: db "PandaOS Magic!"

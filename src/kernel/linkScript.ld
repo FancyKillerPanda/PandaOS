@@ -22,6 +22,12 @@ SECTIONS
 		*(.data .data.*)
 	}
 
+	.magic BLOCK(4k) : ALIGN(4k)
+	{
+		*(.magic)
+	}
+
+	/* Not actually *in* the image. */
 	.bss BLOCK(4k) : ALIGN(4k)
 	{
 		*(COMMON)
