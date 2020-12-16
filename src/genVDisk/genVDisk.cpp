@@ -4,6 +4,7 @@
 #include "utility/common.hpp"
 #include "utility/clArgs.hpp"
 #include "utility/fileIO.hpp"
+
 int main(s32 argc, const u8* argv[])
 {
 	CLArgs clArgs {};
@@ -66,7 +67,7 @@ int main(s32 argc, const u8* argv[])
 	u16 bootloaderSectors = ((bootloaderSize + 511) / 512) - 1;
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 
-	u16 kernelSectors = ((kernelSize + 511) / 512) - 1;
+	u16 kernelSectors = (kernelSize + 511) / 512;
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	
 	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderSectors + 1);

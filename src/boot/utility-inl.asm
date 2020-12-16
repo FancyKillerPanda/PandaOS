@@ -75,7 +75,7 @@ read_disk:
 
 ; (ch cylinder, cl sector, dh head) calculate_chs(cx LBA-sector)
 calculate_chs:
-	sectorsPerTrack: equ 18
+	sectorsPerTrack: equ 36
 	headsPerCylinder: equ 2
 
 	.calculate_sector:

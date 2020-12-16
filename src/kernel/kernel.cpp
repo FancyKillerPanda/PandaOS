@@ -7,8 +7,9 @@
 #include "system/common.hpp"
 #include "utility/log.hpp"
 
+#define PANDA_OS_MAGIC_STRING "PandaOS Magic!"
 static const u8* pandaOSCorrectString; // Will be set later
-extern const u8* pandaOSMagicString;
+extern const u8 pandaOSMagicString[sizeof(PANDA_OS_MAGIC_STRING)];
 
 extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 {
@@ -16,14 +17,15 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	log_info("PandaOS kernel!");
 
 	// Ensures that the entire kernel image was loaded
-	pandaOSCorrectString = "PandaOS Magic!";
-	
+	pandaOSCorrectString = PANDA_OS_MAGIC_STRING;
+
 	for (u8 i = 0; pandaOSCorrectString[i] != 0; i++)
 	{
 		if (pandaOSMagicString[i] != pandaOSCorrectString[i])
 		{
-			log_error("Magic string index %d (char: %c) is not correct (should be %c)!",
-					  i, pandaOSMagicString[i], pandaOSCorrectString[i]);
+			log_error("Magic string index %d (%d/'%c') is not correct (should be %c)!",
+					  i, (u32) pandaOSMagicString[i],
+					  pandaOSMagicString[i], pandaOSCorrectString[i]);
 			while (true);
 		}
 	}
