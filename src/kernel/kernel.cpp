@@ -7,7 +7,7 @@
 #include "system/common.hpp"
 #include "utility/log.hpp"
 
-static const u8* pandaOSCorrectString = "PandaOS Magic!";
+static const u8* pandaOSCorrectString; // Will be set later
 extern const u8* pandaOSMagicString;
 
 extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
@@ -16,6 +16,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	log_info("PandaOS kernel!");
 
 	// Ensures that the entire kernel image was loaded
+	pandaOSCorrectString = "PandaOS Magic!";
+	
 	for (u8 i = 0; pandaOSCorrectString[i] != 0; i++)
 	{
 		if (pandaOSMagicString[i] != pandaOSCorrectString[i])
