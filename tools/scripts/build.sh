@@ -54,6 +54,7 @@ print $GREEN "\nBuild succeeded!\n"
 
 # Run
 $scriptDir/run.sh
+echo
 
 # Exit
 cd $originalDir
