@@ -101,10 +101,16 @@ calculate_chs:
 		mov [tempCylinder], ax
 
 	.finish:
-		; cx: CCCCCCCC CCSSSSSS
+		; cx:       -- CH -- -- CL --
+		; Cylinder: 76543210 98
+		; Sector:              543210
 		movzx cx, byte [tempSector]
 		mov ax, word [tempCylinder]
-		shl ax, 6
+		shl ax, 8
+		or cx, ax
+		mov ax, word [tempCylinder]
+		and ax, 0xc000
+		shr ax, 8
 		or cx, ax
 		mov dh, byte [tempHead]
 

@@ -123,7 +123,7 @@ void adjust_memory_map(MemoryMap* memoryMap)
 
 void print_memory_map(MemoryMap* memoryMap)
 {
-	log_info("===== Memory Map =====");
+	log_info("\n===== Memory Map =====");
 	
 	for (u32 i = 0; i < memoryMap->numberOfEntries; i++)
 	{
