@@ -19,6 +19,7 @@ hang:
 	jmp hang
 
 section .data
+
 ; The kernel stack
 ; TODO(fkp): Reserve bytes instead of defining them.
 ; Then this can go in .bss instead of .data
@@ -28,5 +29,6 @@ kernelStackEnd:
 kernelStackStart:
 
 section .magic
-	global pandaOSMagicString
-	pandaOSMagicString: db "PandaOS Magic!"
+
+global pandaOSMagicString
+pandaOSMagicString: db "PandaOS Magic!"

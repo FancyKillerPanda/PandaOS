@@ -30,7 +30,9 @@ SECTIONS
 	/* Not actually *in* the image. */
 	.bss BLOCK(4k) : ALIGN(4k)
 	{
+		bssBlockStart = .;
 		*(COMMON)
 		*(.bss .bss.*)
+		bssBlockEnd = .;
 	}
 }
