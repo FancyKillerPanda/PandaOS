@@ -50,13 +50,11 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_physical_allocator(memoryMap);
 
 	// Testing grounds
-	void* ptr0 = allocate_physical_page();
-	void* ptr1 = allocate_physical_page();
-	void* ptr2 = allocate_physical_page();
-	free_physical_page(ptr1);
-	void* ptr3 = allocate_physical_page();
-
-	printf("%x, %x, %x, %x\n", ptr0, ptr1, ptr2, ptr3);
+	u32 a = 5;
+	u32 b = 0;
+	u32 c = a / a; // Should be fine
+	log_info("a / a is fine...\n");
+	c = a / b; // Not fine, should raise exception
 
 	// The end...
 	log_info("\nFinished, now hanging...");

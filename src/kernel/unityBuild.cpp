@@ -4,6 +4,7 @@
 
 #include "display/textDisplay.cpp"
 
+#include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"
 #include "interrupts/interruptDescriptorTable.cpp"
 

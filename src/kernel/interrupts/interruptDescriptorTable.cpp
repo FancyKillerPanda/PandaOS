@@ -67,6 +67,27 @@ void set_up_idt_entries()
 	entry##index.type = INTERRUPT_GATE;									\
 	entry##index.offsetHigh = (u16) ((((u32) function) & 0xffff0000) >> 16);
 
+	SET_UP_HANDLER(0, handle_division_by_zero_exception);
+	SET_UP_HANDLER(1, handle_debug_exception);
+	SET_UP_HANDLER(2, handle_non_maskable_exception);
+	SET_UP_HANDLER(3, handle_breakpoint_exception);
+	SET_UP_HANDLER(4, handle_overflow_exception);
+	SET_UP_HANDLER(5, handle_bound_range_exceeded_exception);
+	SET_UP_HANDLER(6, handle_invalid_opcode_exception);
+	SET_UP_HANDLER(7, handle_device_not_available_exception);
+	SET_UP_HANDLER(8, handle_double_fault_exception);
+	SET_UP_HANDLER(10, handle_invalid_tss_exception);
+	SET_UP_HANDLER(11, handle_segment_not_present_exception);
+	SET_UP_HANDLER(12, handle_stack_segment_fault_exception);
+	SET_UP_HANDLER(13, handle_general_protection_fault_exception);
+	SET_UP_HANDLER(14, handle_page_fault_exception);
+	SET_UP_HANDLER(16, handle_x87_floating_point_exception);
+	SET_UP_HANDLER(17, handle_alignment_check_exception);
+	SET_UP_HANDLER(18, handle_machine_check_exception);
+	SET_UP_HANDLER(19, handle_simd_floating_point_exception);
+	SET_UP_HANDLER(20, handle_virtualisation_exception);
+	SET_UP_HANDLER(30, handle_security_exception);
+	
 	SET_UP_HANDLER(32, handle_interrupt_request_0);
 	SET_UP_HANDLER(33, handle_interrupt_request_1);
 	SET_UP_HANDLER(34, handle_interrupt_request_2);
