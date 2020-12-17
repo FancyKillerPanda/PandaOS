@@ -18,14 +18,12 @@ hang:
 	hlt
 	jmp hang
 
-section .data
+section .bss
 
 ; The kernel stack
-; TODO(fkp): Reserve bytes instead of defining them.
-; Then this can go in .bss instead of .data
 align 16
 kernelStackEnd:
-	times 16384 db 0
+	resb 16384
 kernelStackStart:
 
 section .magic
