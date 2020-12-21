@@ -11,6 +11,7 @@
 #include "memory/memoryMap.cpp"
 #include "memory/operations.cpp"
 #include "memory/physicalAllocator.cpp"
+#include "memory/registers.cpp"
 
 #include "system/io.cpp"
 
