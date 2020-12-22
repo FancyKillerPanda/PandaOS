@@ -6,10 +6,10 @@
 void print_registers(const RegisterState& rs)
 {
 	log("===== Registers =====\n"
-		"eax: %x\t\tebx: %x\t\tecx: %x\t\tedx: %x\n"
-		"esp: %x\t\tebp: %x\t\tesi: %x\t\tedi: %x\n\n"
-		"cs: %x\t\tds: %x\t\tes: %x\n"
-		"fs: %x\t\tgs: %x\t\tss: %x\n"
+		"eax: %10x\t\tebx: %10x\t\tecx: %10x\t\tedx: %10x\n"
+		"esp: %10x\t\tebp: %10x\t\tesi: %10x\t\tedi: %10x\n\n"
+		"cs: %6x\t\tds: %6x\t\tes: %6x\n"
+		"fs: %6x\t\tgs: %6x\t\tss: %6x\n"
 		"=====================",
 		rs.eax, rs.ebx, rs.ecx, rs.edx,
 		rs.esp, rs.ebp, rs.esi, rs.edi,

@@ -61,7 +61,7 @@ void init_physical_allocator(MemoryMap* memoryMap)
 		while (true);
 	}
 
-	log_info("Physical allocator using memory from %x to %x (%x bytes).",
+	log_info("Physical allocator using memory from %10x to %10x (%x bytes).",
 			 physicalAllocatorBase,
 			 (u32) (physicalAllocatorBase + largestRegionLength),
 			 (u32) largestRegionLength);

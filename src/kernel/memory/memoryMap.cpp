@@ -172,7 +172,7 @@ void print_memory_map(MemoryMap* memoryMap)
 		// TODO(fkp): We shouldn't really be down-casting, but
 		// hopefully it doesn't cause too much of a headache since
 		// it's just for logging.
-		printf("%x to %x: %s\n", (u32) entry.baseAddress, (u32) (entry.baseAddress + entry.regionLength), type);
+		printf("%10x to %10x: %s\n", (u32) entry.baseAddress, (u32) (entry.baseAddress + entry.regionLength), type);
 	}
 		
 	log_info("======================\n");

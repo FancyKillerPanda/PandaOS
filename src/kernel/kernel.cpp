@@ -25,7 +25,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 
 	move_cursor(bootloaderLinesPrinted + 1, 0);
 	log_info("PandaOS kernel!");
-	log_info("Zeroed BSS block from %x to %x (%x bytes).",
+	log_info("Zeroed BSS block from %10x to %10x (%x bytes).",
 			 kernelBSSBlockStart, kernelBSSBlockEnd, kernelBSSBlockSize);
 
 	// Ensures that the entire kernel image was loaded
@@ -50,6 +50,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_physical_allocator(memoryMap);
 
 	// Testing grounds
+	log_info("\nTesting grounds...");
 	printf("Char: %c\n", 'A');
 	printf("Int: %d, %1d, %6d, %10d\n", 5, 5, 5, 5);
 	printf("Hex: %x, %1x, %3x, %6x, %10x\n", 5, 5, 5, 5, 5);
