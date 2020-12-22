@@ -8,6 +8,8 @@ get_registers:
 push ebp
 mov ebp, esp
 
+mov eax, [esp + 8]
+
 mov dword [eax + 0x00], eax		; TODO(fkp): Fix this, it is output pointer
 mov dword [eax + 0x04], ebx
 mov dword [eax + 0x08], ecx
