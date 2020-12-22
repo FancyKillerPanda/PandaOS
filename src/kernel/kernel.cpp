@@ -50,16 +50,18 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_physical_allocator(memoryMap);
 
 	// Testing grounds
-	void print_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07);
-	print_integer(5); print_char('\n');
-	print_integer(50); print_char('\n');
-	print_integer(500); print_char('\n');
-	print_integer(5000); print_char('\n');
+	void print_hex_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07);
+	print_hex_integer(0xf); print_char('\n');
+	print_hex_integer(0xfff); print_char('\n');
+	print_hex_integer(0x12345); print_char('\n');
 	
-	print_integer(5, 3); print_char('\n');
-	print_integer(50, 3); print_char('\n');
-	print_integer(500, 3); print_char('\n');
-	print_integer(5000, 3); print_char('\n');
+	print_hex_integer(0xf, 4); print_char('\n');
+	print_hex_integer(0xfff, 4); print_char('\n');
+	print_hex_integer(0x12345, 4); print_char('\n');
+
+	print_hex_integer(0xf, 10); print_char('\n');
+	print_hex_integer(0xfff, 10); print_char('\n');
+	print_hex_integer(0x12345, 10); print_char('\n');
 
 	// The end...
 	log_info("\nFinished, now hanging...");

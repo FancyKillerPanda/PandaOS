@@ -176,9 +176,22 @@ u8 format_hex_digit(u8 digit)
 	}
 }
 
-void print_hex_integer(u32 integer, u8 attribute = 0x07)
+void print_hex_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07)
 {
-	// NOTE(fkp): 32-bit integer has 8 digits maximum in hex (plus 2 for '0x')
+	// NOTE(fkp): minimumWidth includes the "0x", but we don't use that
+	if (minimumWidth >= 2)
+	{
+		minimumWidth -= 2;
+	}
+	else
+	{
+		minimumWidth = 0;
+	}
+	
+	// NOTE(fkp): 32-bit integer has 8 digits maximum in hex (plus
+	// space for "0x").  We don't actually put anything into the first
+	// two indicies, but we need them for the currentIndex
+	// calculations.
 	u8 digits[10];
 	u8 currentIndex = STACK_ARRAY_LENGTH(digits) - 1;
 	memset(digits, 0, STACK_ARRAY_LENGTH(digits));
@@ -198,19 +211,29 @@ void print_hex_integer(u32 integer, u8 attribute = 0x07)
 		   STACK_ARRAY_LENGTH(digits) - 1 - currentIndex != 8)
 	{
 		digits[currentIndex] = '0';
+
+		if (currentIndex == 0)
+		{
+			break;
+		}
+
 		currentIndex -= 1;
 	}
-	
-	digits[currentIndex] = 'x';
-	currentIndex -= 1;
-	digits[currentIndex] = '0';
-	
-	for (u8 digit : digits)
+
+	currentIndex += 1;
+	print_char('0', attribute);
+	print_char('x', attribute);
+
+	u8 numberOfDigits = STACK_ARRAY_LENGTH(digits) - currentIndex;
+
+	for (s16 i = 0; i < (s16) minimumWidth - (s16) numberOfDigits; i++)
 	{
-		if (digit)
-		{
-			print_char(digit, attribute);
-		}
+		print_char('0', attribute);
+	}
+
+	for (u8 i = currentIndex; i < STACK_ARRAY_LENGTH(digits); i++)
+	{
+		print_char(digits[i], attribute);
 	}
 }
 
