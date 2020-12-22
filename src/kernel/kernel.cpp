@@ -5,6 +5,7 @@
 #include "memory/memoryMap.hpp"
 #include "memory/operations.hpp"
 #include "memory/physicalAllocator.hpp"
+#include "memory/virtualAllocator.hpp"
 #include "system/common.hpp"
 #include "utility/log.hpp"
 
@@ -48,6 +49,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_interrupt_descriptor_table();
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
+	init_virtual_allocator();
 
 	// Testing grounds
 	log_info("\nTesting grounds...");

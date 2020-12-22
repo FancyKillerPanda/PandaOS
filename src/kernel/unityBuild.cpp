@@ -12,6 +12,7 @@
 #include "memory/operations.cpp"
 #include "memory/physicalAllocator.cpp"
 #include "memory/registers.cpp"
+#include "memory/virtualAllocator.cpp"
 
 #include "system/io.cpp"
 
