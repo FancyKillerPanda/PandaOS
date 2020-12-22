@@ -5,5 +5,6 @@
 
 void init_virtual_allocator();
 void map_page_address(void* virtualAddress, void* physicalAddress);
+void unmap_page_address(void* virtualAddress);
 
 #endif

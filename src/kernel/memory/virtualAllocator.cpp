@@ -12,7 +12,7 @@ using PageDirectoryTable = PageDirectoryEntry*;
 PageDirectoryTable pageDirectoryTable = nullptr;
 
 constexpr u32 KERNEL_PHYSICAL_ADDRESS = 0x00100000;
-constexpr u32 KERNEL_VIRTUAL_ADDRESS = 0xc0000000;
+constexpr u32 KERNEL_VIRTUAL_ADDRESS = 0xc0100000;
 constexpr u32 KERNEL_SIZE = 0x40000000;
 
 constexpr u32 NUMBER_OF_PAGE_DIRECTORY_ENTRIES = 1024;
@@ -22,7 +22,7 @@ constexpr u32 PRESENT_FLAG = 0x01;
 constexpr u32 READ_WRITE_FLAG = 0x02;
 
 extern "C" void load_page_directory(PageDirectoryTable pageDirectoryTable);
-extern "C" void enable_paging();
+extern "C" void set_paging_bit_on_cpu();
 
 void map_kernel_into_page_directory()
 {
@@ -31,6 +31,28 @@ void map_kernel_into_page_directory()
 		map_page_address((void*) (KERNEL_VIRTUAL_ADDRESS + offset),
 						 (void*) (KERNEL_PHYSICAL_ADDRESS + offset));
 	}
+}
+
+void enable_paging()
+{
+	// Temporarily identity maps the physical kernel so the CPU
+	// doesn't freak out when we set the paging bit.
+	constexpr u32 IDENTITY_MAP_START = 0x00;
+	constexpr u32 IDENTITY_MAP_SIZE = 0x00900000; // 1MB before and 8MB after kernel
+	
+	for (u32 address = IDENTITY_MAP_START; address < IDENTITY_MAP_SIZE; address += PAGE_SIZE)
+	{
+		map_page_address((void*) address, (void*) address);
+	}
+
+	set_paging_bit_on_cpu();
+
+	/*
+	for (u32 address = 0x00100000; address < IDENTITY_MAP_SIZE; address += PAGE_SIZE)
+	{
+		unmap_page_address((void*) address);
+	}
+	*/
 }
 
 void init_virtual_allocator()
@@ -45,7 +67,7 @@ void init_virtual_allocator()
 		pageDirectoryTable[i] = (PageDirectoryEntry) READ_WRITE_FLAG;
 	}
 
-	map_kernel_into_page_directory();
+//	map_kernel_into_page_directory();
 	load_page_directory(pageDirectoryTable);
 	enable_paging();
 
@@ -87,7 +109,7 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 	return pageTable;
 }
 
-void map_page_address(void* virtualAddress, void* physicalAddress)
+void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool map)
 {
 	// Ensures the addresses are page-aligned
 	ASSERT(((u32) virtualAddress & 0xfff) == 0, "Virtual address is not page-aligned.");
@@ -98,12 +120,36 @@ void map_page_address(void* virtualAddress, void* physicalAddress)
 	PageTable pageTable = get_page_table(pageDirectoryEntry);
 	PageTableEntry& pageTableEntry = get_page_table_entry(pageTable, virtualAddress);
 
-	// Checks if this page is already mapped
-	if (pageTableEntry & PRESENT_FLAG)
+	if (map)
 	{
-		log_warning("Address %10x is already mapped, not overwriting.");
-		return;
-	}
+		// Checks if this page is already mapped
+		if (pageTableEntry & PRESENT_FLAG)
+		{
+			log_warning("Address %10x is already mapped, not overwriting.", virtualAddress);
+			return;
+		}
 
-	pageTableEntry = (PageTableEntry) ((u32) physicalAddress | PRESENT_FLAG | READ_WRITE_FLAG);
+		pageTableEntry = (PageTableEntry) ((u32) physicalAddress | PRESENT_FLAG | READ_WRITE_FLAG);
+	}
+	else
+	{
+		// Checks if the page isn't actually mapped
+		if (!(pageTableEntry & PRESENT_FLAG))
+		{
+			log_warning("Trying to unmap address %10x, which is not mapped.", virtualAddress);
+			return;
+		}
+
+		pageTableEntry = (PageTableEntry) READ_WRITE_FLAG;
+	}
+}
+
+void map_page_address(void* virtualAddress, void* physicalAddress)
+{
+	internal_map_unmap_page(virtualAddress, physicalAddress, true);
+}
+
+void unmap_page_address(void* virtualAddress)
+{
+	internal_map_unmap_page(virtualAddress, nullptr, false);
 }

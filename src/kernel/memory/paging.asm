@@ -20,9 +20,9 @@ load_page_directory:
 
 		ret
 
-; void enable_paging()
-global enable_paging
-enable_paging:
+; void set_paging_bit_on_cpu()
+global set_paging_bit_on_cpu
+set_paging_bit_on_cpu:
 	.setup:
 		push ebp
 		mov ebp, esp
