@@ -50,11 +50,16 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_physical_allocator(memoryMap);
 
 	// Testing grounds
-	u32 a = 5;
-	u32 b = 0;
-	u32 c = a / a; // Should be fine
-	log_info("a / a is fine...\n");
-	c = a / b; // Not fine, should raise exception
+	void print_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07);
+	print_integer(5); print_char('\n');
+	print_integer(50); print_char('\n');
+	print_integer(500); print_char('\n');
+	print_integer(5000); print_char('\n');
+	
+	print_integer(5, 3); print_char('\n');
+	print_integer(50, 3); print_char('\n');
+	print_integer(500, 3); print_char('\n');
+	print_integer(5000, 3); print_char('\n');
 
 	// The end...
 	log_info("\nFinished, now hanging...");

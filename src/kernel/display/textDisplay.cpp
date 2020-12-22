@@ -136,7 +136,7 @@ void print(const u8* string, u8 attribute)
 	move_cursor(cursorRow, cursorCol);
 }
 
-void print_integer(u32 integer, u8 attribute = 0x07)
+void print_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07)
 {
 	// NOTE(fkp): 32-bit integer has 10 digits maximum in decimal
 	u8 digits[10];
@@ -151,13 +151,16 @@ void print_integer(u32 integer, u8 attribute = 0x07)
 	}
 
 	digits[currentIndex] = '0' + (integer % 10);
+	u8 numberOfDigits = STACK_ARRAY_LENGTH(digits) - currentIndex;
 
-	for (u8 digit : digits)
+	for (s16 i = 0; i < (s16) minimumWidth - (s16) numberOfDigits; i++)
 	{
-		if (digit)
-		{
-			print_char(digit, attribute);
-		}
+		print_char(' ', attribute);
+	}
+	
+	for (u8 i = currentIndex; i < STACK_ARRAY_LENGTH(digits); i++)
+	{
+		print_char(digits[i], attribute);
 	}
 }
 
