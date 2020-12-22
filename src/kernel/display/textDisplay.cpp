@@ -240,53 +240,78 @@ void print_hex_integer(u32 integer, u8 minimumWidth = 0, u8 attribute = 0x07)
 void vprintf(const u8* string, va_list argsPointer)
 {
 	shouldMoveCursor = false;
+	bool isConsumingFormatter = false;
+	u32 minimumWidth = 0;
 	
 	while (*string)
 	{
-		switch (*string)
+		if (*string == '%')
 		{
-		case '%':
+			if (isConsumingFormatter)
+			{
+				print_char('%');
+				isConsumingFormatter = false;
+			}
+			else
+			{
+				isConsumingFormatter = true;
+				minimumWidth = 0;
+			}
+		}
+		else
 		{
-			string += 1;
-
-			switch (*string)
+			if (isConsumingFormatter)
 			{
-			case 'd':
-			{
-				print_integer(va_arg(argsPointer, u32));
-			} break;
-
-			case 'x':
-			{
-				print_hex_integer(va_arg(argsPointer, u32));
-			} break;
+				switch (*string)
+				{
+				case 'c':
+				{
+					print_char((u8) va_arg(argsPointer, u32));
+					isConsumingFormatter = false;
+				} break;
 				
-			case 's':
-			{
-				print(va_arg(argsPointer, u8*));
-			} break;
+				case 'd':
+				{
+					print_integer(va_arg(argsPointer, u32), minimumWidth);
+					isConsumingFormatter = false;
+				} break;
+				
+				case 's':
+				{
+					print(va_arg(argsPointer, u8*));
+					isConsumingFormatter = false;
+				} break;
+				
+				case 'x':
+				{
+					print_hex_integer(va_arg(argsPointer, u32), minimumWidth);
+					isConsumingFormatter = false;
+				} break;
 
-			case 'c':
-			{
-				print_char((u8) va_arg(argsPointer, u32));
-			} break;
-			
-			default:
+				default:
+				{
+					if (*string >= '0' && *string <= '9')
+					{
+						minimumWidth *= 10;
+						minimumWidth += *string - '0';
+					}
+					else
+					{
+						print_char(*string);
+						isConsumingFormatter = false;
+					}
+				} break;
+				}
+			}
+			else
 			{
 				print_char(*string);
-			} break;
 			}
-		} break;
-
-		default:
-		{
-			print_char(*string);
-		} break;
 		}
 
 		string += 1;
 	}
-
+	
 	shouldMoveCursor = true;
 	move_cursor(cursorRow, cursorCol);
 }
