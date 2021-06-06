@@ -3,32 +3,34 @@ ENTRY(start)
 
 SECTIONS
 {
-	/* The kernel begins at the 1MB physical mark. */
-	. = 0x00100000;
+	HIGHER_HALF_OFFSET = 0xc0000000;
 
-	.text BLOCK(4k) : ALIGN(4k)
+	/* The kernel begins at the 1MB physical mark. */
+	. = HIGHER_HALF_OFFSET + 0x00100000;
+
+	.text ALIGN(4k) : AT(ADDR(.text) - HIGHER_HALF_OFFSET)
 	{
 		*(.entry)
 		*(.text .text.*)
 	}
 
-	.rodata BLOCK(4k) : ALIGN(4k)
+	.rodata ALIGN(4k) : AT(ADDR(.rodata) - HIGHER_HALF_OFFSET)
 	{
 		*(.rodata .rodata.*)
 	}
 
-	.data BLOCK(4k) : ALIGN(4k)
+	.data ALIGN(4k) : AT(ADDR(.data) - HIGHER_HALF_OFFSET)
 	{
 		*(.data .data.*)
 	}
 
-	.magic BLOCK(4k) : ALIGN(4k)
+	.magic ALIGN(4k) : AT(ADDR(.magic) - HIGHER_HALF_OFFSET)
 	{
 		*(.magic)
 	}
 
 	/* Not actually *in* the image. */
-	.bss BLOCK(4k) : ALIGN(4k)
+	.bss ALIGN(4k) : AT(ADDR(.bss) - HIGHER_HALF_OFFSET)
 	{
 		bssBlockStart = .;
 		*(COMMON)
