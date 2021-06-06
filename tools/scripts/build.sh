@@ -42,7 +42,7 @@ print $BLUE "\nBuilding binaries..."
 nasm -i $bootDir $bootDir/volumeBootRecord.asm -o volumeBootRecord.bin || exit_on_error
 nasm -felf32 $kernelDir/entryPoint.asm -o kernelEntryPoint.o || exit_on_error
 nasm -felf32 $kernelDir/memory/registers.asm -o registers.o || exit_on_error
-nasm -felf32 $kernelDir/memory/paging.asm -o paging.o || exit_on_error
+nasm -felf32 $bootDir/pagingUtility-inl.asm -o paging.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 print $BLUE "\nGenerating virtual disk..."
