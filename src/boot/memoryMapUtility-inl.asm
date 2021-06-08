@@ -1,4 +1,5 @@
 ; ===== Date Created: 08 December, 2020 ===== 
+bits 16
 
 MEMORY_MAP_LOCATION: equ 0x0500
 

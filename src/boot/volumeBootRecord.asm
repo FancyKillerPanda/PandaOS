@@ -48,32 +48,12 @@ main:
 		call read_disk
 
 	.after_expansion:
-		; A20 line
-		call try_enable_a20
+		jmp expanded_main
 
-		; Memory map
-		call get_memory_map
-
-		; Desriptor tables
-		call describe_gdt
-		call describe_idt
-
-		; To the kernel and beyond!
-		call load_kernel
-		enable_protected_mode
-
-		; Passes parameters to the kernel
-		mov eax, memoryMap
-		movzx ebx, byte [numberOfLinesPrinted]
-		jmp KERNEL_FLAT_ADDRESS
-
-		; Should never get here
-		jmp $
-
-bits 16
 %include "utility-inl.asm"
 
 ; Data (to be used by bootloader expander)
+bits 16
 bootDriveNumber: db 0
 welcomeMessage: db "PandaOS", CR, LF, 0
 expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
@@ -92,12 +72,38 @@ end_of_first_sector:
 
 	dw 0xaa55
 
+expanded_main:
+	.prepare_kernel:
+		; A20 line
+		call try_enable_a20
+
+		; Memory map
+		call get_memory_map
+
+		; Desriptor tables
+		call describe_gdt
+		call describe_idt
+
+		; To the kernel and beyond!
+		call load_kernel
+		enable_protected_mode
+
+	.jump:
+		; Passes parameters to the kernel
+		mov eax, memoryMap
+		movzx ebx, byte [numberOfLinesPrinted]
+		jmp KERNEL_FLAT_ADDRESS
+
+		; Should never get here
+		jmp $
+
 %include "a20Utility-inl.asm"
 %include "descriptorTableUtility-inl.asm"
 %include "kernelLoadUtility-inl.asm"
 %include "memoryMapUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
+bits 16
 a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
 a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
 enableProtectedModeMessage: db "Info: Enabling protected mode!", CR, LF, 0

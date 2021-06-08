@@ -1,4 +1,5 @@
 ; ===== Date Created: 03 December, 2020 ===== 
+bits 16
 
 ; void describe_gdt()
 describe_gdt:

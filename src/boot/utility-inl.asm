@@ -1,4 +1,5 @@
 ; ===== Date Created: 02 December, 2020 ===== 
+bits 16
 
 ; void clear_screen()
 clear_screen:

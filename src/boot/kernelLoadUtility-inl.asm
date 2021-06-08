@@ -1,4 +1,5 @@
 ; ===== Date Created: 07 December, 2020 ===== 
+bits 16
 
 KERNEL_FLAT_ADDRESS: equ 0x00100000
 

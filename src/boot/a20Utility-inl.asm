@@ -1,4 +1,5 @@
 ; ===== Date Created: 02 December, 2020 ===== 
+bits 16
 
 %macro finish_if_a20_enabled 0
 	call check_a20
