@@ -1,6 +1,18 @@
 ; ===== Date Created: 22 December, 2020 ===== 
 bits 32
 
+PRESENT: equ 0x01
+READ_WRITE: equ 0x02
+
+NUMBER_OF_PAGE_DIRECTORY_ENTRIES: equ 1024
+NUMBER_OF_PAGE_TABLE_ENTRIES: equ 1024
+
+HIGHER_HALF_OFFSET: equ 0xc0000000
+
+pageDirectory: equ 0x2000
+identityPageTable: equ 0x3000
+kernelPageTable: equ 0x4000
+
 ; TODO(fkp): Reevaluate globals
 ; void load_page_directory(PageDirectoryTable pageDirectoryTable)
 global load_page_directory
@@ -40,19 +52,6 @@ set_paging_bit_on_cpu:
 
 		ret
 
-; TODO(fkp): Move these
-PAGE_DIRECTORY: equ 0x2000
-IDENTITY_PAGE_TABLE: equ 0x3000
-KERNEL_PAGE_TABLE: equ 0x4000
-
-PRESENT_FLAG: equ 0x01
-READ_WRITE_FLAG: equ 0x02
-
-NUMBER_OF_PAGE_DIRECTORY_ENTRIES: equ 1024
-NUMBER_OF_PAGE_TABLE_ENTRIES: equ 1024
-
-HIGHER_HALF_OFFSET: equ 0xc0000000
-
 ; void start_paging()
 start_paging:
 	.setup:
@@ -62,7 +61,7 @@ start_paging:
 	; Loads the address of the temporary paging directory and
 	; then tells the CPU to start paging
 	.enable:
-		mov eax, PAGE_DIRECTORY
+		mov eax, pageDirectory
 		push eax
 		call load_page_directory
 		pop eax
@@ -86,11 +85,12 @@ init_paging_structures:
 		xor ecx, ecx
 
 		.loop:
-			mov dword [PAGE_DIRECTORY + ecx], READ_WRITE_FLAG
+			; Each entry is four bytes. ecx holds the entry count
+			mov dword [pageDirectory + (ecx * 4)], READ_WRITE
 
-			; Loop for each four-byte entry in the directory
-			add ecx, 4
-			cmp ecx, NUMBER_OF_PAGE_DIRECTORY_ENTRIES * 4
+			; Loop for each entry in the directory
+			inc ecx
+			cmp ecx, NUMBER_OF_PAGE_DIRECTORY_ENTRIES
 			jl .loop
 
 	.cleanup:
@@ -105,48 +105,31 @@ identity_map_kernel:
 		push ebp
 		mov ebp, esp
 
-	; TODO(fkp): Macros!
-	.set_identity_page_table:
+	.set_page_tables:
 		xor ecx, ecx
 
-		.loop_identity:
+		.loop:
 			; Offset by the page size each time
 			mov eax, ecx
 			mov ebx, 0x1000
 			mul ebx
-			or eax, PRESENT_FLAG | READ_WRITE_FLAG
+			or eax, PRESENT | READ_WRITE
 
 			; Moves the entry into the table (each entry is four bytes)
-			mov dword [IDENTITY_PAGE_TABLE + (ecx * 4)], eax
+			mov dword [identityPageTable + (ecx * 4)], eax
+			mov dword [kernelPageTable + (ecx * 4)], eax
 
-			; Loop for each four-byte entry in the directory
+			; Loop for each entry in the directory
 			inc ecx
 			cmp ecx, NUMBER_OF_PAGE_TABLE_ENTRIES
-			jl .loop_identity
-
-	.set_kernel_page_table:
-		xor ecx, ecx
-
-		.loop_kernel:
-			; Offset by the page size each time
-			mov eax, ecx
-			mov ebx, 0x1000
-			mul ebx
-			or eax, PRESENT_FLAG | READ_WRITE_FLAG
-
-			; Moves the entry into the table (each entry is four bytes)
-			mov dword [KERNEL_PAGE_TABLE + (ecx * 4)], eax
-
-			; Loop for each four-byte entry in the directory
-			inc ecx
-			cmp ecx, NUMBER_OF_PAGE_TABLE_ENTRIES
-			jl .loop_kernel
+			jl .loop
 
 	.map:
-		mov dword [PAGE_DIRECTORY], IDENTITY_PAGE_TABLE | PRESENT_FLAG | READ_WRITE_FLAG
+		mov dword [pageDirectory], identityPageTable | PRESENT | READ_WRITE
+
 		TABLE_INDEX: equ ((HIGHER_HALF_OFFSET / 1024) / 4096)
-		TABLE_LOCATION: equ PAGE_DIRECTORY + (TABLE_INDEX * 4)
-		mov dword [TABLE_LOCATION], KERNEL_PAGE_TABLE | PRESENT_FLAG | READ_WRITE_FLAG
+		TABLE_LOCATION: equ pageDirectory + (TABLE_INDEX * 4)
+		mov dword [TABLE_LOCATION], kernelPageTable | PRESENT | READ_WRITE
 
 	.cleanup:
 		mov esp, ebp

@@ -119,6 +119,5 @@ loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
 memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
 memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
-
 bootloaderStackPointer: dw 0
 memoryMapLocation:
