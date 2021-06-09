@@ -1,6 +1,7 @@
 ; ===== Date Created: 22 December, 2020 ===== 
 bits 32
 
+; TODO(fkp): Reevaluate globals
 ; void load_page_directory(PageDirectoryTable pageDirectoryTable)
 global load_page_directory
 load_page_directory:
@@ -51,6 +52,28 @@ NUMBER_OF_PAGE_DIRECTORY_ENTRIES: equ 1024
 NUMBER_OF_PAGE_TABLE_ENTRIES: equ 1024
 
 HIGHER_HALF_OFFSET: equ 0xc0000000
+
+; void start_paging()
+start_paging:
+	.setup:
+		push ebp
+		mov ebp, esp
+
+	; Loads the address of the temporary paging directory and
+	; then tells the CPU to start paging
+	.enable:
+		mov eax, PAGE_DIRECTORY
+		push eax
+		call load_page_directory
+		pop eax
+
+		call set_paging_bit_on_cpu
+
+	.cleanup:
+		mov esp, ebp
+		pop ebp
+
+		ret
 
 ; void init_paging_structures()
 init_paging_structures:
@@ -124,15 +147,6 @@ identity_map_kernel:
 		TABLE_INDEX: equ ((HIGHER_HALF_OFFSET / 1024) / 4096)
 		TABLE_LOCATION: equ PAGE_DIRECTORY + (TABLE_INDEX * 4)
 		mov dword [TABLE_LOCATION], KERNEL_PAGE_TABLE | PRESENT_FLAG | READ_WRITE_FLAG
-
-		; Loads the address of the temporary paging directory
-		mov eax, PAGE_DIRECTORY
-		push eax
-		call load_page_directory
-		pop eax
-
-		xchg bx, bx
-		call set_paging_bit_on_cpu
 
 	.cleanup:
 		mov esp, ebp

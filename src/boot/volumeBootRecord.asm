@@ -91,6 +91,7 @@ expanded_main:
 	.set_up_paging:
 		call init_paging_structures
 		call identity_map_kernel
+		call start_paging
 
 	.jump:
 		; Passes parameters to the kernel
