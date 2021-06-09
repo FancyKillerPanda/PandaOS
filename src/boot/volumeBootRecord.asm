@@ -88,6 +88,10 @@ expanded_main:
 		call load_kernel
 		enable_protected_mode
 
+	.set_up_paging:
+		call init_paging_structures
+		call identity_map_kernel
+
 	.jump:
 		; Passes parameters to the kernel
 		mov eax, memoryMap
@@ -101,6 +105,7 @@ expanded_main:
 %include "descriptorTableUtility-inl.asm"
 %include "kernelLoadUtility-inl.asm"
 %include "memoryMapUtility-inl.asm"
+%include "pagingUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
 bits 16
@@ -112,6 +117,7 @@ loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
 loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
 memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
 memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
+
 
 bootloaderStackPointer: dw 0
 memoryMapLocation:
