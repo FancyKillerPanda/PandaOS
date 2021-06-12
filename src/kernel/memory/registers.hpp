@@ -25,6 +25,12 @@ struct PACKED_STRUCT RegisterState
 	u16 fs;
 	u16 gs;
 	u16 ss;
+
+	// We can't access cr1, cr5, cr6, cr7
+	u32 cr0;
+	u32 cr2;
+	u32 cr3;
+	u32 cr4;
 };
 
 extern "C" void __attribute__((cdecl)) get_registers(RegisterState* registerState);

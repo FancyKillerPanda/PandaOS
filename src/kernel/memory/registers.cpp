@@ -9,12 +9,14 @@ void print_registers(const RegisterState& rs)
 		"eax: %10x\t\tebx: %10x\t\tecx: %10x\t\tedx: %10x\n"
 		"esp: %10x\t\tebp: %10x\t\tesi: %10x\t\tedi: %10x\n\n"
 		"cs: %6x\t\tds: %6x\t\tes: %6x\n"
-		"fs: %6x\t\tgs: %6x\t\tss: %6x\n"
+		"fs: %6x\t\tgs: %6x\t\tss: %6x\n\n"
+		"cr0: %10x\t\tcr2: %10x\t\tcr3: %10x\t\tcr4: %10x\n"
 		"=====================",
 		rs.eax, rs.ebx, rs.ecx, rs.edx,
 		rs.esp, rs.ebp, rs.esi, rs.edi,
 		rs.cs, rs.ds, rs.es,
-		rs.fs, rs.gs, rs.ss);
+		rs.fs, rs.gs, rs.ss,
+		rs.cr0, rs.cr2, rs.cr3, rs.cr4);
 }
 
 void print_current_registers()

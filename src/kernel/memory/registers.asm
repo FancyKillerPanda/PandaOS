@@ -26,6 +26,16 @@ mov word [eax + 0x26], fs
 mov word [eax + 0x28], gs
 mov word [eax + 0x2a], ss
 
+; TODO(fkp): Reset ebx
+mov ebx, cr0
+mov dword [eax + 0x2c], ebx
+mov ebx, cr2
+mov dword [eax + 0x30], ebx
+mov ebx, cr3
+mov dword [eax + 0x34], ebx
+mov ebx, cr4
+mov dword [eax + 0x38], ebx
+
 pop ebp
 
 ret
