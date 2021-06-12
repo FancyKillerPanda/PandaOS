@@ -13,9 +13,7 @@ pageDirectory: equ 0x2000
 identityPageTable: equ 0x3000
 kernelPageTable: equ 0x4000
 
-; TODO(fkp): Reevaluate globals
 ; void load_page_directory(PageDirectoryTable pageDirectoryTable)
-global load_page_directory
 load_page_directory:
 	.setup:
 		push ebp
@@ -34,7 +32,6 @@ load_page_directory:
 		ret
 
 ; void set_paging_bit_on_cpu()
-global set_paging_bit_on_cpu
 set_paging_bit_on_cpu:
 	.setup:
 		push ebp

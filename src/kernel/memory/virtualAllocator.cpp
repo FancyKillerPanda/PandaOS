@@ -9,7 +9,8 @@ using PageTable = PageTableEntry*;
 using PageDirectoryEntry = u32;
 using PageDirectoryTable = PageDirectoryEntry*;
 
-PageDirectoryTable pageDirectoryTable = nullptr;
+// We create this in the bootloader
+PageDirectoryTable pageDirectoryTable = (PageDirectoryTable) 0x2000;
 
 constexpr u32 KERNEL_PHYSICAL_ADDRESS = 0x00100000;
 constexpr u32 KERNEL_VIRTUAL_ADDRESS = 0xc0100000;
@@ -21,56 +22,20 @@ constexpr u32 NUMBER_OF_PAGE_TABLE_ENTRIES = 1024;
 constexpr u32 PRESENT_FLAG = 0x01;
 constexpr u32 READ_WRITE_FLAG = 0x02;
 
-extern "C" void load_page_directory(PageDirectoryTable pageDirectoryTable);
-extern "C" void set_paging_bit_on_cpu();
-
-void map_kernel_into_page_directory()
-{
-	for (u32 offset = 0; offset < KERNEL_SIZE; offset += PAGE_SIZE)
-	{
-		map_page_address((void*) (KERNEL_VIRTUAL_ADDRESS + offset),
-						 (void*) (KERNEL_PHYSICAL_ADDRESS + offset));
-	}
-}
-
-void enable_paging()
-{
-	// Temporarily identity maps the physical kernel so the CPU
-	// doesn't freak out when we set the paging bit.
-	constexpr u32 IDENTITY_MAP_START = 0x00;
-	constexpr u32 IDENTITY_MAP_SIZE = 0x00900000; // 1MB before and 8MB after kernel
-	
-	for (u32 address = IDENTITY_MAP_START; address < IDENTITY_MAP_SIZE; address += PAGE_SIZE)
-	{
-		map_page_address((void*) address, (void*) address);
-	}
-
-	set_paging_bit_on_cpu();
-
-	/*
-	for (u32 address = 0x00100000; address < IDENTITY_MAP_SIZE; address += PAGE_SIZE)
-	{
-		unmap_page_address((void*) address);
-	}
-	*/
-}
-
 void init_virtual_allocator()
 {
-	// Initialises a page directory.
 	// TODO(fkp): Eventually the page directory table should not
 	// be a single global, but there should be one for each process.
-	pageDirectoryTable = (PageDirectoryTable) allocate_physical_page();
-
-	for (u32 i = 0; i < NUMBER_OF_PAGE_DIRECTORY_ENTRIES; i++)
-	{
-		pageDirectoryTable[i] = (PageDirectoryEntry) READ_WRITE_FLAG;
-	}
-
-//	map_kernel_into_page_directory();
-	load_page_directory(pageDirectoryTable);
-	enable_paging();
-
+	
+	// Sets up recursive paging. This works because the identity
+	// mapping of the first page table still exists at this point.
+	PageDirectoryEntry& lastPageDirectoryEntry = pageDirectoryTable[NUMBER_OF_PAGE_DIRECTORY_ENTRIES - 1];
+	lastPageDirectoryEntry = (PageDirectoryEntry) ((u32) pageDirectoryTable | PRESENT_FLAG | READ_WRITE_FLAG);
+	
+	// Removes the identity mapping. We don't need to deallocate
+	// any memory since it's just using bootloader memory.
+	pageDirectoryTable[0] = READ_WRITE_FLAG;
+	
 	log_info("Initialised virtual page allocator.");
 }
 
