@@ -30,7 +30,7 @@ void init_virtual_allocator()
 	// Sets up recursive paging. This works because the identity
 	// mapping of the first page table still exists at this point.
 	PageDirectoryEntry& lastPageDirectoryEntry = pageDirectoryTable[NUMBER_OF_PAGE_DIRECTORY_ENTRIES - 1];
-	lastPageDirectoryEntry = (PageDirectoryEntry) ((u32) pageDirectoryTable | PRESENT_FLAG | READ_WRITE_FLAG);
+	lastPageDirectoryEntry = (u32) pageDirectoryTable | PRESENT_FLAG | READ_WRITE_FLAG;
 	
 	// Removes the identity mapping. We don't need to deallocate
 	// any memory since it's just using bootloader memory.
@@ -65,10 +65,10 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 
 		for (u32 i = 0; i < NUMBER_OF_PAGE_TABLE_ENTRIES; i++)
 		{
-			pageTable[i] = (PageTableEntry) READ_WRITE_FLAG;
+			pageTable[i] = READ_WRITE_FLAG;
 		}
 		
-		pageDirectoryEntry = (PageDirectoryEntry) ((u32) pageTable | PRESENT_FLAG | READ_WRITE_FLAG);
+		pageDirectoryEntry = (u32) pageTable | PRESENT_FLAG | READ_WRITE_FLAG;
 	}
 
 	return pageTable;
@@ -94,7 +94,7 @@ void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool m
 			return;
 		}
 
-		pageTableEntry = (PageTableEntry) ((u32) physicalAddress | PRESENT_FLAG | READ_WRITE_FLAG);
+		pageTableEntry = (u32) physicalAddress | PRESENT_FLAG | READ_WRITE_FLAG;
 	}
 	else
 	{
@@ -105,7 +105,7 @@ void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool m
 			return;
 		}
 
-		pageTableEntry = (PageTableEntry) READ_WRITE_FLAG;
+		pageTableEntry = READ_WRITE_FLAG;
 	}
 }
 
