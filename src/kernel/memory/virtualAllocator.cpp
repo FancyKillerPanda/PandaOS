@@ -7,20 +7,16 @@
 using PageTableEntry = u32;
 using PageTable = PageTableEntry*;
 using PageDirectoryEntry = u32;
-using PageDirectoryTable = PageDirectoryEntry*;
+using PageDirectory = PageDirectoryEntry*;
 
 // We create this in the bootloader
-PageDirectoryTable pageDirectoryTable = (PageDirectoryTable) 0x2000;
-
-constexpr u32 KERNEL_PHYSICAL_ADDRESS = 0x00100000;
-constexpr u32 KERNEL_VIRTUAL_ADDRESS = 0xc0100000;
-constexpr u32 KERNEL_SIZE = 0x40000000;
+PageDirectory pageDirectory = (PageDirectory) 0x2000;
 
 constexpr u32 NUMBER_OF_PAGE_DIRECTORY_ENTRIES = 1024;
 constexpr u32 NUMBER_OF_PAGE_TABLE_ENTRIES = 1024;
 
-constexpr u32 PRESENT_FLAG = 0x01;
-constexpr u32 READ_WRITE_FLAG = 0x02;
+constexpr u32 PRESENT = 0x01;
+constexpr u32 READ_WRITE = 0x02;
 
 void init_virtual_allocator()
 {
@@ -29,17 +25,17 @@ void init_virtual_allocator()
 	
 	// Sets up recursive paging. This works because the identity
 	// mapping of the first page table still exists at this point.
-	PageDirectoryEntry& lastPageDirectoryEntry = pageDirectoryTable[NUMBER_OF_PAGE_DIRECTORY_ENTRIES - 1];
-	lastPageDirectoryEntry = (u32) pageDirectoryTable | PRESENT_FLAG | READ_WRITE_FLAG;
+	PageDirectoryEntry& lastPageDirectoryEntry = pageDirectory[NUMBER_OF_PAGE_DIRECTORY_ENTRIES - 1];
+	lastPageDirectoryEntry = (u32) pageDirectory | PRESENT | READ_WRITE;
 	
 	// Removes the identity mapping. We don't need to deallocate
 	// any memory since it's just using bootloader memory.
-	pageDirectoryTable[0] = READ_WRITE_FLAG;
+	pageDirectory[0] = READ_WRITE;
 	
 	log_info("Initialised virtual page allocator.");
 }
 
-PageDirectoryEntry& get_page_directory_entry(PageDirectoryTable& pageDirectory, void* virtualAddress)
+PageDirectoryEntry& get_page_directory_entry(PageDirectory& pageDirectory, void* virtualAddress)
 {
 	u32 index = (((u32) virtualAddress) & 0xffc00000) >> 22;
 	return pageDirectory[index];
@@ -55,7 +51,7 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 {
 	PageTable pageTable = nullptr;
 
-	if (pageDirectoryEntry & PRESENT_FLAG)
+	if (pageDirectoryEntry & PRESENT)
 	{
 		pageTable = (PageTable) ((u32) pageDirectoryEntry & 0xfffff000);
 	}
@@ -65,10 +61,10 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 
 		for (u32 i = 0; i < NUMBER_OF_PAGE_TABLE_ENTRIES; i++)
 		{
-			pageTable[i] = READ_WRITE_FLAG;
+			pageTable[i] = READ_WRITE;
 		}
 		
-		pageDirectoryEntry = (u32) pageTable | PRESENT_FLAG | READ_WRITE_FLAG;
+		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE;
 	}
 
 	return pageTable;
@@ -81,31 +77,31 @@ void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool m
 	ASSERT(((u32) physicalAddress & 0xfff) == 0, "Physical address is not page-aligned.");
 
 	// Uses the address to get the relevant entries
-	PageDirectoryEntry& pageDirectoryEntry = get_page_directory_entry(pageDirectoryTable, virtualAddress);
+	PageDirectoryEntry& pageDirectoryEntry = get_page_directory_entry(pageDirectory, virtualAddress);
 	PageTable pageTable = get_page_table(pageDirectoryEntry);
 	PageTableEntry& pageTableEntry = get_page_table_entry(pageTable, virtualAddress);
 
 	if (map)
 	{
 		// Checks if this page is already mapped
-		if (pageTableEntry & PRESENT_FLAG)
+		if (pageTableEntry & PRESENT)
 		{
 			log_warning("Address %10x is already mapped, not overwriting.", virtualAddress);
 			return;
 		}
 
-		pageTableEntry = (u32) physicalAddress | PRESENT_FLAG | READ_WRITE_FLAG;
+		pageTableEntry = (u32) physicalAddress | PRESENT | READ_WRITE;
 	}
 	else
 	{
 		// Checks if the page isn't actually mapped
-		if (!(pageTableEntry & PRESENT_FLAG))
+		if (!(pageTableEntry & PRESENT))
 		{
 			log_warning("Trying to unmap address %10x, which is not mapped.", virtualAddress);
 			return;
 		}
 
-		pageTableEntry = READ_WRITE_FLAG;
+		pageTableEntry = READ_WRITE;
 	}
 }
 
