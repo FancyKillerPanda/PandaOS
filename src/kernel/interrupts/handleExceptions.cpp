@@ -135,16 +135,6 @@ INTERRUPT_FUNCTION void handle_general_protection_fault_exception(InterruptFrame
 	while (true);
 }
 
-INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
-{
-	UNUSED(frame);
-
-	log_error("Page fault exception hit!");
-	print_current_registers();
-
-	while (true);
-}
-
 INTERRUPT_FUNCTION void handle_x87_floating_point_exception(InterruptFrame* frame)
 {
 	UNUSED(frame);

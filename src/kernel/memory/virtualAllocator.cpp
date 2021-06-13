@@ -35,36 +35,66 @@ void init_virtual_allocator()
 	log_info("Initialised virtual page allocator.");
 }
 
+// NOTE(fkp): Declared in handleExceptions.hpp
+INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
+{
+	UNUSED(frame);
+
+	// The address that was accessed is in cr2
+	RegisterState registerState;
+	get_registers(&registerState);
+
+	void* physicalPageAddress = allocate_physical_page();
+	void* virtualPageAddress = (void*) (registerState.cr2 & 0xfffff000);
+
+	map_page_address(virtualPageAddress, physicalPageAddress);
+	
+}
+
+u32 get_page_directory_index(void* virtualAddress)
+{
+	return (((u32) virtualAddress) & 0xffc00000) >> 22;
+}
+
 PageDirectoryEntry& get_page_directory_entry(PageDirectory& pageDirectory, void* virtualAddress)
 {
-	u32 index = (((u32) virtualAddress) & 0xffc00000) >> 22;
+	u32 index = get_page_directory_index(virtualAddress);
 	return pageDirectory[index];
+}
+
+u32 get_page_table_index(void* virtualAddress)
+{
+	return (((u32) virtualAddress) & 0x003ff000) >> 12;
 }
 
 PageTableEntry& get_page_table_entry(PageTable& pageTable, void* virtualAddress)
 {	
-	u32 index = (((u32) virtualAddress) & 0x003ff000) >> 12;
+	u32 index = get_page_table_index(virtualAddress);
 	return pageTable[index];
 }
 
 PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 {
 	PageTable pageTable = nullptr;
+	void* virtualAddress = (void*) (pageDirectoryEntry & 0xfffff000);
+	u32 pageTableIndex = get_page_table_index(virtualAddress);
 
 	if (pageDirectoryEntry & PRESENT)
 	{
-		pageTable = (PageTable) ((u32) pageDirectoryEntry & 0xfffff000);
+		pageTable = (PageTable) (0xffc00000 + (pageTableIndex * 0x1000));
 	}
 	else
 	{
 		pageTable = (PageTable) allocate_physical_page();
+		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE;
+
+		// Accesses the page table through recursive paging
+		pageTable = (PageTable) (0xffc00000 + (pageTableIndex * 0x1000));
 
 		for (u32 i = 0; i < NUMBER_OF_PAGE_TABLE_ENTRIES; i++)
 		{
 			pageTable[i] = READ_WRITE;
 		}
-		
-		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE;
 	}
 
 	return pageTable;

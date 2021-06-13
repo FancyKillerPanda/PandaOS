@@ -18,7 +18,10 @@ void handle_invalid_tss_exception(InterruptFrame* frame);
 void handle_segment_not_present_exception(InterruptFrame* frame);
 void handle_stack_segment_fault_exception(InterruptFrame* frame);
 void handle_general_protection_fault_exception(InterruptFrame* frame);
+
+// NOTE(fkp): Defined in virtualAllocator.cpp
 void handle_page_fault_exception(InterruptFrame* frame);
+
 void handle_x87_floating_point_exception(InterruptFrame* frame);
 void handle_alignment_check_exception(InterruptFrame* frame);
 void handle_machine_check_exception(InterruptFrame* frame);

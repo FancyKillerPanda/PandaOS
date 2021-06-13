@@ -1,6 +1,7 @@
 ; ===== Date Created: 07 December, 2020 ===== 
 bits 16
 
+HIGHER_HALF_OFFSET: equ 0xc0000000
 KERNEL_FLAT_ADDRESS: equ 0x00100000
 
 ; void load_kernel()

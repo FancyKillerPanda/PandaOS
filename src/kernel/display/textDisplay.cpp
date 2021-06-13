@@ -4,7 +4,7 @@
 #include "memory/operations.hpp"
 #include "system/io.hpp"
 
-static u16* const TEXT_VIDEO_MEMORY = (u16*) 0xb8000;
+static u16* const TEXT_VIDEO_MEMORY = (u16*) 0xc00b8000;
 constexpr u16 SCREEN_ROWS = 25;
 constexpr u16 SCREEN_COLS = 80;
 
@@ -311,7 +311,7 @@ void vprintf(const u8* string, va_list argsPointer)
 
 		string += 1;
 	}
-	
+
 	shouldMoveCursor = true;
 	move_cursor(cursorRow, cursorCol);
 }

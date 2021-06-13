@@ -97,7 +97,7 @@ expanded_main:
 		; Passes parameters to the kernel
 		mov eax, memoryMap
 		movzx ebx, byte [numberOfLinesPrinted]
-		jmp KERNEL_FLAT_ADDRESS
+		jmp HIGHER_HALF_OFFSET + KERNEL_FLAT_ADDRESS
 
 		; Should never get here
 		jmp $
