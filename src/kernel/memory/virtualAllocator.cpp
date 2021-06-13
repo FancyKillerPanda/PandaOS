@@ -47,6 +47,8 @@ INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
 	void* physicalPageAddress = allocate_physical_page();
 	void* virtualPageAddress = (void*) (registerState.cr2 & 0xfffff000);
 
+	printf("PAGE FAULT: %x\n", (u32) virtualPageAddress);
+	
 	map_page_address(virtualPageAddress, physicalPageAddress);
 	
 }

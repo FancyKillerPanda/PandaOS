@@ -52,11 +52,9 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_virtual_allocator();
 
 	// Testing grounds
-	log_info("\nTesting grounds...");
-	printf("Char: %c\n", 'A');
-	printf("Int: %d, %1d, %6d, %10d\n", 5, 5, 5, 5);
-	printf("Hex: %x, %1x, %3x, %6x, %10x\n", 5, 5, 5, 5, 5);
-
+	u32* testAddress = (u32*) 0x20000000;
+	*testAddress = *testAddress;
+	
 	// The end...
 	log_info("\nFinished, now hanging...");
 	while (true);
