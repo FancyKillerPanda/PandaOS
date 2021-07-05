@@ -27,13 +27,16 @@ void init_virtual_allocator()
 	// mapping of the first page table still exists at this point.
 	PageDirectoryEntry& lastPageDirectoryEntry = pageDirectory[NUMBER_OF_PAGE_DIRECTORY_ENTRIES - 1];
 	lastPageDirectoryEntry = (u32) pageDirectory | PRESENT | READ_WRITE;
+	pageDirectory = (PageDirectory) 0xfffff000;
 	
 	// Removes the identity mapping. We don't need to deallocate
 	// any memory since it's just using bootloader memory.
 	pageDirectory[0] = READ_WRITE;
-	
+
 	log_info("Initialised virtual page allocator.");
 }
+
+bool pageFault = false;
 
 // NOTE(fkp): Declared in handleExceptions.hpp
 INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
@@ -45,12 +48,14 @@ INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
 	get_registers(&registerState);
 
 	void* physicalPageAddress = allocate_physical_page();
-	void* virtualPageAddress = (void*) (registerState.cr2 & 0xfffff000);
+//	void* virtualPageAddress = (void*) (registerState.cr2 & 0xfffff000);
+	void* virtualPageAddress = (void*) registerState.cr2;
 
+	pageFault = true;
 	printf("PAGE FAULT: %x\n", (u32) virtualPageAddress);
 	
 	map_page_address(virtualPageAddress, physicalPageAddress);
-	
+	printf("Handled page fault\n");
 }
 
 u32 get_page_directory_index(void* virtualAddress)
@@ -75,11 +80,13 @@ PageTableEntry& get_page_table_entry(PageTable& pageTable, void* virtualAddress)
 	return pageTable[index];
 }
 
-PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
+PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry, void* virtualAddress)
 {
 	PageTable pageTable = nullptr;
-	void* virtualAddress = (void*) (pageDirectoryEntry & 0xfffff000);
-	u32 pageTableIndex = get_page_table_index(virtualAddress);
+//	void* virtualAddress = (void*) (pageDirectoryEntry & 0xfffff000);
+//	printf("    HERE %x     ", (u32) virtualAddress);
+	// TODO(fkp): Name change
+	u32 pageTableIndex = get_page_directory_index(virtualAddress);
 
 	if (pageDirectoryEntry & PRESENT)
 	{
@@ -87,9 +94,12 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 	}
 	else
 	{
+		if (pageFault) { printf("%x %x ", &pageDirectoryEntry, pageTableIndex); }
+	
 		pageTable = (PageTable) allocate_physical_page();
+		// BREAK_POINT();
 		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE;
-
+		
 		// Accesses the page table through recursive paging
 		pageTable = (PageTable) (0xffc00000 + (pageTableIndex * 0x1000));
 
@@ -105,12 +115,15 @@ PageTable get_page_table(PageDirectoryEntry& pageDirectoryEntry)
 void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool map)
 {
 	// Ensures the addresses are page-aligned
-	ASSERT(((u32) virtualAddress & 0xfff) == 0, "Virtual address is not page-aligned.");
-	ASSERT(((u32) physicalAddress & 0xfff) == 0, "Physical address is not page-aligned.");
+//	ASSERT(((u32) virtualAddress & 0xfff) == 0, "Virtual address is not page-aligned.");
+//	ASSERT(((u32) physicalAddress & 0xfff) == 0, "Physical address is not page-aligned.");
 
+	if (pageFault) { printf("1 "); }
+	
 	// Uses the address to get the relevant entries
 	PageDirectoryEntry& pageDirectoryEntry = get_page_directory_entry(pageDirectory, virtualAddress);
-	PageTable pageTable = get_page_table(pageDirectoryEntry);
+	BREAK_POINT();
+	PageTable pageTable = get_page_table(pageDirectoryEntry, virtualAddress);
 	PageTableEntry& pageTableEntry = get_page_table_entry(pageTable, virtualAddress);
 
 	if (map)
@@ -135,6 +148,8 @@ void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool m
 
 		pageTableEntry = READ_WRITE;
 	}
+
+	BREAK_POINT();
 }
 
 void map_page_address(void* virtualAddress, void* physicalAddress)

@@ -54,6 +54,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	// Testing grounds
 	u32* testAddress = (u32*) 0x20000000;
 	*testAddress = *testAddress;
+	BREAK_POINT();
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
