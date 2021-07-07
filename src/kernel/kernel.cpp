@@ -52,9 +52,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_virtual_allocator();
 
 	// Testing grounds
-	u32* testAddress = (u32*) 0x20000000;
+	u32* testAddress = (u32*) 0x20000004;
 	*testAddress = *testAddress;
-	BREAK_POINT();
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
