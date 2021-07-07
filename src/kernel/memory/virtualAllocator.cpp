@@ -145,3 +145,20 @@ void unmap_page_address(void* virtualAddress)
 {
 	internal_map_unmap_page(virtualAddress, nullptr, false);
 }
+
+void allocate_virtual_range(void* virtualAddress, usize size)
+{
+	if ((u32) virtualAddress & 0xfff)
+	{
+		log_warning("Start of virtual range must be page aligned for allocation.");
+		return;
+	}
+
+	u32 numberOfPages = ((size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
+
+	for (u32 i = 0; i < numberOfPages; i++)
+	{
+		void* page = allocate_physical_page();
+		map_page_address((u8*) virtualAddress + (i * PAGE_SIZE), page);
+	}
+}
