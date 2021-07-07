@@ -105,7 +105,7 @@ expanded_main:
 
 	.jump:
 		; NOTE(fkp): Debug, so we can read messages from bootloader
-		jmp $
+		; jmp $
 
 		; Passes parameters to the kernel
 		mov eax, videoMode

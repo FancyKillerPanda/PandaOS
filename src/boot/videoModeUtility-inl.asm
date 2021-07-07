@@ -69,20 +69,156 @@ get_vesa_bios_info:
 		je .vesa_supported
 	
 	.vesa_not_supported:
-		mov si, vesaBiosNotSupportedMessage
-		call print_string
+		; mov si, vesaBiosNotSupportedMessage
+		; call print_string
 		call reboot
 
 	.vesa_supported:
-		mov si, vesaBiosSupportedMessage
-		call print_string
+		; mov si, vesaBiosSupportedMessage
+		; call print_string
 
 		ret
 
 ; void select_vesa_mode()
 select_vesa_mode:
-	; TODO(fkp): Implement
-	ret
+	.setup:
+		push es
+		xor ax, ax
+		mov es, ax
+
+		mov eax, [vbeInfo.videoModes]
+		mov si, ax
+		shr eax, 16
+		mov fs, ax
+
+		; This can be checked later to make sure we've actually set it
+		mov word [bestVESAMode], 0
+		mov word [bestVESAWidth], 0
+		mov word [bestVESAHeight], 0
+		mov byte [bestVESABitsPerPixel], 0
+		mov word [bestVESAPitch], 0
+		mov dword [bestVESAFrameBuffer], 0
+
+	.next_mode:
+		cmp word [fs:si], 0xffff
+		je .end_of_mode_list
+
+		push es
+		mov ax, 0x4f01
+		mov cx, word [fs:si]
+		mov di, vbeModeInfo
+		int 0x10
+		pop es
+
+		cmp ax, 0x004f
+		jne .go_to_next_mode
+
+	.check_width_and_height:
+		mov ax, [edidResults.pixelWidth]
+		cmp word [es:vbeModeInfo.width], ax
+		jg .go_to_next_mode
+		mov ax, [edidResults.pixelHeight]
+		cmp word [es:vbeModeInfo.height], ax
+		jg .go_to_next_mode
+
+	.check_bits_per_pixel:
+		cmp byte [es:vbeModeInfo.bitsPerPixel], 24
+		jl .go_to_next_mode
+
+	.check_memory_model:
+		; Checks for correct memory model (direct colour)
+		cmp byte [es:vbeModeInfo.memoryModel], 0x06
+		jne .go_to_next_mode
+
+	.check_masks:
+		cmp byte [es:vbeModeInfo.redMask], 8
+		jne .go_to_next_mode
+		cmp byte [es:vbeModeInfo.greenMask], 8
+		jne .go_to_next_mode
+		cmp byte [es:vbeModeInfo.blueMask], 8
+		jne .go_to_next_mode
+
+	.check_positions:
+		cmp byte [es:vbeModeInfo.redPosition], 16
+		jne .go_to_next_mode
+		cmp byte [es:vbeModeInfo.greenPosition], 8
+		jne .go_to_next_mode
+		cmp byte [es:vbeModeInfo.bluePosition], 0
+		jne .go_to_next_mode
+
+	.check_32_bits_per_pixel:
+		; If we're only 24bpp, we can continue
+		cmp byte [es:vbeModeInfo.bitsPerPixel], 32
+		jg .go_to_next_mode
+		jl .skip_32_bits_per_pixel_check
+
+		; Checks mask and position of the reserved bits
+		cmp byte [es:vbeModeInfo.reservedMask], 8
+		jne .go_to_next_mode
+		cmp byte [es:vbeModeInfo.reservedPosition], 24
+		jne .go_to_next_mode
+
+	.skip_32_bits_per_pixel_check:
+		; Compares with the current best mode
+		mov ax, [bestVESAWidth]
+		cmp [es:vbeModeInfo.width], ax
+		jl .go_to_next_mode
+		mov ax, [bestVESAHeight]
+		cmp [es:vbeModeInfo.height], ax
+		jl .go_to_next_mode
+		mov al, [bestVESABitsPerPixel]
+		cmp [es:vbeModeInfo.bitsPerPixel], al
+		jl .go_to_next_mode
+
+	.set_values:
+		; We are the best mode so far, set the values
+		mov ax, [fs:si]
+		mov word [bestVESAMode], ax
+		mov ax, [es:vbeModeInfo.width]
+		mov word [bestVESAWidth], ax
+		mov ax, [es:vbeModeInfo.height]
+		mov word [bestVESAHeight], ax
+		mov al, [es:vbeModeInfo.bitsPerPixel]
+		mov byte [bestVESABitsPerPixel], al
+		mov ax, [es:vbeModeInfo.pitch]
+		mov word [bestVESAPitch], ax
+		mov eax, [es:vbeModeInfo.framebuffer]
+		mov dword [bestVESAFrameBuffer], eax
+
+	.go_to_next_mode:
+		add si, 4
+		jmp .next_mode
+
+	.error:
+		; mov si, vesaModeNotFoundMessage
+		; call print_string
+		call reboot
+
+	.end_of_mode_list:
+		; Errors out if we have not found a valid mode
+		cmp word [bestVESAMode], 0
+		je .error
+
+	.mode_found:
+		; mov si, vesaModeFoundMessage
+		; call print_string
+
+		mov ax, [bestVESAWidth]
+		mov word [es:videoMode.screenWidth], ax
+		mov ax, [bestVESAHeight]
+		mov word [es:videoMode.screenHeight], ax
+		mov al, [bestVESABitsPerPixel]
+		mov byte [es:videoMode.bitsPerPixel], al
+		mov ax, [bestVESAPitch]
+		mov word [es:videoMode.pitch], ax
+		mov eax, [bestVESAFrameBuffer]
+		mov dword [es:videoMode.framebufferPointer], eax
+
+		mov ax, [bestVESAMode]
+
+	.finished:
+		pop es
+		ret
 
 ; void set_vesa_mode()
 set_vesa_mode:
@@ -143,7 +279,7 @@ vbeModeInfo:
 	.reservedPosition: db 0
 	.directColourAttributes: db 0
 	
-	.frameBuffer: dd 0
+	.framebuffer: dd 0
 	.offScreenMemoryOffset: dd 0
 	.offScreenMemorySize: dw 0
 	
@@ -178,7 +314,7 @@ bestVESAFrameBuffer: dd 0
 
 ; Output strings
 edidBiosSupportedMessage: db "Info: EDID info is supported.", CR, LF, 0
-edidBiosNotSupportedMessage: db "Info: EDID info is not supported.", CR, LF, 0
+edidBiosNotSupportedMessage: db "Error: EDID info is not supported.", CR, LF, 0
 
 vesaBiosSupportedMessage: db "Info: VESA BIOS is supported.", CR, LF, 0
 vesaBiosNotSupportedMessage: db "Error: VESA BIOS is not supported.", CR, LF, 0
