@@ -81,8 +81,11 @@ expanded_main:
 		call get_memory_map
 
 		; Video mode info
-		; TODO(fkp): Get actual values from the BIOS, this
-		; is just for testing.
+		call get_edid_info
+		call get_vesa_bios_info
+		call select_vesa_mode
+		call set_vesa_mode
+
 		mov word [videoMode.screenWidth], 960
 		mov word [videoMode.screenHeight], 540
 		mov word [videoMode.bitsPerPixel], 24
@@ -115,6 +118,7 @@ expanded_main:
 %include "kernelLoadUtility-inl.asm"
 %include "memoryMapUtility-inl.asm"
 %include "pagingUtility-inl.asm"
+%include "videoModeUtility-inl.asm"
 
 ; Data (to be used by the extended bootloader)
 bits 16
@@ -128,11 +132,5 @@ memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
 memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
 bootloaderStackPointer: dw 0
-
-videoMode:
-	.screenWidth: dw 0
-	.screenHeight: dw 0
-	.bitsPerPixel: db 0
-	.framebufferPointer: dd 0
 
 memoryMapLocation:
