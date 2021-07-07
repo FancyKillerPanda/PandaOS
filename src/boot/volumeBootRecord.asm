@@ -80,6 +80,13 @@ expanded_main:
 		; Memory map
 		call get_memory_map
 
+		; Video mode info
+		; TODO(fkp): Get actual values from the BIOS, this
+		; is just for testing.
+		mov word [videoMode.screenWidth], 960
+		mov word [videoMode.screenHeight], 540
+		mov word [videoMode.bitsPerPixel], 24
+
 		; Desriptor tables
 		call describe_gdt
 		call describe_idt
@@ -95,8 +102,9 @@ expanded_main:
 
 	.jump:
 		; Passes parameters to the kernel
-		mov eax, memoryMap
-		movzx ebx, byte [numberOfLinesPrinted]
+		mov eax, videoMode
+		mov ebx, memoryMap
+		movzx ecx, byte [numberOfLinesPrinted]
 		jmp HIGHER_HALF_OFFSET + KERNEL_FLAT_ADDRESS
 
 		; Should never get here
@@ -120,4 +128,11 @@ memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
 memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
 bootloaderStackPointer: dw 0
+
+videoMode:
+	.screenWidth: dw 0
+	.screenHeight: dw 0
+	.bitsPerPixel: db 0
+	.framebufferPointer: dd 0
+
 memoryMapLocation:

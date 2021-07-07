@@ -9,8 +9,11 @@ section .entry
 global start
 start:
 	mov esp, kernelStackStart
-	push eax					; Memory map
-	push ebx					; Number of lines printed
+
+	push eax					; Video mode info
+	push ebx					; Memory map
+	push ecx					; Number of lines printed
+
 	call kmain
 
 hang:

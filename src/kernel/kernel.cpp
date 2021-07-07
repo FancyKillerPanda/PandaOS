@@ -1,6 +1,7 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
 #include "display/textDisplay.hpp"
+#include "display/videoMode.hpp"
 
 #include "interrupts/interruptDescriptorTable.hpp"
 
@@ -20,7 +21,7 @@ extern const usize bssBlockEnd;
 static const usize* const kernelBSSBlockStart = &bssBlockStart;
 static const usize* const kernelBSSBlockEnd = &bssBlockEnd;
 
-extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
+extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMode* videoMode)
 {
 	// Zeroes the BSS block
 	const usize kernelBSSBlockSize = (usize) kernelBSSBlockEnd - (usize) kernelBSSBlockStart;
@@ -40,17 +41,9 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_heap_allocator();
 
 	// Testing grounds
-	void* address0 = malloc(128);
-	void* address1 = malloc(16);
-	free(address0);
-	void* address2 = malloc(96); // should use same pointer as address0
-	void* address3 = malloc(64); // after address1
-	void* address4 = malloc(28); // after address2
-
-	printf("0: %x\t1: %x\t2: %x\n3: %x\t4: %x\n", address0, address1, address2, address3, address4);
-
-	u32* test = (u32*) calloc(1, sizeof(test));
-	printf("Test (%x): %d\n", test, *test);
+	printf("Video mode: %dx%dpx, %dbpp, framebuffer at %x\n",
+		   videoMode->screenWidth, videoMode->screenHeight,
+		   videoMode->bitsPerPixel, videoMode->framebufferPointer);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
