@@ -21,11 +21,17 @@ get_edid_info:
 		je .edid_supported
 
 	.edid_not_supported:
+		mov si, edidBiosNotSupportedMessage
+		call print_string
+
 		mov word [edidResults.pixelWidth], 1024
 		mov word [edidResults.pixelHeight], 768
 		jmp .get_edid_info_finished
 
 	.edid_supported:
+		mov si, edidBiosSupportedMessage
+		call print_string
+
 		; Calculates the width
 		movzx ax, byte [edidInfo.widthLower8]
 		movzx bx, byte [edidInfo.widthUpper4]
@@ -48,8 +54,30 @@ get_edid_info:
 
 ; void get_vesa_bios_info()
 get_vesa_bios_info:
-	; TODO(fkp): Implement
-	ret
+	.setup:
+		push es
+		mov ax, 0x1000
+		mov es, ax
+		mov di, vbeInfo
+
+	.call_bios_interrupt:
+		mov ax, 0x4f00
+		int 0x10
+		pop es
+	
+		cmp ax, 0x004f
+		je .vesa_supported
+	
+	.vesa_not_supported:
+		mov si, vesaBiosNotSupportedMessage
+		call print_string
+		call reboot
+
+	.vesa_supported:
+		mov si, vesaBiosSupportedMessage
+		call print_string
+
+		ret
 
 ; void select_vesa_mode()
 select_vesa_mode:
@@ -149,6 +177,9 @@ bestVESAPitch: dw 0
 bestVESAFrameBuffer: dd 0
 
 ; Output strings
+edidBiosSupportedMessage: db "Info: EDID info is supported.", CR, LF, 0
+edidBiosNotSupportedMessage: db "Info: EDID info is not supported.", CR, LF, 0
+
 vesaBiosSupportedMessage: db "Info: VESA BIOS is supported.", CR, LF, 0
 vesaBiosNotSupportedMessage: db "Error: VESA BIOS is not supported.", CR, LF, 0
 vesaModeFoundMessage: db "Info: VESA mode found!", CR, LF, 0
