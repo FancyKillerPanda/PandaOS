@@ -13,6 +13,7 @@
 #include "memory/physicalAllocator.cpp"
 #include "memory/registers.cpp"
 #include "memory/virtualAllocator.cpp"
+#include "memory/heapAllocator.cpp"
 
 #include "system/io.cpp"
 

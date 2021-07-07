@@ -1,12 +1,17 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
 #include "display/textDisplay.hpp"
+
 #include "interrupts/interruptDescriptorTable.hpp"
+
 #include "memory/memoryMap.hpp"
 #include "memory/operations.hpp"
 #include "memory/physicalAllocator.hpp"
 #include "memory/virtualAllocator.hpp"
+#include "memory/heapAllocator.hpp"
+
 #include "system/common.hpp"
+
 #include "utility/log.hpp"
 
 #define PANDA_OS_MAGIC_STRING "PandaOS Magic!"
@@ -50,6 +55,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	read_memory_map(memoryMap);
 	init_physical_allocator(memoryMap);
 	init_virtual_allocator();
+	init_heap_allocator();
 
 	// Testing grounds
 	u32* testAddress = (u32*) 0x20000004;
