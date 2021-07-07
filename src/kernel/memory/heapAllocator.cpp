@@ -74,3 +74,51 @@ void* malloc(usize size)
 	log_error("Unable to allocate a heap region of length %d bytes.", size);
 	while (true);
 }
+
+void free(void* pointer)
+{
+	if (!pointer)
+	{
+		return;
+	}
+
+	// Free region starts where the information block was
+	AllocationInfoBlock& infoBlock = *(((AllocationInfoBlock*) pointer) - 1);
+	FreeRegion newFreeRegion { &infoBlock, infoBlock.size };
+
+	ASSERT(freeRegionsCount >= 1, "There should always be at least one free region.");
+	FreeRegion& firstFreeRegion = freeRegionsList[0];
+
+	// TODO(fkp): Code duplication (sorta)
+	if ((u32) firstFreeRegion.address > (u32) newFreeRegion.address)
+	{
+		ASSERT((u32) newFreeRegion.address + newFreeRegion.size <= (u32) firstFreeRegion.address,
+			   "Trying to free an already free region.");
+		ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS, "Too many free regions.");
+		
+		memcpy(freeRegionsList + 1, freeRegionsList, freeRegionsCount);
+		firstFreeRegion = newFreeRegion;
+		freeRegionsCount += 1;
+	}
+	else
+	{
+		for (u32 i = 0; i < freeRegionsCount; i++)
+		{
+			FreeRegion& region = freeRegionsList[i];
+			
+			if (region.address < newFreeRegion.address)
+			{
+				ASSERT((u32) region.address + region.size <= (u32) newFreeRegion.address,
+					   "Trying to free an already free region.");
+				ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS, "Too many free regions.");
+				
+				memcpy(freeRegionsList + i + 2, freeRegionsList + i + 1,
+					   (freeRegionsCount - i - 1) * sizeof(FreeRegion));
+				freeRegionsList[i + 1] = newFreeRegion;
+				freeRegionsCount += 1;
+
+				break;
+			}
+		}
+	}
+}
