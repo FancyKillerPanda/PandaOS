@@ -3,8 +3,48 @@ bits 16
 
 ; void get_edid_info()
 get_edid_info:
-	; TODO(fkp): Implement
-	ret
+	.setup:
+		push es
+		mov ax, ds
+		mov es, ax
+		mov di, edidInfo
+	
+	.call_bios_interrupt:
+		mov ax, 0x4f15
+		mov bl, 0x01
+		xor cx, cx
+		xor dx, dx
+		int 0x10
+
+		; Checks that it worked
+		cmp ax, 0x004f
+		je .edid_supported
+
+	.edid_not_supported:
+		mov word [edidResults.pixelWidth], 1024
+		mov word [edidResults.pixelHeight], 768
+		jmp .get_edid_info_finished
+
+	.edid_supported:
+		; Calculates the width
+		movzx ax, byte [edidInfo.widthLower8]
+		movzx bx, byte [edidInfo.widthUpper4]
+		and bl, 0xf0
+		shl bx, 4
+		add ax, bx
+		mov [edidResults.pixelWidth], ax
+
+		; Calculates the height
+		movzx ax, byte [edidInfo.heightLower8]
+		movzx bx, byte [edidInfo.heightUpper4]
+		and bl, 0xf0
+		shl bx, 4
+		add ax, bx
+		mov [edidResults.pixelHeight], ax
+
+	.get_edid_info_finished:
+		pop es
+		ret
 
 ; void get_vesa_bios_info()
 get_vesa_bios_info:
