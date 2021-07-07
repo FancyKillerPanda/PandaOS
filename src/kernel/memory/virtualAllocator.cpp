@@ -39,9 +39,11 @@ void init_virtual_allocator()
 bool pageFault = false;
 
 // NOTE(fkp): Declared in handleExceptions.hpp
-INTERRUPT_FUNCTION void handle_page_fault_exception(InterruptFrame* frame)
+INTERRUPT_FUNCTION
+void handle_page_fault_exception(InterruptFrame* frame, u32 errorCode)
 {
 	UNUSED(frame);
+	UNUSED(errorCode);
 
 	// The address that was accessed is in cr2
 	RegisterState registerState;
