@@ -58,8 +58,21 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	init_heap_allocator();
 
 	// Testing grounds
-	u32* testAddress = (u32*) 0x20000004;
-	*testAddress = *testAddress;
+	u32* address0 = (u32*) malloc(sizeof(address0));
+	u32* address1 = (u32*) malloc(sizeof(address1) * 2);
+	u32* address2 = (u32*) malloc(sizeof(address2));
+
+	*address0 = 5;
+	address1[0] = 10;
+	address1[1] = 15;
+	*address2 = 20;
+
+	printf("address0: %x\t*address0: %d\n"
+		   "address1: %x\taddress1[0]: %d    address1[1]: %d\n"
+		   "address2: %x\t*address2: %d\n",
+		   address0, *address0,
+		   address1, address1[0], address1[1],
+		   address2, *address2);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");

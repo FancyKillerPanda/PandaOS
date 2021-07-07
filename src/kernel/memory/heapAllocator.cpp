@@ -20,6 +20,11 @@ constexpr u32 MAX_NUMBER_OF_FREE_REGIONS = PAGE_SIZE / sizeof(FreeRegion);
 FreeRegion* freeRegionsList = (FreeRegion*) FREE_REGIONS_LIST_ADDRESS;
 u32 freeRegionsCount = 0;
 
+struct AllocationInfoBlock
+{
+	usize size;
+};
+
 void init_heap_allocator()
 {
 	// Maps a single page where the list of free regions will go
@@ -34,4 +39,38 @@ void init_heap_allocator()
 	freeRegionsCount += 1;
 
 	log_info("Initialised heap allocator.");
+}
+
+void* malloc(usize size)
+{
+	for (u32 i = 0; i < freeRegionsCount; i++)
+	{
+		FreeRegion& region = freeRegionsList[i];
+		usize allocationSize = size + sizeof(AllocationInfoBlock);
+
+		// Look for a free region big enough for the allocation
+		if (region.size >= allocationSize)
+		{
+			void* allocation = region.address;
+			*((AllocationInfoBlock*) allocation) = AllocationInfoBlock { allocationSize };
+
+			region.address = (void*) (((u8*) region.address) + allocationSize);
+			region.size -= allocationSize;
+
+			// The free region block was exactly the right size
+			if (region.size == 0)
+			{
+				freeRegionsCount -= 1;
+
+				// Moves all the other elements forward
+				memcpy(freeRegionsList + i, freeRegionsList + i + 1,
+					   (freeRegionsCount - i) * sizeof(FreeRegion));
+			}
+
+			return (void*) ((u8*) allocation + sizeof(AllocationInfoBlock));
+		}
+	}
+
+	log_error("Unable to allocate a heap region of length %d bytes.", size);
+	while (true);
 }
