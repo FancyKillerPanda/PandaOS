@@ -66,6 +66,9 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	void* address4 = malloc(28); // after address2
 
 	printf("0: %x\t1: %x\t2: %x\n3: %x\t4: %x\n", address0, address1, address2, address3, address4);
+
+	u32* test = (u32*) calloc(1, sizeof(test));
+	printf("Test (%x): %d\n", test, *test);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");

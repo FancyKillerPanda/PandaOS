@@ -25,6 +25,18 @@ struct AllocationInfoBlock
 	usize size;
 };
 
+void debug_print_free_regions_list()
+{
+	printf("\n===== Free Regions ====\n");
+	
+	for (u32 i = 0; i < freeRegionsCount; i++)
+	{
+		printf("\t%d: %x (%d bytes)\n", i, freeRegionsList[i].address, freeRegionsList[i].size);
+	}
+
+	printf("\n");
+}
+
 void init_heap_allocator()
 {
 	// Maps a single page where the list of free regions will go
@@ -75,16 +87,12 @@ void* malloc(usize size)
 	while (true);
 }
 
-void print_free_regions_list()
+void* calloc(usize count, usize size)
 {
-	printf("\n===== Free Regions ====\n");
-	
-	for (u32 i = 0; i < freeRegionsCount; i++)
-	{
-		printf("\t%d: %x (%d bytes)\n", i, freeRegionsList[i].address, freeRegionsList[i].size);
-	}
+	void* allocation = malloc(count * size);
+	memset(allocation, 0, count * size);
 
-	printf("\n");
+	return allocation;
 }
 
 void free(void* pointer)
