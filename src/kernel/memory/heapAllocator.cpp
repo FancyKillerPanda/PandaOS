@@ -75,6 +75,18 @@ void* malloc(usize size)
 	while (true);
 }
 
+void print_free_regions_list()
+{
+	printf("\n===== Free Regions ====\n");
+	
+	for (u32 i = 0; i < freeRegionsCount; i++)
+	{
+		printf("\t%d: %x (%d bytes)\n", i, freeRegionsList[i].address, freeRegionsList[i].size);
+	}
+
+	printf("\n");
+}
+
 void free(void* pointer)
 {
 	if (!pointer)
@@ -95,9 +107,9 @@ void free(void* pointer)
 		ASSERT((u32) newFreeRegion.address + newFreeRegion.size <= (u32) firstFreeRegion.address,
 			   "Trying to free an already free region.");
 		ASSERT(freeRegionsCount < MAX_NUMBER_OF_FREE_REGIONS, "Too many free regions.");
-		
-		memcpy(freeRegionsList + 1, freeRegionsList, freeRegionsCount);
-		firstFreeRegion = newFreeRegion;
+
+		memcpy(freeRegionsList + 1, freeRegionsList, freeRegionsCount * sizeof(FreeRegion));
+		freeRegionsList[0] = newFreeRegion;
 		freeRegionsCount += 1;
 	}
 	else

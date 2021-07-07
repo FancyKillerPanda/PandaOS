@@ -63,7 +63,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap)
 	free(address0);
 	void* address2 = malloc(96); // should use same pointer as address0
 	void* address3 = malloc(64); // after address1
-	void* address4 = malloc(32); // after address2
+	void* address4 = malloc(28); // after address2
 
 	printf("0: %x\t1: %x\t2: %x\n3: %x\t4: %x\n", address0, address1, address2, address3, address4);
 	
