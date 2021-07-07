@@ -122,14 +122,8 @@ expanded_main:
 
 ; Data (to be used by the extended bootloader)
 bits 16
-a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
-a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0
 enableProtectedModeMessage: db "Info: Enabling protected mode!", CR, LF, 0
 enableRealModeMessage: db "Info: Enabled real mode!", CR, LF, 0
-loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
-loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
-memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
-memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0
 
 bootloaderStackPointer: dw 0
 

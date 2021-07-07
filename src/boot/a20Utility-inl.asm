@@ -149,3 +149,6 @@ check_a20:
 		popf
 
 		ret
+
+a20SuccessMessage: db "Info: Enabled A20 line!", CR, LF, 0
+a20FailedMessage: db "Error: Failed to enable A20 line!", CR, LF, 0

@@ -48,3 +48,6 @@ SIZE_OF_MEMORY_MAP: equ 16
 memoryMap:
 	.pointer: dd MEMORY_MAP_LOCATION
 	.numberOfEntries dd 0
+
+memoryMapNotDetectedMessage: db "Error: Memory map not detected!", CR, LF, 0
+memoryMapFinishedMessage: db "Info: Finished reading memory map.", CR, LF, 0

@@ -99,3 +99,18 @@ edidInfo:
 	.heightUpper4 db 0
 
 	times 128 - ($ - edidInfo) db 0
+
+; Variables for VESA mode selection
+bestVESAMode: dw 0
+bestVESAWidth: dw 0
+bestVESAHeight: dw 0
+bestVESABitsPerPixel: db 0
+bestVESAPitch: dw 0
+bestVESAFrameBuffer: dd 0
+
+; Output strings
+vesaBiosSupportedMessage: db "Info: VESA BIOS is supported.", CR, LF, 0
+vesaBiosNotSupportedMessage: db "Error: VESA BIOS is not supported.", CR, LF, 0
+vesaModeFoundMessage: db "Info: VESA mode found!", CR, LF, 0
+vesaModeNotFoundMessage: db "Error: No VESA mode found!", CR, LF, 0
+vesaSetModeFailedMessage: db "Error: Failed to set VESA mode!", CR, LF, 0

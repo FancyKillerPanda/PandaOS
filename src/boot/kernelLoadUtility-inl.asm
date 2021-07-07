@@ -75,3 +75,6 @@ load_kernel:
 		mov si, loadedKernelMessage
 		call print_string
 		ret
+
+loadingKernelMessage: db "Info: Loading kernel...", CR, LF, 0
+loadedKernelMessage: db "Info: Loaded kernel!", CR, LF, 0
