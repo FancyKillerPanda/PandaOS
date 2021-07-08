@@ -104,9 +104,6 @@ expanded_main:
 		call start_paging
 
 	.jump:
-		; NOTE(fkp): Debug, so we can read messages from bootloader
-		; jmp $
-
 		; Passes parameters to the kernel
 		mov eax, videoMode
 		mov ebx, memoryMap

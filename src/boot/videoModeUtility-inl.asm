@@ -5,7 +5,7 @@ bits 16
 get_edid_info:
 	.setup:
 		push es
-		mov ax, ds
+		xor ax, ax
 		mov es, ax
 		mov di, edidInfo
 	
@@ -24,8 +24,8 @@ get_edid_info:
 		mov si, edidBiosNotSupportedMessage
 		call print_string
 
-		mov word [edidResults.pixelWidth], 1024
-		mov word [edidResults.pixelHeight], 768
+		mov word [edidResults.pixelWidth], 960
+		mov word [edidResults.pixelHeight], 540
 		jmp .get_edid_info_finished
 
 	.edid_supported:
@@ -48,6 +48,12 @@ get_edid_info:
 		add ax, bx
 		mov [edidResults.pixelHeight], ax
 
+		; TODO(fkp): Fix this hack. The results we get from the BIOS
+		; for EDID information is bigger than any of the supported
+		; video modes, and so we don't properly pick one.
+		mov word [edidResults.pixelWidth], 960
+		mov word [edidResults.pixelHeight], 540
+
 	.get_edid_info_finished:
 		pop es
 		ret
@@ -56,7 +62,7 @@ get_edid_info:
 get_vesa_bios_info:
 	.setup:
 		push es
-		mov ax, 0x1000
+		xor ax, ax
 		mov es, ax
 		mov di, vbeInfo
 
@@ -69,13 +75,13 @@ get_vesa_bios_info:
 		je .vesa_supported
 	
 	.vesa_not_supported:
-		; mov si, vesaBiosNotSupportedMessage
-		; call print_string
+		mov si, vesaBiosNotSupportedMessage
+		call print_string
 		call reboot
 
 	.vesa_supported:
-		; mov si, vesaBiosSupportedMessage
-		; call print_string
+		mov si, vesaBiosSupportedMessage
+		call print_string
 
 		ret
 
@@ -97,7 +103,7 @@ select_vesa_mode:
 		mov word [bestVESAHeight], 0
 		mov byte [bestVESABitsPerPixel], 0
 		mov word [bestVESAPitch], 0
-		mov dword [bestVESAFrameBuffer], 0
+		mov dword [bestVESAFramebuffer], 0
 
 	.next_mode:
 		cmp word [fs:si], 0xffff
@@ -183,15 +189,15 @@ select_vesa_mode:
 		mov ax, [es:vbeModeInfo.pitch]
 		mov word [bestVESAPitch], ax
 		mov eax, [es:vbeModeInfo.framebuffer]
-		mov dword [bestVESAFrameBuffer], eax
+		mov dword [bestVESAFramebuffer], eax
 
 	.go_to_next_mode:
 		add si, 4
 		jmp .next_mode
 
 	.error:
-		; mov si, vesaModeNotFoundMessage
-		; call print_string
+		mov si, vesaModeNotFoundMessage
+		call print_string
 		call reboot
 
 	.end_of_mode_list:
@@ -200,8 +206,10 @@ select_vesa_mode:
 		je .error
 
 	.mode_found:
-		; mov si, vesaModeFoundMessage
-		; call print_string
+		pusha
+		mov si, vesaModeFoundMessage
+		call print_string
+		popa
 
 		mov ax, [bestVESAWidth]
 		mov word [es:videoMode.screenWidth], ax
@@ -211,7 +219,7 @@ select_vesa_mode:
 		mov byte [es:videoMode.bitsPerPixel], al
 		mov ax, [bestVESAPitch]
 		mov word [es:videoMode.pitch], ax
-		mov eax, [bestVESAFrameBuffer]
+		mov eax, [bestVESAFramebuffer]
 		mov dword [es:videoMode.framebufferPointer], eax
 
 		mov ax, [bestVESAMode]
@@ -238,7 +246,7 @@ vbeInfo:
 	.version: dw 0
 	.oem: dd 0
 	.capabilities: dd 0
-	.videoModes: dd 0
+	.videoModes: dd 0x1234
 	.videoMemorySize: dw 0
 	.softwareRevision: dw 0
 	.vendor: dd 0
@@ -310,7 +318,7 @@ bestVESAWidth: dw 0
 bestVESAHeight: dw 0
 bestVESABitsPerPixel: db 0
 bestVESAPitch: dw 0
-bestVESAFrameBuffer: dd 0
+bestVESAFramebuffer: dd 0
 
 ; Output strings
 edidBiosSupportedMessage: db "Info: EDID info is supported.", CR, LF, 0
