@@ -77,14 +77,14 @@ expanded_main:
 		; A20 line
 		call try_enable_a20
 
-		; Memory map
-		call get_memory_map
-
 		; Video mode info
 		call get_edid_info
 		call get_vesa_bios_info
 		call select_vesa_mode
 		call set_vesa_mode
+
+		; Memory map
+		call get_memory_map
 
 		; Desriptor tables
 		call describe_gdt

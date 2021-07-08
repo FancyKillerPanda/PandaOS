@@ -14,7 +14,7 @@ struct PACKED_STRUCT IDTEntry
 };
 static_assert(sizeof(IDTEntry) == 8, "IDTEntry must be 8 bytes in size.");
 
-constexpr u32 IDT_ADDRESS = 0x7100;
+constexpr u32 IDT_ADDRESS = 0xc0007100;
 static IDTEntry* idtEntries =  (IDTEntry*) IDT_ADDRESS;
 
 // Reprograms the PIC to stop it using the default interrupt

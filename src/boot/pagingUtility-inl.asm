@@ -65,6 +65,19 @@ start_paging:
 
 		call set_paging_bit_on_cpu
 
+	.change_gdt_and_idt:
+		cli
+
+		mov eax, dword [gdtEntry.pointer]
+		add eax, HIGHER_HALF_OFFSET
+		mov dword [gdtEntry.pointer], eax
+		lgdt [gdtEntry]
+
+		mov eax, dword [idtEntry.pointer]
+		add eax, HIGHER_HALF_OFFSET
+		mov dword [idtEntry.pointer], eax
+		lidt [idtEntry]
+
 	.cleanup:
 		mov esp, ebp
 		pop ebp
