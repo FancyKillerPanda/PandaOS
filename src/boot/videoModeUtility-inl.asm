@@ -24,8 +24,8 @@ get_edid_info:
 		mov si, edidBiosNotSupportedMessage
 		call print_string
 
-		mov word [edidResults.pixelWidth], 960
-		mov word [edidResults.pixelHeight], 540
+		mov word [edidResults.pixelWidth], 800
+		mov word [edidResults.pixelHeight], 600
 		jmp .get_edid_info_finished
 
 	.edid_supported:
@@ -51,8 +51,8 @@ get_edid_info:
 		; TODO(fkp): Fix this hack. The results we get from the BIOS
 		; for EDID information is bigger than any of the supported
 		; video modes, and so we don't properly pick one.
-		mov word [edidResults.pixelWidth], 960
-		mov word [edidResults.pixelHeight], 540
+		mov word [edidResults.pixelWidth], 800
+		mov word [edidResults.pixelHeight], 600
 
 	.get_edid_info_finished:
 		pop es
@@ -206,10 +206,8 @@ select_vesa_mode:
 		je .error
 
 	.mode_found:
-		pusha
 		mov si, vesaModeFoundMessage
 		call print_string
-		popa
 
 		mov ax, [bestVESAWidth]
 		mov word [es:videoMode.screenWidth], ax
@@ -222,16 +220,30 @@ select_vesa_mode:
 		mov eax, [bestVESAFramebuffer]
 		mov dword [es:videoMode.framebufferPointer], eax
 
-		mov ax, [bestVESAMode]
-
 	.finished:
 		pop es
 		ret
 
 ; void set_vesa_mode()
 set_vesa_mode:
-	; TODO(fkp): Implement
-	ret
+	.call_interrupt:
+		mov bx, [bestVESAMode]
+		and bx, 0x7fff
+		or bx, 0x4000
+
+		mov ax, 0x4f02
+		int 0x10
+
+		cmp ax, 0x004f
+		je .finished
+
+	.error:
+		mov si, vesaSetModeFailedMessage
+		call print_string
+		call reboot
+
+	.finished:
+		ret
 
 ; NOTE(fkp): Here lies data
 videoMode:

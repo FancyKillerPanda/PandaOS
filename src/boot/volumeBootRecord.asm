@@ -86,10 +86,6 @@ expanded_main:
 		call select_vesa_mode
 		call set_vesa_mode
 
-		mov word [videoMode.screenWidth], 960
-		mov word [videoMode.screenHeight], 540
-		mov word [videoMode.bitsPerPixel], 24
-
 		; Desriptor tables
 		call describe_gdt
 		call describe_idt
