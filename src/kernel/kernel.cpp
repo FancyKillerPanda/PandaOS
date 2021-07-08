@@ -43,8 +43,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_video(videoMode);
 
 	// Testing grounds
-	clear_screen(0xff0000);
-	draw_rect(100, 100, 200, 100, 0x00ff00);
+	draw_rect(videoInfo.screenWidth - 2, 0, 50, videoInfo.screenHeight, 0x00ff00);
+	draw_rect(0, videoInfo.screenHeight - 5, videoInfo.screenWidth, 50, 0x00ff00);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");

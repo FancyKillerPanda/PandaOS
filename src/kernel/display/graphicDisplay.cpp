@@ -5,8 +5,26 @@
 
 void draw_rect(u32 x, u32 y, u32 width, u32 height, u32 colour)
 {
-	// TODO(fkp): Ensure that the rect is within the bounds of the
-	// screen, or only draw the area that is.
+	if (x >= videoInfo.screenWidth)
+	{
+		return;
+	}
+
+	if (y >= videoInfo.screenHeight)
+	{
+		return;
+	}
+
+	if (x + width > videoInfo.screenWidth)
+	{
+		width = videoInfo.screenWidth - x;
+	}
+
+	if (y + height > videoInfo.screenHeight)
+	{
+		height = videoInfo.screenHeight - y;
+	}
+
 	u8 red = (u8) ((colour & 0x00ff0000) >> 16);
 	u8 green = (u8) ((colour & 0x0000ff00) >> 8);
 	u8 blue = (u8) ((colour & 0x000000ff) >> 0);
