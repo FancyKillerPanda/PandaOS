@@ -3,6 +3,7 @@
 #include "kernel.cpp"
 
 #include "display/textDisplay.cpp"
+#include "display/videoMode.cpp"
 
 #include "interrupts/handleExceptions.cpp"
 #include "interrupts/handleInterrupts.cpp"

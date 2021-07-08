@@ -146,7 +146,7 @@ void unmap_page_address(void* virtualAddress)
 	internal_map_unmap_page(virtualAddress, nullptr, false);
 }
 
-void allocate_virtual_range(void* virtualAddress, usize size)
+void allocate_virtual_range(void* virtualAddress, usize size, void* physicalAddress)
 {
 	if ((u32) virtualAddress & 0xfff)
 	{
@@ -158,7 +158,17 @@ void allocate_virtual_range(void* virtualAddress, usize size)
 
 	for (u32 i = 0; i < numberOfPages; i++)
 	{
-		void* page = allocate_physical_page();
+		void* page;
+
+		if (physicalAddress == nullptr)
+		{
+			page = allocate_physical_page();
+		}
+		else
+		{
+			page = (u8*) physicalAddress + (i * PAGE_SIZE);
+		}
+		
 		map_page_address((u8*) virtualAddress + (i * PAGE_SIZE), page);
 	}
 }

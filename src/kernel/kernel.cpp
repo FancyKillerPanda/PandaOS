@@ -39,11 +39,10 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_physical_allocator(memoryMap);
 	init_virtual_allocator();
 	init_heap_allocator();
+	init_video(videoMode);
 
 	// Testing grounds
-	printf("Video mode: %dx%dpx, %dbpp, framebuffer at %x\n",
-		   videoMode->screenWidth, videoMode->screenHeight,
-		   videoMode->bitsPerPixel, videoMode->framebufferPointer);
+	
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
