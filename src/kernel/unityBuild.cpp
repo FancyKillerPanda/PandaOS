@@ -2,6 +2,7 @@
 
 #include "kernel.cpp"
 
+#include "display/graphicDisplay.cpp"
 #include "display/textDisplay.cpp"
 #include "display/videoMode.cpp"
 

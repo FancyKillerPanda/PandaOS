@@ -1,6 +1,6 @@
 //  ===== Date Created: 08 July, 2021 ===== 
 
-#include "videoMode.hpp"
+#include "display/videoMode.hpp"
 #include "memory/virtualAllocator.hpp"
 
 void init_video(VideoMode* videoMode)
