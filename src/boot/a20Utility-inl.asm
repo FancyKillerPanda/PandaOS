@@ -33,6 +33,8 @@ try_set_a20_bios:
 	mov ax, 0x2401
 	int 0x15
 
+	ret
+
 ; void try_set_a20_keyboard()
 try_set_a20_keyboard:
 	; Disables interrupts
@@ -72,12 +74,16 @@ try_set_a20_keyboard:
 	call wait_for_8042_command
 	sti
 
+	ret
+
 ; void try_set_a20_fast()
 try_set_a20_fast:
 	; Reads, sets bit 2, writes
 	in al, 0x92
 	or al, 2
 	out 0x92, al
+
+	ret
 
 ; void wait_for_8042_command()
 wait_for_8042_command:
