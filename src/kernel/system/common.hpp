@@ -1,7 +1,7 @@
 //  ===== Date Created: 08 December, 2020 ===== 
 
-#if !defined(SYSTEM_HPP)
-#define SYSTEM_HPP
+#if !defined(COMMON_HPP)
+#define COMMON_HPP
 
 #if !defined(__clang__)
 #error Clang is the only compiler supported right now...
