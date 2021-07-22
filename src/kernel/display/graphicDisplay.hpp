@@ -9,4 +9,7 @@
 void draw_rect(u32 x, u32 y, u32 width, u32 height, u32 colour);
 void clear_screen(u32 colour);
 
+// NOTE(fkp): Width is number of columns, height is number of rows
+void draw_bitmap(u8* bitmap, u32 x, u32 y, u32 width, u32 height, u32 colour);
+
 #endif

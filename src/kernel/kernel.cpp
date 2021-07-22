@@ -22,6 +22,15 @@ extern const usize bssBlockEnd;
 static const usize* const kernelBSSBlockStart = &bssBlockStart;
 static const usize* const kernelBSSBlockEnd = &bssBlockEnd;
 
+// NOTE(fkp): Testing only, not important
+u8 testBitmap[] = {
+	0b00000000, 0b00000000,
+	0b01111110, 0b00010000,
+	0b01111110, 0b00111000,
+	0b01111110, 0b01111100,
+	0b00000000, 0b00000000,
+};
+
 extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMode* videoMode)
 {
 	// Zeroes the BSS block
@@ -43,8 +52,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_video(videoMode);
 
 	// Testing grounds
-	draw_rect(videoInfo.screenWidth - 2, 0, 50, videoInfo.screenHeight, 0x00ff00);
-	draw_rect(0, videoInfo.screenHeight - 5, videoInfo.screenWidth, 50, 0x00ff00);
+	clear_screen(0xaaaaaa);
+	draw_bitmap(testBitmap, 100, 100, 16, 5, 0xff0000);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");

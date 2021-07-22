@@ -49,3 +49,20 @@ void clear_screen(u32 colour)
 {
 	draw_rect(0, 0, videoInfo.screenWidth, videoInfo.screenHeight, colour);
 }
+
+void draw_bitmap(u8* bitmap, u32 x, u32 y, u32 width, u32 height, u32 colour)
+{
+	for (u32 row = 0; row < height; row++)
+	{
+		for (u32 col = 0; col < width; col++)
+		{
+			u32 index = (row * width) + col;
+			u8 byte = bitmap[index / 8];
+
+			if (byte & (1 << (index % 8)))
+			{
+				draw_rect(x + col, y + row, 1, 1, colour);
+			}
+		}
+	}
+}
