@@ -23,12 +23,22 @@ static const usize* const kernelBSSBlockStart = &bssBlockStart;
 static const usize* const kernelBSSBlockEnd = &bssBlockEnd;
 
 // NOTE(fkp): Testing only, not important
+/*
 u8 testBitmap[] = {
 	0b00000000, 0b00000000,
 	0b01111110, 0b00010000,
 	0b01111110, 0b00111000,
 	0b01111110, 0b01111100,
 	0b00000000, 0b00000000,
+};
+*/
+
+u8 testBitmap[] = {
+	0b11111111, 0b11111111,
+	0b11111111, 0b11111111,
+	0b11111111, 0b11111111,
+	0b11111111, 0b11111111,
+	0b11111111, 0b11111111,
 };
 
 extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMode* videoMode)
@@ -52,8 +62,9 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_video(videoMode);
 
 	// Testing grounds
-	clear_screen(0xaaaaaa);
-	draw_bitmap(testBitmap, 100, 100, 16, 5, 0xff0000);
+	clear_screen(0x555555);
+	u32 colours[] = { 0xff0000, 0x00ff00, 0x0000ff, 0xffffff };
+	draw_bitmap_extended(testBitmap, 100, 100, 8, 5, colours, 2);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
