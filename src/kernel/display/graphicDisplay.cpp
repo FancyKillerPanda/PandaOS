@@ -71,11 +71,14 @@ void draw_bitmap_extended(u8* bitmap, u32 x, u32 y, u32 width, u32 height, u32* 
 			u8 mask = (1 << bitsPerPixel) - 1;
 			
 			// We need to shift further for earlier bits, since
-			// bitmaps are defined left to right.
-			u8 shiftAmount = 7 - (index % 8);
+			// bitmaps are defined left to right. We also need
+			// to shift less when there are more bits per pixel,
+			// otherwise we'll overflow some bits.
+			u8 shiftAmount = (8 - bitsPerPixel) - (index % 8);
 			u8 maskedByte = byte & (mask << shiftAmount);
 
-			// Colour index needs to be 0-based
+			// Colour index needs to be 0-based, but an actual
+			// 0-value colour means don't draw anything.
 			u8 colourIndex = (maskedByte >> shiftAmount) - 1;
 
 			if (maskedByte)

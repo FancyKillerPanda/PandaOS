@@ -63,7 +63,8 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 
 	// Testing grounds
 	clear_screen(0x555555);
-	u32 colours[] = { 0xff0000, 0x00ff00, 0x0000ff, 0xffffff };
+	u32 colours[] = { 0xff0000, 0x00ff00, 0xffffff };
+	draw_bitmap_extended(testBitmap, 100, 120, 16, 5, colours, 1);
 	draw_bitmap_extended(testBitmap, 100, 100, 8, 5, colours, 2);
 	
 	// The end...
