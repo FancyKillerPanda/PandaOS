@@ -23,45 +23,67 @@ describe_gdt:
 
 	    ; Code segment descriptor (16-bit)
 		gdtCode16Offset: equ 8
-	    mov [es:di],     word 0xffff ; Limit of 4GB
-	    mov [es:di + 2], word 0x0000 ; Base
-	    mov [es:di + 4], byte 0x00	; More base bits
-	    mov [es:di + 5], byte 0x98	; Access (present and executable are set)
-	    mov [es:di + 6], byte 0x00	; Flags (granularity and size) and limit
-	    mov [es:di + 7], byte 0x00	; More base bits
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0x98		; Access (present and executable are set)
+	    mov [es:di + 6], byte 0x00		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
 	
 	    add di, 8
 
 	    ; Data segment descriptor (16-bit)
 		gdtData16Offset: equ 16
-	    mov [es:di],     word 0xffff ; Limit of 4GB
-	    mov [es:di + 2], word 0x0000 ; Base
-	    mov [es:di + 4], byte 0x00	; More base bits
-	    mov [es:di + 5], byte 0x92	; Access (present and writable are set)
-	    mov [es:di + 6], byte 0x00	; Flags (granularity and size) and limit
-	    mov [es:di + 7], byte 0x00	; More base bits
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0x92		; Access (present and writable are set)
+	    mov [es:di + 6], byte 0x00		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
 
 	    add di, 8
 
-	    ; Code segment descriptor (32-bit)
+	    ; Code segment descriptor (32-bit ring 0)
 		gdtCode32Offset: equ 24
-	    mov [es:di],     word 0xffff ; Limit of 4GB
-	    mov [es:di + 2], word 0x0000 ; Base
-	    mov [es:di + 4], byte 0x00	; More base bits
-	    mov [es:di + 5], byte 0x9a	; Access (present, executable, and readable are set)
-	    mov [es:di + 6], byte 0xcf	; Flags (granularity and size) and limit
-	    mov [es:di + 7], byte 0x00	; More base bits
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0x9a		; Access (present, executable, and readable are set)
+	    mov [es:di + 6], byte 0xcf		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
 	
 	    add di, 8
 
-	    ; Data segment descriptor (32-bit)
+	    ; Data segment descriptor (32-bit ring 0)
 		gdtData32Offset: equ 32
-	    mov [es:di],     word 0xffff ; Limit of 4GB
-	    mov [es:di + 2], word 0x0000 ; Base
-	    mov [es:di + 4], byte 0x00	; More base bits
-	    mov [es:di + 5], byte 0x92	; Access (present and writable are set)
-	    mov [es:di + 6], byte 0xcf	; Flags (granularity and size) and limit
-	    mov [es:di + 7], byte 0x00	; More base bits
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0x92		; Access (present and writable are set)
+	    mov [es:di + 6], byte 0xcf		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
+
+		add di, 8
+
+	    ; Code segment descriptor (32-bit ring 3)
+		gdtCode32Ring3Offset: equ 40
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0xfa		; Access (present, executable, and readable, and ring 3 are set)
+	    mov [es:di + 6], byte 0xcf		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
+	
+	    add di, 8
+
+	    ; Data segment descriptor (32-bit ring 3)
+		gdtData32Ring3Offset: equ 48
+	    mov [es:di],     word 0xffff	; Limit of 4GB
+	    mov [es:di + 2], word 0x0000	; Base
+	    mov [es:di + 4], byte 0x00		; More base bits
+	    mov [es:di + 5], byte 0xf2		; Access (present, writable, and ring 3 are set)
+	    mov [es:di + 6], byte 0xcf		; Flags (granularity and size) and limit
+	    mov [es:di + 7], byte 0x00		; More base bits
 
 		add di, 8
 
@@ -94,7 +116,7 @@ load_descriptor_tables:
 	ret
 
 gdtEntry:
-	.size: dw 40
+	.size: dw 56
 	.pointer: dd 0x7000
 
 idtEntry:
