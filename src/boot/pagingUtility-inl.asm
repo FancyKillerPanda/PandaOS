@@ -78,6 +78,9 @@ start_paging:
 		mov dword [idtEntry.pointer], eax
 		lidt [idtEntry]
 
+		mov ax, gdtTssOffset
+		ltr ax
+
 	.cleanup:
 		mov esp, ebp
 		pop ebp

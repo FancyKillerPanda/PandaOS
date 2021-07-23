@@ -4,7 +4,8 @@ From:       To:         Used for:
 0x00002000  0x00006000  Temporary kernel disk read buffer
 						Temporary page directory and page tables
 0x00007000  0x000074ff  GDT and IDT
-0x00007500  0x00007c00
+0x00007500  0x000075ff  TSS entry
+0x00007600  0x00007c00
 0x00007c00  0x00008bff  Bootloader
 0x00008c00  0x0007ffff
 0x00080000  0x000fffff  Reserved

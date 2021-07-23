@@ -89,6 +89,7 @@ expanded_main:
 		; Desriptor tables
 		call describe_gdt
 		call describe_idt
+		call describe_tss
 
 		; To the kernel and beyond!
 		call load_kernel
