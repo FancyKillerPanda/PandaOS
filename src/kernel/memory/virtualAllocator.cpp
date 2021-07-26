@@ -17,6 +17,7 @@ constexpr u32 NUMBER_OF_PAGE_TABLE_ENTRIES = 1024;
 
 constexpr u32 PRESENT = 0x01;
 constexpr u32 READ_WRITE = 0x02;
+constexpr u32 USER = 0x04;
 
 void init_virtual_allocator()
 {
@@ -87,7 +88,7 @@ PageTable get_page_table(u32 indexIntoPageDirectory)
 	else
 	{
 		pageTable = (PageTable) allocate_physical_page();
-		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE;
+		pageDirectoryEntry = (u32) pageTable | PRESENT | READ_WRITE | USER;
 		
 		// Accesses the page table through recursive paging
 		pageTable = (PageTable) (0xffc00000 + (indexIntoPageDirectory * 0x1000));
@@ -121,7 +122,7 @@ void internal_map_unmap_page(void* virtualAddress, void* physicalAddress, bool m
 			return;
 		}
 
-		pageTableEntry = (u32) physicalAddress | PRESENT | READ_WRITE;
+		pageTableEntry = (u32) physicalAddress | PRESENT | READ_WRITE | USER;
 	}
 	else
 	{

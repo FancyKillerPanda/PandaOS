@@ -17,6 +17,8 @@
 #include "memory/registers.cpp"
 #include "memory/virtualAllocator.cpp"
 
+#include "multitasking/scheduler.cpp"
+
 #include "system/io.cpp"
 
 #include "utility/log.cpp"

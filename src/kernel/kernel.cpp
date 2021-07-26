@@ -12,6 +12,8 @@
 #include "memory/physicalAllocator.hpp"
 #include "memory/virtualAllocator.hpp"
 
+#include "multitasking/scheduler.hpp"
+
 #include "system/common.hpp"
 
 #include "utility/log.hpp"
@@ -21,26 +23,6 @@ extern const usize bssBlockStart;
 extern const usize bssBlockEnd;
 static const usize* const kernelBSSBlockStart = &bssBlockStart;
 static const usize* const kernelBSSBlockEnd = &bssBlockEnd;
-
-// NOTE(fkp): Testing only, not important
-u8 testBitmap[] = {
-	0b01010100, 0b00000000, 0b00000000,
-	0b01101001, 0b00000000, 0b00000000,
-	0b01101010, 0b01000000, 0b00000000,
-	0b01101010, 0b10010000, 0b00000000,
-	0b01101010, 0b10100100, 0b00000000,
-	0b01101010, 0b10101001, 0b00000000,
-	0b01101010, 0b10101010, 0b01000000,
-	0b01101010, 0b10101001, 0b00000000,
-	0b01101010, 0b10100100, 0b00000000,
-	0b01101010, 0b10101001, 0b00000000,
-	0b01101010, 0b01101010, 0b01000000,
-	0b01101001, 0b00011010, 0b10010000,
-	0b01100100, 0b00000110, 0b10100100,
-	0b01010000, 0b00000001, 0b10010000,
-	0b00000000, 0b00000000, 0b01000000,
-	0b00000000, 0b00000000, 0b00000000,
-};
 
 extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMode* videoMode)
 {
@@ -64,8 +46,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 
 	// Testing grounds
 	clear_screen(0x555555);
-	u32 colours[] = { 0x000000, 0xffffff };
-	draw_bitmap_extended(testBitmap, 100, 100, 12, 16, colours, 2);
+	switch_process();
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
