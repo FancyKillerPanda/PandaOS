@@ -3,6 +3,7 @@ bits 32
 
 PRESENT: equ 0x01
 READ_WRITE: equ 0x02
+USER: equ 0x04
 
 NUMBER_OF_PAGE_DIRECTORY_ENTRIES: equ 1024
 NUMBER_OF_PAGE_TABLE_ENTRIES: equ 1024
@@ -126,7 +127,7 @@ identity_map_kernel:
 			mov eax, ecx
 			mov ebx, 0x1000
 			mul ebx
-			or eax, PRESENT | READ_WRITE
+			or eax, PRESENT | READ_WRITE | USER
 
 			; Moves the entry into the table (each entry is four bytes)
 			mov dword [identityPageTable + (ecx * 4)], eax
@@ -142,7 +143,7 @@ identity_map_kernel:
 
 		TABLE_INDEX: equ ((HIGHER_HALF_OFFSET / 1024) / 4096)
 		TABLE_LOCATION: equ pageDirectory + (TABLE_INDEX * 4)
-		mov dword [TABLE_LOCATION], kernelPageTable | PRESENT | READ_WRITE
+		mov dword [TABLE_LOCATION], kernelPageTable | PRESENT | READ_WRITE | USER
 
 	.cleanup:
 		mov esp, ebp

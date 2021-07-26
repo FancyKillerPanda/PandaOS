@@ -24,10 +24,8 @@ jump_to_usermode:
 		mov eax, esp
 		push GDT_RING_3_DATA_SELECTOR | 3
 		push eax
-		pushfd
+		pushf
 		push GDT_RING_3_CODE_SELECTOR | 3
 		push ebx
 
-		xchg bx, bx
-
-		iretd
+		iret
