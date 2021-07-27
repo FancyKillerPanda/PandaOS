@@ -120,3 +120,7 @@ calculate_chs:
 tempCylinder: dw 0
 tempHead: db 0
 tempSector: db 0
+
+numberOfLinesPrinted: db 0
+rebootMessage: db "Press any key to reboot...", CR, LF, 0
+diskErrorMessage: db "Error: Failed to read disk!", CR, LF, 0

@@ -5,7 +5,8 @@ From:       To:         Used for:
 						Temporary page directory and page tables
 0x00007000  0x000074ff  GDT and IDT
 0x00007500  0x000075ff  TSS entry
-0x00007600  0x00007c00
-0x00007c00  0x00008bff  Bootloader
+0x00007600  0x000079ff
+0x00007a00  0x00007bff  Bootloader (MBR)
+0x00007c00  0x00008bff  Bootloader (VBR)
 0x00008c00  0x0007ffff
 0x00080000  0x000fffff  Reserved
