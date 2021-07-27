@@ -48,16 +48,22 @@ relocated_main:
 		call reboot
 
 	.found_active_partition:
-		mov [secondPartition], si
+		mov [selectedPartition], si
 
 		mov si, partitionFoundMessage
 		call print_string
 
+		; LBA address
+		mov bx, [selectedPartition]
+		add bx, 8				; Offset to LBA
+		mov cx, [bx]
+
+		; Destination
 		mov ax, MBR_ORIGINAL_ADDRESS / 16
 		mov es, ax
 		xor bx, bx
-		mov cx, [selectedPartition]
-		add cx, 8				; Offset to LBA
+
+		; Number of sectors
 		mov ax, 1
 		call read_disk
 

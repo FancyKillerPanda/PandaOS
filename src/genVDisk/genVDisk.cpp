@@ -107,8 +107,8 @@ int main(s32 argc, const u8* argv[])
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
-	
-	fseek(outputFile, bootloaderStartSector + 501, SEEK_SET);
+
+	fseek(outputFile, (bootloaderStartSector * 512) + 501, SEEK_SET);
 	fwrite(&magicBootloaderStart, 1, 2, outputFile);
 	fwrite(&magicBootloaderSize, 1, 2, outputFile);
 	fwrite(&magicKernelStart, 1, 2, outputFile);
