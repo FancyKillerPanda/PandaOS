@@ -42,7 +42,9 @@ bool write_descriptor_file(const CLArgs& clArgs)
 	{
 		numberOfCylinders = 16383;
 	}
-	
+
+	printf("Info: Cylinders: %zu, heads: %zu, sectors: %zu.\n",
+		   numberOfCylinders, numberOfHeads, numberOfSectors);
 	printf("Info: Writing descriptor file.\n");
 	
 	// Opens the descriptor file for writing

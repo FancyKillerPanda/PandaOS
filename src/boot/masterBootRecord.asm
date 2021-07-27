@@ -15,6 +15,7 @@ main:
 		; Sets up starting segments
 		xor ax, ax
 		mov ds, ax
+		mov es, ax
 		mov ss, ax
 		mov sp, BOOTLOADER_STACK_ADDRESS
 
@@ -24,13 +25,21 @@ main:
 		mov di, MBR_RELOCATED_ADDRESS
 		rep movsd
 
+		; TODO(fkp): Figure out why we can't set bootDriveNumber
+		; under .setup, before the relocation. For now, we save
+		; dl until then.
+		push dx
 		call clear_screen
+		pop dx
+
 		mov si, relocatingMBRMessage
 		call print_string		
 
 		jmp 0x00:relocated_main
 
 relocated_main:
+		mov [bootDriveNumber], dl
+
 		xor cx, cx
 		mov si, firstPartition
 
@@ -82,7 +91,7 @@ relocated_main:
 bootDriveNumber: db 0
 selectedPartition: dw 0
 relocatingMBRMessage: db "Info: Relocating MBR!", CR, LF, 0
-partitionFoundMessage: db "Info: Found active partition!", CR, LF, 0
+partitionFoundMessage: db "Info: Found partition!", CR, LF, 0
 partitionNotFoundMessage: db "Error: No active partition!", CR, LF, 0
 jumpingToVBRMessage: db "Info: Jumping to VBR!", CR, LF, 0
 

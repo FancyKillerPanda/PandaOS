@@ -76,8 +76,11 @@ read_disk:
 
 ; (ch cylinder, cl sector, dh head) calculate_chs(cx LBA-sector)
 calculate_chs:
-	sectorsPerTrack: equ 36
-	headsPerCylinder: equ 2
+	; TODO(fkp): Make both FDD and HDD geometry work.
+;	sectorsPerTrack: equ 36
+;	headsPerCylinder: equ 2
+	sectorsPerTrack: equ 63
+	headsPerCylinder: equ 16
 
 	.calculate_sector:
 		xor dx, dx
