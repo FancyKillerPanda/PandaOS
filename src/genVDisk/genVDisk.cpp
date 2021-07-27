@@ -5,6 +5,9 @@
 #include "utility/clArgs.hpp"
 #include "utility/fileIO.hpp"
 
+bool write_descriptor_file(const CLArgs& clArgs);
+bool write_extent_file(const CLArgs& clArgs);
+
 int main(s32 argc, const u8* argv[])
 {
 	CLArgs clArgs {};
@@ -14,7 +17,28 @@ int main(s32 argc, const u8* argv[])
 		return 1;
 	}
 
-	// Opens the output file for writing
+	if (clArgs.diskType == DiskType::HardDiskDrive &&
+		!write_descriptor_file(clArgs))
+	{
+		return 1;
+	}
+	
+	if (!write_extent_file(clArgs))
+	{
+		return 1;
+	}
+}
+
+bool write_descriptor_file(const CLArgs& clArgs)
+{
+	printf("Info: Writing descriptor file.\n");
+	
+	printf("Info: Wrote descriptor file.\n\n");
+	return true;
+}
+
+bool write_extent_file(const CLArgs& clArgs)
+{
 	const u8* extentFileName;
 	
 	if (clArgs.diskType == DiskType::FloppyDisk)
@@ -26,12 +50,13 @@ int main(s32 argc, const u8* argv[])
 		extentFileName = concat_strings(clArgs.outputName, "-flat.vmdk");
 	}
 	
+	// Opens the output file for writing
 	FILE* extentFile = fopen(extentFileName, "w");
 
 	if (!extentFile)
 	{
-		printf("Error: Failed to create output file '%s'.\n", clArgs.outputName);
-		return 1;
+		printf("Error: Failed to create extent file '%s'.\n", clArgs.outputName);
+		return false;
 	}
 
 	// Reads the entire bootloader file
@@ -41,7 +66,7 @@ int main(s32 argc, const u8* argv[])
 	if (!read_entire_file(clArgs.bootloaderFile, &bootloaderData, &bootloaderSize))
 	{
 		fclose(extentFile);
-		return 1;
+		return false;
 	}
 
 	// Reads the entire kernel file
@@ -51,14 +76,14 @@ int main(s32 argc, const u8* argv[])
 	if (!read_entire_file(clArgs.kernelFile, &kernelData, &kernelSize))
 	{
 		fclose(extentFile);
-		return 1;
+		return false;
 	}
 
 	usize numberOfBlocksWritten = 0;
 
 	if (clArgs.diskType == DiskType::HardDiskDrive)
 	{
-		printf("Info: Writing hard disk.\n");
+		printf("Info: Writing hard disk extent.\n");
 		
 		// Reads the entire MBR file
 		u8* mbrData = nullptr;
@@ -67,7 +92,7 @@ int main(s32 argc, const u8* argv[])
 		if (!read_entire_file(clArgs.mbrFile, &mbrData, &mbrSize))
 		{
 			fclose(extentFile);
-			return 1;
+			return false;
 		}
 
 		// Writes the MBR to the extent file
@@ -93,7 +118,7 @@ int main(s32 argc, const u8* argv[])
 	}
 	else
 	{
-		printf("Info: Writing floppy disk.\n");
+		printf("Info: Writing floppy disk extent.\n");
 	}
 
 	// Writes the bootloader
@@ -133,4 +158,6 @@ int main(s32 argc, const u8* argv[])
 	printf("Info: Wrote %zu sectors of padding (%zu kiB).\n", paddingSectorSize, (paddingSectorSize * 512) / 1024);
 	
 	fclose(extentFile);
+	printf("Info: Wrote extent file.\n");
+	return true;
 }
