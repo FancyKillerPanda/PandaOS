@@ -75,23 +75,27 @@ int main(s32 argc, const u8* argv[])
 	usize bootloaderStartSector = numberOfBlocksWritten;
 	usize bootloaderSectors = write_data_as_blocks(outputFile, bootloaderData, bootloaderSize, 0);
 	numberOfBlocksWritten += bootloaderSectors;
-	printf("Info: Wrote bootloader to disk (%zu sector(s)).\n", bootloaderSectors);
+	printf("Info: Wrote bootloader to disk (start: %zu, %zu sector(s)).\n",
+		   bootloaderStartSector, bootloaderSectors);
 
 	// Writes the kernel
 	usize kernelStartSector = numberOfBlocksWritten;
 	usize kernelSectors = write_data_as_blocks(outputFile, kernelData, kernelSize, 0);
 	numberOfBlocksWritten += kernelSectors;
-	printf("Info: Wrote kernel to disk (%zu sector(s)).\n", kernelSectors);
+	printf("Info: Wrote kernel to disk (start: %zu, %zu sector(s)).\n",
+		   kernelStartSector, kernelSectors);
 
 	// Writes magic numbers for the bootloader
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
 	bootloaderSectors -= 1;
+	u16 magicBootloaderStart = ENDIAN_SWAP_16(bootloaderStartSector);
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
 	
-	fseek(outputFile, bootloaderStartSector + 503, SEEK_SET);
+	fseek(outputFile, bootloaderStartSector + 501, SEEK_SET);
+	fwrite(&magicBootloaderStart, 1, 2, outputFile);
 	fwrite(&magicBootloaderSize, 1, 2, outputFile);
 	fwrite(&magicKernelStart, 1, 2, outputFile);
 	fwrite(&magicKernelSize, 1, 2, outputFile);

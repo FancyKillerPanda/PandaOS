@@ -43,7 +43,8 @@ main:
 		mov ax, 0x07e0
 		mov es, ax
 		xor bx, bx
-		mov cl, 1				; Start sector
+		mov cx, [bootloaderStartSector]
+		inc cx					; 1-based
 		mov al, [bootloaderNumberOfExtraSectors]
 		call read_disk
 
@@ -59,9 +60,10 @@ welcomeMessage: db "PandaOS", CR, LF, 0
 expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
 
 end_of_first_sector:
-	times 504 - ($ - $$) db 0
+	times 502 - ($ - $$) db 0
 
 	; NOTE(fkp): Keep at the end (magic)!
+	bootloaderStartSector: dw 0
 	bootloaderNumberOfExtraSectors: dw 0
 	kernelStartSector: dw 0
 	kernelNumberOfSectors: dw 0
