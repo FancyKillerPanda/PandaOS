@@ -11,17 +11,17 @@ exit_on_error()
 	exit 1
 }
 
-imageFile="PandaOS-flat.vmdk"
+cd $binDir/PandaOS > /dev/null 2> /dev/null || exit_on_error
 
 if [ "$1" == "--floppy" ]; then
-	imageFile="PandaOS.img"
+	qemu-system-i386 -drive if=floppy,index=0,format=raw,file="PandaOS.img" \
+					 -debugcon stdio \
+		|| exit_on_error
+else
+	qemu-system-i386 -drive index=0,media=disk,file="PandaOS.vmdk" \
+					 -debugcon stdio \
+		|| exit_on_error
 fi
-
-cd $binDir/PandaOS > /dev/null 2> /dev/null || exit_on_error
-qemu-system-i386 -boot order=adc \
-				 -drive if=floppy,index=0,format=raw,file=$imageFile \
-				 -debugcon stdio \
-	|| exit_on_error
 
 # Exit
 cd $originalDir

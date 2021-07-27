@@ -31,8 +31,53 @@ int main(s32 argc, const u8* argv[])
 
 bool write_descriptor_file(const CLArgs& clArgs)
 {
+	// Calculates disk geometry
+	usize diskNumberOfSectors = clArgs.diskSize / 512;
+	usize numberOfHeads = 16; // Equal to max for IDE
+	usize numberOfSectors = 63;
+	usize numberOfCylinders = diskNumberOfSectors / (numberOfHeads * numberOfSectors);
+
+	// Max number of cylinders
+	if (numberOfCylinders > 16383)
+	{
+		numberOfCylinders = 16383;
+	}
+	
 	printf("Info: Writing descriptor file.\n");
 	
+	// Opens the descriptor file for writing
+	const u8* extentFileName = concat_strings(clArgs.outputName, "-flat.vmdk");
+	const u8* descriptorFileName = concat_strings(clArgs.outputName, ".vmdk");
+	FILE* descriptorFile = fopen(descriptorFileName, "w");
+
+	// Header
+	fprintf(descriptorFile,
+			"# Disk Descriptor File\n"
+			"version=1\n"
+			"encoding=\"UTF-8\"\n"
+			"CID=12345678\n"
+			"parentCID=ffffffff\n"
+			"createType=\"monolithicFlat\"\n");
+	
+	// Extent description
+	fprintf(descriptorFile,
+		   "\n# Extent Description\n"
+			"RW %lu FLAT \"%s\" 0\n",
+			diskNumberOfSectors, extentFileName);
+
+	// Disk database
+	fprintf(descriptorFile,
+			"\n# Disk Database\n"
+			"ddb.virtualHWVersion=\"16\"\n"
+			"ddb.geometry.cylinders=\"%lu\"\n"
+			"ddb.geometry.heads=\"%lu\"\n"
+			"ddb.geometry.sectors=\"%lu\"\n"
+			"ddb.adapterType=\"ide\"\n"
+			"ddb.toolsVersion=\"0\"\n",
+			numberOfCylinders, numberOfHeads, numberOfSectors);
+	
+	// Cleanup
+	fclose(descriptorFile);
 	printf("Info: Wrote descriptor file.\n\n");
 	return true;
 }
