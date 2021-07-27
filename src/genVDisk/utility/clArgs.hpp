@@ -14,7 +14,10 @@ enum class DiskType
 struct CLArgs
 {
 	const u8* outputName = "";
+	
 	DiskType diskType = DiskType::HardDiskDrive;
+	const usize diskSize = 1 * 1024 * 1024; // 1 MiB
+	
 	const u8* mbrFile = "";
 	const u8* bootloaderFile = "";
 	const u8* kernelFile = "";

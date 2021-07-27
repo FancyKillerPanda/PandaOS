@@ -32,6 +32,7 @@ main:
 
 relocated_main:
 		xor cx, cx
+		mov si, firstPartition
 
 	.check_partitions:
 		cmp byte [si], 0x80

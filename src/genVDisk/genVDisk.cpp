@@ -60,10 +60,24 @@ int main(s32 argc, const u8* argv[])
 		}
 
 		// Writes the MBR to the extent file
-		// TODO(fkp): Write partition data
 		usize mbrSectors = write_data_as_blocks(outputFile, mbrData, mbrSize, 0);
 		ASSERT(mbrSectors == 1, "Error: Should not have more than one MBR sector.");
 		numberOfBlocksWritten += mbrSectors;
+
+		const u32 unused = 0xffffffff;
+		const u32 attributes = 0x80; // Bootable
+		const u32 type = 0x0c; // FAT32 LBA
+		constexpr u32 MBR_PARTITION_ENTRY_OFFSET = 446;
+		
+		fseek(outputFile, MBR_PARTITION_ENTRY_OFFSET, SEEK_SET);
+		fwrite(&attributes, 1, 1, outputFile);
+		fwrite(&unused, 1, 3, outputFile);
+		fwrite(&type, 1, 1, outputFile);
+		fwrite(&unused, 1, 3, outputFile);
+		fwrite(&numberOfBlocksWritten, 4, 1, outputFile); // Start of partition (LBA)
+		fwrite(&clArgs.diskSize, 4, 1, outputFile); // Number of sectors
+		fseek(outputFile, 0, SEEK_END);
+		
 		printf("Info: Wrote single MBR sector to disk.\n");
 	}
 	else
@@ -99,8 +113,13 @@ int main(s32 argc, const u8* argv[])
 	fwrite(&magicBootloaderSize, 1, 2, outputFile);
 	fwrite(&magicKernelStart, 1, 2, outputFile);
 	fwrite(&magicKernelSize, 1, 2, outputFile);
+	fseek(outputFile, 0, SEEK_END);
 	
 	printf("Info: Wrote magic numbers for bootloader.\n");
+
+	usize paddingSectorSize = (clArgs.diskSize / 512) - numberOfBlocksWritten;
+	write_data_as_blocks(outputFile, nullptr, 0, paddingSectorSize);
+	printf("Info: Wrote %zu sectors of padding (%zu kiB).\n", paddingSectorSize, (paddingSectorSize * 512) / 1024);
 	
 	fclose(outputFile);
 }
