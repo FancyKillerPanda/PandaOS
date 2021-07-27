@@ -8,12 +8,14 @@
 enum class DiskType
 {
 	FloppyDisk,
+	HardDiskDrive,
 };
 
 struct CLArgs
 {
 	const u8* outputName = "";
-	DiskType diskType = DiskType::FloppyDisk;
+	DiskType diskType = DiskType::HardDiskDrive;
+	const u8* mbrFile = "";
 	const u8* bootloaderFile = "";
 	const u8* kernelFile = "";
 };

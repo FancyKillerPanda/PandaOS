@@ -6,14 +6,22 @@
 constexpr const u8* options[] = {
 	"--help",
 	"--output",
+
 	"--floppy",
+	"--hdd",
+	
+	"--mbr",
 	"--bootloader",
 	"--kernel",
 };
 constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
 	"--output <path>", "The name of the output file.",
+	
 	"--floppy", "Sets the disk type to be \"Floppy Disk\".",
+	"--hdd", "Sets thes disk type to be \"Hard Disk Drive\".",
+	
+	"--mbr <path>", "Specifies the MBR file.",
 	"--bootloader <path>", "Specifies the bootloader file.",
 	"--kernel <path>", "Specifies the kernel file.",
 };
@@ -67,6 +75,23 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 		{
 			arguments.diskType = DiskType::FloppyDisk;
 		}
+		else if (strcmp(argv[i], "--hdd") == 0)
+		{
+			arguments.diskType = DiskType::HardDiskDrive;
+		}
+		else if (strcmp(argv[i], "--mbr") == 0)
+		{
+			if (i + 1 < argc)
+			{
+				arguments.mbrFile = argv[i + 1];
+				i += 1;
+			}
+			else
+			{
+				printf("Error: No MBR file given.\n");
+				return false;
+			}
+		}
 		else if (strcmp(argv[i], "--bootloader") == 0)
 		{
 			if (i + 1 < argc)
@@ -116,6 +141,13 @@ bool handle_command_line_args(s32 argc, const u8* argv[], CLArgs& arguments)
 	else if (strcmp(arguments.outputName, "") == 0)
 	{
 		printf("Error: Output file name must be supplied.\n");
+		return false;
+	}
+
+	if (arguments.diskType == DiskType::HardDiskDrive &&
+	   strcmp(arguments.mbrFile, "") == 0)
+	{
+		printf("Error: Hard Disk must have an MBR.\n");
 		return false;
 	}
 
