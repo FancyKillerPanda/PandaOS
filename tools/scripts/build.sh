@@ -46,12 +46,22 @@ nasm -felf32 $kernelDir/memory/registers.asm -o registers.o || exit_on_error
 nasm -felf32 $kernelDir/multitasking/usermode.asm -o usermode.o || exit_on_error
 clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
-print $BLUE "\nGenerating virtual disk..."
-$binDir/genVDisk/genVDisk --output PandaOS.img \
-						  --floppy \
-						  --bootloader volumeBootRecord.bin \
-						  --kernel kernel.bin \
-	|| exit_on_error
+if [ "$1" == "--floppy" ]; then
+	print $BLUE "\nGenerating virtual floppy disk..."
+	$binDir/genVDisk/genVDisk --output PandaOS.img \
+							  --floppy \
+							  --bootloader volumeBootRecord.bin \
+							  --kernel kernel.bin \
+		|| exit_on_error
+else
+	print $BLUE "\nGenerating virtual hard disk..."
+	$binDir/genVDisk/genVDisk --output PandaOS.img \
+							  --hdd \
+							  --mbr masterBootRecord.bin \
+							  --bootloader volumeBootRecord.bin \
+							  --kernel kernel.bin \
+		|| exit_on_error
+fi
 
 print $GREEN "\nBuild succeeded!\n"
 
