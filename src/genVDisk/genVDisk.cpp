@@ -15,9 +15,20 @@ int main(s32 argc, const u8* argv[])
 	}
 
 	// Opens the output file for writing
-	FILE* outputFile = fopen(clArgs.outputName, "w");
+	const u8* extentFileName;
+	
+	if (clArgs.diskType == DiskType::FloppyDisk)
+	{
+		extentFileName = concat_strings(clArgs.outputName, ".img");
+	}
+	else if (clArgs.diskType == DiskType::HardDiskDrive)
+	{
+		extentFileName = concat_strings(clArgs.outputName, "-flat.vmdk");
+	}
+	
+	FILE* extentFile = fopen(extentFileName, "w");
 
-	if (!outputFile)
+	if (!extentFile)
 	{
 		printf("Error: Failed to create output file '%s'.\n", clArgs.outputName);
 		return 1;
@@ -29,7 +40,7 @@ int main(s32 argc, const u8* argv[])
 
 	if (!read_entire_file(clArgs.bootloaderFile, &bootloaderData, &bootloaderSize))
 	{
-		fclose(outputFile);
+		fclose(extentFile);
 		return 1;
 	}
 
@@ -39,7 +50,7 @@ int main(s32 argc, const u8* argv[])
 
 	if (!read_entire_file(clArgs.kernelFile, &kernelData, &kernelSize))
 	{
-		fclose(outputFile);
+		fclose(extentFile);
 		return 1;
 	}
 
@@ -55,12 +66,12 @@ int main(s32 argc, const u8* argv[])
 
 		if (!read_entire_file(clArgs.mbrFile, &mbrData, &mbrSize))
 		{
-			fclose(outputFile);
+			fclose(extentFile);
 			return 1;
 		}
 
 		// Writes the MBR to the extent file
-		usize mbrSectors = write_data_as_blocks(outputFile, mbrData, mbrSize, 0);
+		usize mbrSectors = write_data_as_blocks(extentFile, mbrData, mbrSize, 0);
 		ASSERT(mbrSectors == 1, "Error: Should not have more than one MBR sector.");
 		numberOfBlocksWritten += mbrSectors;
 
@@ -69,14 +80,14 @@ int main(s32 argc, const u8* argv[])
 		const u32 type = 0x0c; // FAT32 LBA
 		constexpr u32 MBR_PARTITION_ENTRY_OFFSET = 446;
 		
-		fseek(outputFile, MBR_PARTITION_ENTRY_OFFSET, SEEK_SET);
-		fwrite(&attributes, 1, 1, outputFile);
-		fwrite(&unused, 1, 3, outputFile);
-		fwrite(&type, 1, 1, outputFile);
-		fwrite(&unused, 1, 3, outputFile);
-		fwrite(&numberOfBlocksWritten, 4, 1, outputFile); // Start of partition (LBA)
-		fwrite(&clArgs.diskSize, 4, 1, outputFile); // Number of sectors
-		fseek(outputFile, 0, SEEK_END);
+		fseek(extentFile, MBR_PARTITION_ENTRY_OFFSET, SEEK_SET);
+		fwrite(&attributes, 1, 1, extentFile);
+		fwrite(&unused, 1, 3, extentFile);
+		fwrite(&type, 1, 1, extentFile);
+		fwrite(&unused, 1, 3, extentFile);
+		fwrite(&numberOfBlocksWritten, 4, 1, extentFile); // Start of partition (LBA)
+		fwrite(&clArgs.diskSize, 4, 1, extentFile); // Number of sectors
+		fseek(extentFile, 0, SEEK_END);
 		
 		printf("Info: Wrote single MBR sector to disk.\n");
 	}
@@ -87,14 +98,14 @@ int main(s32 argc, const u8* argv[])
 
 	// Writes the bootloader
 	usize bootloaderStartSector = numberOfBlocksWritten;
-	usize bootloaderSectors = write_data_as_blocks(outputFile, bootloaderData, bootloaderSize, 0);
+	usize bootloaderSectors = write_data_as_blocks(extentFile, bootloaderData, bootloaderSize, 0);
 	numberOfBlocksWritten += bootloaderSectors;
 	printf("Info: Wrote bootloader to disk (start: %zu, %zu sector(s)).\n",
 		   bootloaderStartSector, bootloaderSectors);
 
 	// Writes the kernel
 	usize kernelStartSector = numberOfBlocksWritten;
-	usize kernelSectors = write_data_as_blocks(outputFile, kernelData, kernelSize, 0);
+	usize kernelSectors = write_data_as_blocks(extentFile, kernelData, kernelSize, 0);
 	numberOfBlocksWritten += kernelSectors;
 	printf("Info: Wrote kernel to disk (start: %zu, %zu sector(s)).\n",
 		   kernelStartSector, kernelSectors);
@@ -108,18 +119,18 @@ int main(s32 argc, const u8* argv[])
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
 
-	fseek(outputFile, (bootloaderStartSector * 512) + 501, SEEK_SET);
-	fwrite(&magicBootloaderStart, 1, 2, outputFile);
-	fwrite(&magicBootloaderSize, 1, 2, outputFile);
-	fwrite(&magicKernelStart, 1, 2, outputFile);
-	fwrite(&magicKernelSize, 1, 2, outputFile);
-	fseek(outputFile, 0, SEEK_END);
+	fseek(extentFile, (bootloaderStartSector * 512) + 501, SEEK_SET);
+	fwrite(&magicBootloaderStart, 1, 2, extentFile);
+	fwrite(&magicBootloaderSize, 1, 2, extentFile);
+	fwrite(&magicKernelStart, 1, 2, extentFile);
+	fwrite(&magicKernelSize, 1, 2, extentFile);
+	fseek(extentFile, 0, SEEK_END);
 	
 	printf("Info: Wrote magic numbers for bootloader.\n");
 
 	usize paddingSectorSize = (clArgs.diskSize / 512) - numberOfBlocksWritten;
-	write_data_as_blocks(outputFile, nullptr, 0, paddingSectorSize);
+	write_data_as_blocks(extentFile, nullptr, 0, paddingSectorSize);
 	printf("Info: Wrote %zu sectors of padding (%zu kiB).\n", paddingSectorSize, (paddingSectorSize * 512) / 1024);
 	
-	fclose(outputFile);
+	fclose(extentFile);
 }

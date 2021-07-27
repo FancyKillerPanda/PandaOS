@@ -27,7 +27,7 @@ kernelFiles="$kernelDir/unityBuild.cpp kernelEntryPoint.o registers.o usermode.o
 
 # Builds genVDisk if necessary
 # if [ ! -e $binDir/genVDisk/genVDisk ]; then
-	$prjRoot/tools/scripts/buildGenVDisk.sh
+	$prjRoot/tools/scripts/buildGenVDisk.sh || exit_on_error
 	echo
 #fi
 
@@ -48,14 +48,14 @@ clang++ $kernelCompileFlags $kernelLinkFlags $kernelFiles || exit_on_error
 
 if [ "$1" == "--floppy" ]; then
 	print $BLUE "\nGenerating virtual floppy disk..."
-	$binDir/genVDisk/genVDisk --output PandaOS.img \
+	$binDir/genVDisk/genVDisk --output PandaOS \
 							  --floppy \
 							  --bootloader volumeBootRecord.bin \
 							  --kernel kernel.bin \
 		|| exit_on_error
 else
 	print $BLUE "\nGenerating virtual hard disk..."
-	$binDir/genVDisk/genVDisk --output PandaOS.img \
+	$binDir/genVDisk/genVDisk --output PandaOS \
 							  --hdd \
 							  --mbr masterBootRecord.bin \
 							  --bootloader volumeBootRecord.bin \
@@ -66,7 +66,7 @@ fi
 print $GREEN "\nBuild succeeded!\n"
 
 # Run
-$scriptDir/run.sh
+$scriptDir/run.sh "$@"
 echo
 
 # Exit

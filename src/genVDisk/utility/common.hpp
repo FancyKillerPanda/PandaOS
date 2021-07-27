@@ -24,4 +24,6 @@ using f64 = double;
 
 #define ASSERT(condition, log) if (!(condition)) { printf(log); }
 
+u8* concat_strings(const u8* strOne, const u8* strTwo);
+
 #endif

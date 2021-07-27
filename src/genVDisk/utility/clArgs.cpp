@@ -16,7 +16,7 @@ constexpr const u8* options[] = {
 };
 constexpr const u8* optionDescriptions[] = {
 	"--help", "Displays this help message.",
-	"--output <path>", "The name of the output file.",
+	"--output <name>", "The name of the output file.",
 	
 	"--floppy", "Sets the disk type to be \"Floppy Disk\".",
 	"--hdd", "Sets thes disk type to be \"Hard Disk Drive\".",

@@ -3,4 +3,5 @@
 #include "genVDisk.cpp"
 
 #include "utility/clArgs.cpp"
+#include "utility/common.cpp"
 #include "utility/fileIO.cpp"
