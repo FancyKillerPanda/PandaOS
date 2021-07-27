@@ -8,5 +8,10 @@ if not exist %prjRoot%\bin\PandaOS\ (
 	echo There is nothing to run...
 ) else (
 	cls
-	bochsdbg -q -f %prjRoot%\tools\debug\bochsrc.bxrc
+
+	if exist %prjRoot%\bin\PandaOS\PandaOS.img (
+		bochsdbg -q -f %prjRoot%\tools\debug\bochsrc-fdd.bxrc
+	) else (
+		bochsdbg -q -f %prjRoot%\tools\debug\bochsrc-hdd.bxrc
+	)
 )
