@@ -22,4 +22,6 @@ using f64 = double;
 // Works only on 16bit unsigned integers
 #define ENDIAN_SWAP_16(num) (((num) >> 8) | ((num) << 8))
 
+#define ASSERT(condition, log) if (!(condition)) { printf(log); }
+
 #endif

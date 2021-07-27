@@ -43,36 +43,55 @@ int main(s32 argc, const u8* argv[])
 		return 1;
 	}
 
-	// Handles disk-type specific logic
-	switch (clArgs.diskType)
-	{
-	case DiskType::FloppyDisk:
-	{
-		usize numberOfBlocksWritten = 0;
-		printf("Info: Writing floppy disk.\n");
+	usize numberOfBlocksWritten = 0;
 
-		usize bootloaderSectors = write_data_as_blocks(outputFile, bootloaderData, bootloaderSize, 0);
-		numberOfBlocksWritten += bootloaderSectors;
-		printf("Info: Wrote bootloader to disk (%zu sector(s)).\n", bootloaderSectors);
+	if (clArgs.diskType == DiskType::HardDiskDrive)
+	{
+		printf("Info: Writing hard disk.\n");
+		
+		// Reads the entire MBR file
+		u8* mbrData = nullptr;
+		usize mbrSize = 0;
 
-		usize kernelSectors = write_data_as_blocks(outputFile, kernelData, kernelSize, 0);
-		numberOfBlocksWritten += kernelSectors;
-		printf("Info: Wrote kernel to disk (%zu sector(s)).\n", kernelSectors);
-	} break;
+		if (!read_entire_file(clArgs.mbrFile, &mbrData, &mbrSize))
+		{
+			fclose(outputFile);
+			return 1;
+		}
+
+		// Writes the MBR to the extent file
+		// TODO(fkp): Write partition data
+		usize mbrSectors = write_data_as_blocks(outputFile, mbrData, mbrSize, 0);
+		ASSERT(mbrSectors == 1, "Error: Should not have more than one MBR sector.");
+		numberOfBlocksWritten += mbrSectors;
+		printf("Info: Wrote single MBR sector to disk.\n");
 	}
+	else
+	{
+		printf("Info: Writing floppy disk.\n");
+	}
+
+	// Writes the bootloader
+	usize bootloaderStartSector = numberOfBlocksWritten;
+	usize bootloaderSectors = write_data_as_blocks(outputFile, bootloaderData, bootloaderSize, 0);
+	numberOfBlocksWritten += bootloaderSectors;
+	printf("Info: Wrote bootloader to disk (%zu sector(s)).\n", bootloaderSectors);
+
+	// Writes the kernel
+	usize kernelStartSector = numberOfBlocksWritten;
+	usize kernelSectors = write_data_as_blocks(outputFile, kernelData, kernelSize, 0);
+	numberOfBlocksWritten += kernelSectors;
+	printf("Info: Wrote kernel to disk (%zu sector(s)).\n", kernelSectors);
 
 	// Writes magic numbers for the bootloader
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
-	u16 bootloaderSectors = ((bootloaderSize + 511) / 512) - 1;
+	bootloaderSectors -= 1;
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
-
-	u16 kernelSectors = (kernelSize + 511) / 512;
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
+	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
 	
-	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderSectors + 1);
-	
-	fseek(outputFile, 503, SEEK_SET);
+	fseek(outputFile, bootloaderStartSector + 503, SEEK_SET);
 	fwrite(&magicBootloaderSize, 1, 2, outputFile);
 	fwrite(&magicKernelStart, 1, 2, outputFile);
 	fwrite(&magicKernelSize, 1, 2, outputFile);
