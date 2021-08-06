@@ -62,11 +62,9 @@ expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
 end_of_first_sector:
 	times 498 - ($ - $$) db 0
 
-	; TODO(fkp): Make these magic values
-	sectorsPerTrack: dw 63
-	headsPerCylinder: dw 16
-
 	; NOTE(fkp): Keep at the end (magic)!
+	sectorsPerTrack: dw 0
+	headsPerCylinder: dw 0
 	bootloaderStartSector: dw 0
 	bootloaderNumberOfExtraSectors: dw 0
 	kernelStartSector: dw 0

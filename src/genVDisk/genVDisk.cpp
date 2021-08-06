@@ -86,14 +86,20 @@ bool write_descriptor_file(const CLArgs& clArgs)
 
 bool write_extent_file(const CLArgs& clArgs)
 {
+	u16 sectorsPerTrack;
+	u16 headsPerCylinder;
 	const u8* extentFileName;
 	
 	if (clArgs.diskType == DiskType::FloppyDisk)
 	{
+		sectorsPerTrack = 35; // TODO(fkp): Should be 36?
+		headsPerCylinder = 2;
 		extentFileName = concat_strings(clArgs.outputName, ".img");
 	}
 	else if (clArgs.diskType == DiskType::HardDiskDrive)
 	{
+		sectorsPerTrack = 63;
+		headsPerCylinder = 16;
 		extentFileName = concat_strings(clArgs.outputName, "-flat.vmdk");
 	}
 	
@@ -186,12 +192,16 @@ bool write_extent_file(const CLArgs& clArgs)
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
 	bootloaderSectors -= 1;
+	u16 magicSectorsPerTrack = ENDIAN_SWAP_16(sectorsPerTrack);
+	u16 magicHeadsPerCylinder = ENDIAN_SWAP_16(headsPerCylinder);
 	u16 magicBootloaderStart = ENDIAN_SWAP_16(bootloaderStartSector);
 	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
 	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
 	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
 
-	fseek(extentFile, (bootloaderStartSector * 512) + 501, SEEK_SET);
+	fseek(extentFile, (bootloaderStartSector * 512) + 497, SEEK_SET);
+	fwrite(&magicSectorsPerTrack, 1, 2, extentFile);
+	fwrite(&magicHeadsPerCylinder, 1, 2, extentFile);
 	fwrite(&magicBootloaderStart, 1, 2, extentFile);
 	fwrite(&magicBootloaderSize, 1, 2, extentFile);
 	fwrite(&magicKernelStart, 1, 2, extentFile);
