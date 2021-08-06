@@ -26,10 +26,10 @@ kernelLinkFlags="-nostdlib -Wl,--oformat=binary,-T$kernelDir/linkScript.ld"
 kernelFiles="$kernelDir/unityBuild.cpp kernelEntryPoint.o registers.o usermode.o"
 
 # Builds genVDisk if necessary
-# if [ ! -e $binDir/genVDisk/genVDisk ]; then
+if [ ! -e $binDir/genVDisk/genVDisk ]; then
 	$prjRoot/tools/scripts/buildGenVDisk.sh || exit_on_error
 	echo
-#fi
+fi
 
 # Build
 mkdir -p $binDir/PandaOS

@@ -92,7 +92,7 @@ bool write_extent_file(const CLArgs& clArgs)
 	
 	if (clArgs.diskType == DiskType::FloppyDisk)
 	{
-		sectorsPerTrack = 35; // TODO(fkp): Should be 36?
+		sectorsPerTrack = 36;
 		headsPerCylinder = 2;
 		extentFileName = concat_strings(clArgs.outputName, ".img");
 	}
@@ -156,8 +156,13 @@ bool write_extent_file(const CLArgs& clArgs)
 		const u32 unused = 0xffffffff;
 		const u32 attributes = 0x80; // Bootable
 		const u32 type = 0x0c; // FAT32 LBA
+		constexpr u32 MBR_MAGIC_VALUES_OFFSET = 442;
 		constexpr u32 MBR_PARTITION_ENTRY_OFFSET = 446;
 
+		fseek(extentFile, MBR_MAGIC_VALUES_OFFSET, SEEK_SET);
+		fwrite(&sectorsPerTrack, 1, 2, extentFile);
+		fwrite(&headsPerCylinder, 1, 2, extentFile);
+		
 		fseek(extentFile, MBR_PARTITION_ENTRY_OFFSET, SEEK_SET);
 		fwrite(&attributes, 1, 1, extentFile);
 		fwrite(&unused, 1, 3, extentFile);
@@ -191,10 +196,11 @@ bool write_extent_file(const CLArgs& clArgs)
 	// Writes magic numbers for the bootloader
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
+	constexpr u32 VBR_MAGIC_VALUES_OFFSET = 498;
 	u16 bootloaderExtraSectors = bootloaderSectors - 1;
 	u16 kernelStart = bootloaderStartSector + bootloaderSectors;
 	
-	fseek(extentFile, (bootloaderStartSector * 512) + 498, SEEK_SET);
+	fseek(extentFile, (bootloaderStartSector * 512) + VBR_MAGIC_VALUES_OFFSET, SEEK_SET);
 	fwrite(&sectorsPerTrack, 1, 2, extentFile);
 	fwrite(&headsPerCylinder, 1, 2, extentFile);
 	fwrite(&bootloaderStartSector, 1, 2, extentFile);
@@ -205,6 +211,7 @@ bool write_extent_file(const CLArgs& clArgs)
 	
 	printf("Info: Wrote magic numbers for bootloader.\n");
 
+	// Writes padding to the output file
 	usize paddingSectorSize = (clArgs.diskSize / 512) - numberOfBlocksWritten;
 	write_data_as_blocks(extentFile, nullptr, 0, paddingSectorSize);
 	printf("Info: Wrote %zu sectors of padding (%zu kiB).\n", paddingSectorSize, (paddingSectorSize * 512) / 1024);
