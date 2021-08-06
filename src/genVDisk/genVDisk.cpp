@@ -157,7 +157,7 @@ bool write_extent_file(const CLArgs& clArgs)
 		const u32 attributes = 0x80; // Bootable
 		const u32 type = 0x0c; // FAT32 LBA
 		constexpr u32 MBR_PARTITION_ENTRY_OFFSET = 446;
-		
+
 		fseek(extentFile, MBR_PARTITION_ENTRY_OFFSET, SEEK_SET);
 		fwrite(&attributes, 1, 1, extentFile);
 		fwrite(&unused, 1, 3, extentFile);
@@ -191,21 +191,16 @@ bool write_extent_file(const CLArgs& clArgs)
 	// Writes magic numbers for the bootloader
 	// NOTE(fkp): The minus 1 is because we don't want to include
 	// the first sector in what we load.
-	bootloaderSectors -= 1;
-	u16 magicSectorsPerTrack = ENDIAN_SWAP_16(sectorsPerTrack);
-	u16 magicHeadsPerCylinder = ENDIAN_SWAP_16(headsPerCylinder);
-	u16 magicBootloaderStart = ENDIAN_SWAP_16(bootloaderStartSector);
-	u16 magicBootloaderSize = ENDIAN_SWAP_16(bootloaderSectors);
-	u16 magicKernelSize = ENDIAN_SWAP_16(kernelSectors);
-	u16 magicKernelStart = ENDIAN_SWAP_16(bootloaderStartSector + bootloaderSectors + 1);
-
-	fseek(extentFile, (bootloaderStartSector * 512) + 497, SEEK_SET);
-	fwrite(&magicSectorsPerTrack, 1, 2, extentFile);
-	fwrite(&magicHeadsPerCylinder, 1, 2, extentFile);
-	fwrite(&magicBootloaderStart, 1, 2, extentFile);
-	fwrite(&magicBootloaderSize, 1, 2, extentFile);
-	fwrite(&magicKernelStart, 1, 2, extentFile);
-	fwrite(&magicKernelSize, 1, 2, extentFile);
+	u16 bootloaderExtraSectors = bootloaderSectors - 1;
+	u16 kernelStart = bootloaderStartSector + bootloaderSectors;
+	
+	fseek(extentFile, (bootloaderStartSector * 512) + 498, SEEK_SET);
+	fwrite(&sectorsPerTrack, 1, 2, extentFile);
+	fwrite(&headsPerCylinder, 1, 2, extentFile);
+	fwrite(&bootloaderStartSector, 1, 2, extentFile);
+	fwrite(&bootloaderExtraSectors, 1, 2, extentFile);
+	fwrite(&kernelStart, 1, 2, extentFile);
+	fwrite(&kernelSectors, 1, 2, extentFile);
 	fseek(extentFile, 0, SEEK_END);
 	
 	printf("Info: Wrote magic numbers for bootloader.\n");
