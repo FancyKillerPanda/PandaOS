@@ -79,13 +79,13 @@ calculate_chs:
 	; TODO(fkp): Make both FDD and HDD geometry work.
 ;	sectorsPerTrack: equ 36
 ;	headsPerCylinder: equ 2
-	sectorsPerTrack: equ 63
-	headsPerCylinder: equ 16
+;	sectorsPerTrack: equ 63
+;	headsPerCylinder: equ 16
 
 	.calculate_sector:
 		xor dx, dx
 		mov ax, cx
-		mov bx, sectorsPerTrack
+		mov bx, [sectorsPerTrack]
 		div bx					; LBA div/mod SPT
 		inc dx
 		mov [tempSector], dl
@@ -93,15 +93,21 @@ calculate_chs:
 	.calculate_head:
 		; ax already contains quotient of LBA / SPT
 		xor dx, dx
-		mov bx, headsPerCylinder
+		mov bx, [headsPerCylinder]
 		div bx
 		mov [tempHead], dl
 
 	.calculate_cylinder:
 		xor dx, dx
+
+		mov ax, [sectorsPerTrack]
+		mov bx, [headsPerCylinder]
+		mul bx
+		mov bx, ax
+
 		mov ax, cx
-		mov bx, sectorsPerTrack * headsPerCylinder
 		div bx
+
 		mov [tempCylinder], ax
 
 	.finish:

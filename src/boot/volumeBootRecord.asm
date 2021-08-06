@@ -60,7 +60,11 @@ welcomeMessage: db "PandaOS", CR, LF, 0
 expandingMessage: db "Info: Expanding bootloader...", CR, LF, 0
 
 end_of_first_sector:
-	times 502 - ($ - $$) db 0
+	times 498 - ($ - $$) db 0
+
+	; TODO(fkp): Make these magic values
+	sectorsPerTrack: dw 63
+	headsPerCylinder: dw 16
 
 	; NOTE(fkp): Keep at the end (magic)!
 	bootloaderStartSector: dw 0

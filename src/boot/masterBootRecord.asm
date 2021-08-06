@@ -90,13 +90,20 @@ relocated_main:
 ; Data
 bootDriveNumber: db 0
 selectedPartition: dw 0
-relocatingMBRMessage: db "Info: Relocating MBR!", CR, LF, 0
-partitionFoundMessage: db "Info: Found partition!", CR, LF, 0
+;relocatingMBRMessage: db "Info: Relocating MBR!", CR, LF, 0
+;partitionFoundMessage: db "Info: Found partition!", CR, LF, 0
+relocatingMBRMessage: db "Relocating MBR!", CR, LF, 0
+partitionFoundMessage: db "Found partition!", CR, LF, 0
 partitionNotFoundMessage: db "Error: No active partition!", CR, LF, 0
-jumpingToVBRMessage: db "Info: Jumping to VBR!", CR, LF, 0
+;jumpingToVBRMessage: db "Info: Jumping to VBR!", CR, LF, 0
+jumpingToVBRMessage: db "Jumping to VBR!", CR, LF, 0
 
 end_of_mbr_code:
-	times 446 - ($ - $$) db 0
+	times 442 - ($ - $$) db 0
+
+	; TODO(fkp): Make these magic values
+	sectorsPerTrack: dw 63
+	headsPerCylinder: dw 16
 
 ; The four partitions
 ; NOTE(fkp): The data will be filled in by genVDisk
