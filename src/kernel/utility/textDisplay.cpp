@@ -1,8 +1,8 @@
 //  ===== Date Created: 08 December, 2020 ===== 
 
-#include "display/textDisplay.hpp"
 #include "memory/operations.hpp"
 #include "system/io.hpp"
+#include "utility/textDisplay.hpp"
 
 static u16* const TEXT_VIDEO_MEMORY = (u16*) 0xc00b8000;
 constexpr u16 SCREEN_ROWS = 25;

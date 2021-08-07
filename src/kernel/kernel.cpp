@@ -1,7 +1,6 @@
 //  ===== Date Created: 02 December, 2020 ===== 
 
 #include "display/graphicDisplay.hpp"
-#include "display/textDisplay.hpp"
 #include "display/videoMode.hpp"
 
 #include "interrupts/interruptDescriptorTable.hpp"
@@ -18,6 +17,7 @@
 
 #include "utility/log.hpp"
 #include "utility/magic.hpp"
+#include "utility/textDisplay.hpp"
 
 extern const usize bssBlockStart;
 extern const usize bssBlockEnd;

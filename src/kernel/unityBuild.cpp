@@ -3,7 +3,6 @@
 #include "kernel.cpp"
 
 #include "display/graphicDisplay.cpp"
-#include "display/textDisplay.cpp"
 #include "display/videoMode.cpp"
 
 #include "interrupts/handleExceptions.cpp"
@@ -23,3 +22,4 @@
 
 #include "utility/log.cpp"
 #include "utility/magic.cpp"
+#include "utility/textDisplay.cpp"
