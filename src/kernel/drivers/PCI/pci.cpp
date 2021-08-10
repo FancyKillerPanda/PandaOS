@@ -98,6 +98,13 @@ void find_all_devices()
 					continue;
 				}
 
+				// Checks the function details
+				u8 baseClass = read_config_8(bus, device, function, CLASS_OFFSET);
+				u8 subClass = read_config_8(bus, device, function, SUB_CLASS_OFFSET);
+
+				log_info("PCI (bus: %d, device: %d, func: %d): Class %x (%x)",
+						 bus, device, function, baseClass, subClass);
+
 				// For the first function, check if this is a
 				// multifunction device. If it is not, break out of
 				// the loop.
@@ -110,13 +117,6 @@ void find_all_devices()
 						break;
 					}
 				}
-
-				// Checks the function
-				u8 baseClass = read_config_8(bus, device, function, CLASS_OFFSET);
-				u8 subClass = read_config_8(bus, device, function, SUB_CLASS_OFFSET);
-
-				log_info("PCI (bus: %d, device: %d, func: %d): Class %x (%x)",
-						 bus, device, function, baseClass, subClass);
 			}
 		}
 	}
