@@ -101,6 +101,16 @@ void find_all_devices()
 				// Checks the function details
 				u8 baseClass = read_config_8(bus, device, function, CLASS_OFFSET);
 				u8 subClass = read_config_8(bus, device, function, SUB_CLASS_OFFSET);
+				u8 headerType = read_config_8(bus, device, function, HEADER_TYPE_OFFSET);
+
+				peripherals.push({
+					bus,
+					device,
+					function,
+					headerType,
+					baseClass,
+					subClass,
+				});
 
 				log_info("PCI (bus: %d, device: %d, func: %d): Class %x (%x)",
 						 bus, device, function, baseClass, subClass);
@@ -110,8 +120,6 @@ void find_all_devices()
 				// the loop.
 				if (function == 0)
 				{
-					u8 headerType = read_config_8(bus, device, function, HEADER_TYPE_OFFSET);
-
 					if (!(headerType & MULTI_FUNCTION_DEVICE_BIT))
 					{
 						break;

@@ -15,10 +15,12 @@ cd $binDir/PandaOS > /dev/null 2> /dev/null || exit_on_error
 
 if [ "$1" == "--floppy" ]; then
 	qemu-system-i386 -drive if=floppy,index=0,format=raw,file="PandaOS.img" \
+					 -M q35 \
 					 -debugcon stdio \
 		|| exit_on_error
 else
 	qemu-system-i386 -drive index=0,media=disk,file="PandaOS.vmdk" \
+					 -M q35 \
 					 -debugcon stdio \
 		|| exit_on_error
 fi

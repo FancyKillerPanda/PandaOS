@@ -3,6 +3,7 @@
 #if !defined(DYNAMICARRAY_HPP)
 #define DYNAMICARRAY_HPP
 
+#include "memory/heapAllocator.hpp"
 #include "system/common.hpp"
 #include "utility/log.hpp"
 
