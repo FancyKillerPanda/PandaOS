@@ -15,6 +15,7 @@
 
 #include "system/common.hpp"
 
+#include "utility/dynamicArray.hpp"
 #include "utility/log.hpp"
 #include "utility/magic.hpp"
 #include "utility/textDisplay.hpp"
@@ -46,6 +47,15 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 
 	// Testing grounds
 	clear_screen(0x555555);
+
+	DynamicArray<u32> array {};
+	array.push(1);
+	array.push(10);
+	printf("Size: %d, index 0: %d, index 1: %d\n", array.size, array[0], array[1]);
+	printf("Value popped: %d\n", array.pop());
+	printf("Size: %d, index 0: %d\n", array.size, array[0]);
+	array[1] = 5; // Should error
+	
 	switch_process();
 	
 	// The end...
