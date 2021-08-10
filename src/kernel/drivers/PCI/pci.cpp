@@ -5,6 +5,8 @@
 
 #include "utility/log.hpp"
 
+bool pciInitialised = false;
+
 constexpr u16 CONFIG_ADDRESS = 0xcf8;
 constexpr u16 CONFIG_DATA = 0xcfc;
 
@@ -83,6 +85,8 @@ u8 read_config_8(u8 bus, u8 device, u8 function, u8 offset)
 
 void find_all_devices()
 {
+	ASSERT(!pciInitialised, "Attempting to initialise PCI driver twice.");
+	
 	for (u8 bus = 0; (u16) bus < NUMBER_OF_BUSSES; bus++)
 	{
 		for (u8 device = 0; device < NUMBER_OF_DEVICES_PER_BUS; device++)
@@ -128,4 +132,23 @@ void find_all_devices()
 			}
 		}
 	}
+
+	pciInitialised = true;
+}
+
+Peripheral get_peripheral(u16 baseClass, u16 subClass)
+{
+	ASSERT(pciInitialised, "Cannot get PCI peripheral before initialisation.");
+	
+	for (usize i = 0; i < peripherals.size; i++)
+	{
+		if (peripherals[i].baseClass == baseClass &&
+			peripherals[i].subClass == subClass)
+		{
+			return peripherals[i];
+		}
+	}
+
+	log_error("Could not find peripheral with class %x (%x).", baseClass, subClass);
+	while (true);
 }

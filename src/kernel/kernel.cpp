@@ -49,6 +49,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 
 	// Testing grounds
 	find_all_devices();
+	get_peripheral(0x01, 0x06);
 	
 	// The end...
 	log_info("\nFinished, now hanging...");

@@ -19,5 +19,6 @@ struct Peripheral
 DynamicArray<Peripheral> peripherals;
 
 void find_all_devices();
+Peripheral get_peripheral(u16 baseClass, u16 subClass);
 
 #endif
