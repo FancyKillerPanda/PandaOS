@@ -3,6 +3,8 @@
 #include "display/graphicDisplay.hpp"
 #include "display/videoMode.hpp"
 
+#include "drivers/PCI/pci.hpp"
+
 #include "interrupts/interruptDescriptorTable.hpp"
 
 #include "memory/heapAllocator.hpp"
@@ -46,17 +48,7 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_video(videoMode);
 
 	// Testing grounds
-	clear_screen(0x555555);
-
-	DynamicArray<u32> array {};
-	array.push(1);
-	array.push(10);
-	printf("Size: %d, index 0: %d, index 1: %d\n", array.size, array[0], array[1]);
-	printf("Value popped: %d\n", array.pop());
-	printf("Size: %d, index 0: %d\n", array.size, array[0]);
-	array[1] = 5; // Should error
-	
-	switch_process();
+	find_all_devices();
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
