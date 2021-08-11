@@ -31,4 +31,8 @@ u8 read_config_8(u8 bus, u8 device, u8 function, u8 offset);
 u16 read_config_16(u8 bus, u8 device, u8 function, u8 offset);
 u32 read_config_32(u8 bus, u8 device, u8 function, u8 offset);
 
+u8 read_config_8(const Peripheral& peripheral, u8 offset);
+u16 read_config_16(const Peripheral& peripheral, u8 offset);
+u32 read_config_32(const Peripheral& peripheral, u8 offset);
+
 #endif

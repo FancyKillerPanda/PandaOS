@@ -30,6 +30,7 @@ static_assert(sizeof(ConfigAddress) == 4, "ConfigAddress struct must be 4 bytes!
 void find_all_devices()
 {
 	ASSERT(!pciInitialised, "Attempting to initialise PCI driver twice.");
+	log_info("\n===== PCI Peripherals =====");
 	
 	for (u8 bus = 0; (u16) bus < NUMBER_OF_BUSSES; bus++)
 	{
@@ -60,8 +61,8 @@ void find_all_devices()
 					subClass,
 				});
 
-				log_info("PCI (bus: %d, device: %d, func: %d): Class %x (%x)",
-						 bus, device, function, baseClass, subClass);
+				printf("Bus: %d\t Device: %d\t Function: %d\t Class %x (%x)\n",
+					   bus, device, function, baseClass, subClass);
 
 				// For the first function, check if this is a
 				// multifunction device. If it is not, break out of
@@ -77,6 +78,7 @@ void find_all_devices()
 		}
 	}
 
+	log_info("===========================");
 	pciInitialised = true;
 }
 
@@ -146,4 +148,19 @@ u32 read_config_32(u8 bus, u8 device, u8 function, u8 offset)
 
 	port_out_32(CONFIG_ADDRESS, configInteger);
 	return port_in_32(CONFIG_DATA);
+}
+
+u8 read_config_8(const Peripheral& peripheral, u8 offset)
+{
+	return read_config_8(peripheral.bus, peripheral.device, peripheral.function, offset);
+}
+
+u16 read_config_16(const Peripheral& peripheral, u8 offset)
+{
+	return read_config_16(peripheral.bus, peripheral.device, peripheral.function, offset);
+}
+
+u32 read_config_32(const Peripheral& peripheral, u8 offset)
+{
+	return read_config_32(peripheral.bus, peripheral.device, peripheral.function, offset);
 }
