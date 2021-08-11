@@ -78,7 +78,7 @@ void find_all_devices()
 		}
 	}
 
-	log_info("===========================");
+	log_info("===========================\n");
 	pciInitialised = true;
 }
 

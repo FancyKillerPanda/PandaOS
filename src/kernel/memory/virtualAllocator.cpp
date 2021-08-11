@@ -149,6 +149,9 @@ void unmap_page_address(void* virtualAddress)
 	internal_map_unmap_page(virtualAddress, nullptr, false);
 }
 
+// TODO(fkp): We should maybe have this keep track of the physical
+// addresses it has mapped to, so if we get another request for the
+// same page we can just return that pointer.
 void* map_to_physical(void* physicalAddress, usize numberOfPages)
 {
 	static usize generalPurposeMemory = KERNEL_GENERAL_PURPOSE_MEMORY;
