@@ -12,6 +12,8 @@ using PageDirectory = PageDirectoryEntry*;
 // We create this in the bootloader
 PageDirectory pageDirectory = (PageDirectory) 0x2000;
 
+constexpr usize KERNEL_GENERAL_PURPOSE_MEMORY = 0xf0000000;
+
 constexpr u32 NUMBER_OF_PAGE_DIRECTORY_ENTRIES = 1024;
 constexpr u32 NUMBER_OF_PAGE_TABLE_ENTRIES = 1024;
 
@@ -145,6 +147,17 @@ void map_page_address(void* virtualAddress, void* physicalAddress)
 void unmap_page_address(void* virtualAddress)
 {
 	internal_map_unmap_page(virtualAddress, nullptr, false);
+}
+
+void* map_to_physical(void* physicalAddress, usize numberOfPages)
+{
+	static usize generalPurposeMemory = KERNEL_GENERAL_PURPOSE_MEMORY;
+	void* virtualAddress = (void*) generalPurposeMemory;
+	
+	allocate_virtual_range(virtualAddress, numberOfPages * PAGE_SIZE, physicalAddress);
+	generalPurposeMemory += numberOfPages * PAGE_SIZE;
+
+	return virtualAddress;
 }
 
 void allocate_virtual_range(void* virtualAddress, usize size, void* physicalAddress)
