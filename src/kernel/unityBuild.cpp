@@ -5,6 +5,7 @@
 #include "display/graphicDisplay.cpp"
 #include "display/videoMode.cpp"
 
+#include "drivers/AHCI/ahci.cpp"
 #include "drivers/PCI/pci.cpp"
 
 #include "interrupts/handleExceptions.cpp"

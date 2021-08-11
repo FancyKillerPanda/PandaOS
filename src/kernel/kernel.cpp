@@ -3,6 +3,7 @@
 #include "display/graphicDisplay.hpp"
 #include "display/videoMode.hpp"
 
+#include "drivers/AHCI/ahci.hpp"
 #include "drivers/PCI/pci.hpp"
 
 #include "interrupts/interruptDescriptorTable.hpp"
@@ -46,9 +47,10 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_virtual_allocator();
 	init_heap_allocator();
 	init_video(videoMode);
+	find_all_devices();
+	init_ahci();
 
 	// Testing grounds
-	find_all_devices();
 	get_peripheral(0x01, 0x06);
 	
 	// The end...
