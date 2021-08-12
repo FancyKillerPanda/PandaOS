@@ -1,7 +1,9 @@
 //  ===== Date Created: 11 August, 2021 ===== 
 
 #include "drivers/AHCI/ahci.hpp"
-#include "drivers/AHCI/structures.hpp"
+#include "drivers/AHCI/structures/frameInformationStructure.hpp"
+#include "drivers/AHCI/structures/hostBusAdaptor.hpp"
+
 #include "drivers/PCI/pci.hpp"
 
 void init_ahci()
