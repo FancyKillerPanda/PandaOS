@@ -17,6 +17,7 @@ enum class FISType : u8
 	SetDeviceBits = 0xa1,
 };
 
+/*
 struct HostToDeviceFIS
 {
 	FISType type;
@@ -43,6 +44,7 @@ struct HostToDeviceFIS
 };
 static_assert(sizeof(HostToDeviceFIS) == 20,
 			  "HostToDeviceFIS must be 20 bytes.");
+*/
 
 struct DeviceToHostFIS
 {
@@ -69,7 +71,7 @@ struct DeviceToHostFIS
 	u16 reserved3;
 	u32 reserved4;
 };
-static_assert(sizeof(HostToDeviceFIS) == 20,
+static_assert(sizeof(DeviceToHostFIS) == 20,
 			  "DeviceToHostFIS must be 20 bytes.");
 
 struct DMASetupFIS
@@ -91,6 +93,7 @@ struct DMASetupFIS
 };
 static_assert(sizeof(DMASetupFIS) == 28, "DMASetupFIS must be 28 bytes.");
 
+/*
 struct DataFIS
 {
 	FISType type;
@@ -102,6 +105,7 @@ struct DataFIS
 	u32 data[1]; // Variable size
 };
 static_assert(sizeof(DataFIS) == 8, "DataFIS must be 8 bytes.");
+*/
 
 struct PIOSetupFIS
 {
@@ -201,20 +205,65 @@ static_assert(sizeof(HBAMemorySpace) == 4352, "HBAMemorySpace must be 4352 bytes
 
 struct HBAFIS
 {
-	DMASetupFIS dmaSetupFis;
+	DMASetupFIS dmaSetupFIS;
 	u32 padding0;
 
-	PIOSetupFIS pioSetupFis;
+	PIOSetupFIS pioSetupFIS;
 	u32 padding1[3];
 
-	DeviceToHostFIS deviceToHostFis;
+	DeviceToHostFIS deviceToHostFIS;
 	u32 padding2;
 
-	SetDeviceBitsFIS setDeviceBitsFis;
+	SetDeviceBitsFIS setDeviceBitsFIS;
 
-	u8 unknownFis[64];
+	u8 unknownFIS[64];
 	u8 reserved[96];
 };
 static_assert(sizeof(HBAFIS) == 256, "HBAFIS must be 256 bytes.");
+
+struct HBACommandHeader
+{
+	u8 commandFISLength : 5; // Measured in DWORDs
+	u8 atapi : 1;
+	u8 direction : 1; // 0 = device to host, 1 = host to device
+	u8 prefetchable : 1;
+
+	u8 reset : 1;
+	u8 bist : 1;
+	u8 clearBusyFlag : 1;
+	u8 reserved0 : 1;
+	u8 portMultiplier : 4;
+
+	u16 physicalRegionDescriptorTableLength; // Number of entries
+	u32 physicalRegionDescriptorByteCount;
+	u32 commandTableBaseAddress;
+	u32 commandTableBaseAddressUpper;
+
+	u32 reserved1[4];
+};
+static_assert(sizeof(HBACommandHeader) == 32, "HBACommandHeader must be 32 bytes.");
+
+struct HBAPhysicalRegionDescriptorTableEntry
+{
+	u32 dataBaseAddress;
+	u32 dataBaseAddressUpper;
+	u32 reserved0;
+
+	u32 dataByteCount : 22; // 4 MiB max
+	u32 reserved1 : 9;
+	u32 interruptOnCompletion : 1;
+};
+static_assert(sizeof(HBAPhysicalRegionDescriptorTableEntry) == 16,
+			  "HBAPhysicalRegionDescriptorTableEntry must be 16 bytes.");
+
+struct HBACommandTable
+{
+	u8 commandFIS[64];
+	u8 atapiCommand[16]; // Either 12 or 16 bytes
+	u8 reserved[48];
+
+	HBAPhysicalRegionDescriptorTableEntry entries[];
+};
+static_assert(sizeof(HBACommandTable) == 128, "HBACommandTable must be 128 bytes.");
 
 #endif
