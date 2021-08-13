@@ -32,10 +32,35 @@ struct HBAPort
 };
 static_assert(sizeof(HBAPort) == 128, "HBAPort must be 128 bytes.");
 
+struct HBACapability
+{
+	u32 numberOfPorts : 5; // 0 means 1 port is supported
+	u32 supportsExternalSATA : 1;
+	u32 supportsEnclosureManagement : 1;
+	u32 supportsCommandCompletionCoalescing : 1;
+	u32 numberOfCommandSlots : 5; // 0 means 1 slot per port supported
+	u32 partialStateCapable : 1;
+	u32 slumberStateCapable : 1;
+	u32 pioMultipleDRQBlock : 1;
+	u32 supportsFISBasedSwitching : 1;
+	u32 supportsPortMultiplier : 1;
+	u32 supportsAHCIModeOnly : 1;
+	u32 interfaceSpeedSupport : 4;
+	u32 supportsCommandListOverride : 1;
+	u32 supportsActivityLED : 1;
+	u32 supportsAggressiveLinkPowerManagement : 1;
+	u32 supportsStaggeredSpinUp : 1;
+	u32 supportsMechanicalPresenceSwitch : 1;
+	u32 supportsSNotificationRegister : 1;
+	u32 supportsNativeCommandQueuing : 1;
+	u32 supports64bitAddressing : 1;
+};
+static_assert(sizeof(HBACapability) == 4, "HBACapability must be 4 bytes.");
+
 struct HBAMemorySpace
 {
 	// Generic Host Control - behaviour of the whole controller
-	u32 capability;
+	HBACapability capability;
 	u32 globalHostControl;
 	u32 interruptStatus;
 	u32 portsUsed;
