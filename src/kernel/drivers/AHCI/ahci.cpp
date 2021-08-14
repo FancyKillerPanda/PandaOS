@@ -35,8 +35,9 @@ void init_ahci()
 	u32 bar5 = read_config_32(ahciController, BAR_5_OFFSET);
 	void* bar5Page = (void*) (bar5 & ~0xfff);
 	
-	// TODO(fkp): Mark as uncacheable
-	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) allocate_virtual_range(2 * PAGE_SIZE, nullptr, bar5Page);
+	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) allocate_virtual_range(
+		2 * PAGE_SIZE, nullptr, bar5Page, PageFlag::Uncacheable
+	);
 
 	// Allocates space for every port's command lists.
 	// NOTE(fkp): We use the maximum possible value for the number of
@@ -48,7 +49,9 @@ void init_ahci()
 	u32 portCommandListSlots = hbaMemorySpace.capability.numberOfCommandSlots + 1;
 
 	using CommandList = HBACommandHeader[portCommandListMaxSlots];
-	CommandList* commandListArray = (CommandList*) allocate_virtual_range(commandListArraySize);
+	CommandList* commandListArray = (CommandList*) allocate_virtual_range(
+		commandListArraySize, nullptr, nullptr, PageFlag::Uncacheable
+	);
 	log_info("Allocating %x bytes (~%d pages) for command lists (starts %x).",
 			 commandListArraySize, (commandListArraySize / PAGE_SIZE) + 1,
 			 (u32) commandListArray);
@@ -63,14 +66,18 @@ void init_ahci()
 	u32 commandTableListArraySize = numberOfPorts * commandTableListSize;
 	
 	using CommandTableList = HBACommandTable*;
-	CommandTableList* commandTableListArray = (CommandTableList*) allocate_virtual_range(commandTableListArraySize);
+	CommandTableList* commandTableListArray = (CommandTableList*) allocate_virtual_range(
+		commandTableListArraySize, nullptr, nullptr, PageFlag::Uncacheable
+	);
 	log_info("Allocating %x bytes (%d pages) for command tables (starts %x).",
 			 commandTableListArraySize, commandTableListArraySize / PAGE_SIZE,
 			 (u32) commandTableListArray);
 	
 	// Allocates space for every port's Received FIS.
 	u32 fisArraySize = sizeof(HBAFIS) * numberOfPorts;
-	HBAFIS* fisArray = (HBAFIS*) allocate_virtual_range(fisArraySize);
+	HBAFIS* fisArray = (HBAFIS*) allocate_virtual_range(fisArraySize,
+														nullptr,nullptr,
+														PageFlag::Uncacheable);
 	log_info("Allocating %x bytes (~%d pages) for FIS array (starts %x).",
 			 fisArraySize, (fisArraySize / PAGE_SIZE) + 1, (u32) fisArray);
 
@@ -93,7 +100,8 @@ void init_ahci()
 
 		// Rebases the current port's command tables
 		HBACommandHeader* commandList = commandListArray[i];
-		HBACommandTable* commandTableList = (HBACommandTable*) ((u32) commandTableListArray + (i * commandTableListSize));
+		u32 position = (u32) commandTableListArray + (i * commandTableListSize);
+		HBACommandTable* commandTableList = (HBACommandTable*) position;
 
 		for (u8 slot = 0; slot < portCommandListSlots; slot++)
 		{
