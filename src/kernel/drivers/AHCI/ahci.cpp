@@ -6,6 +6,27 @@
 
 #include "drivers/PCI/pci.hpp"
 
+void start_port_command_engine(HBAPort& port)
+{
+	// Waits until command list stops running
+	while (port.commandAndStatus.commandListRunning);
+
+	// Enables FIS and command list processing
+	port.commandAndStatus.fisReceiveEnable = 1;
+	port.commandAndStatus.start = 1;
+}
+
+void stop_port_command_engine(HBAPort& port)
+{
+	// Disables FIS and command list processing
+	port.commandAndStatus.start = 0;
+	port.commandAndStatus.fisReceiveEnable = 0;
+
+	// Waits until command list and FIS stop running
+	while (port.commandAndStatus.commandListRunning ||
+		   port.commandAndStatus.fisReceiveRunning);
+}
+
 void init_ahci()
 {
 	Peripheral ahciController = get_peripheral(0x01, 0x06);
@@ -62,9 +83,8 @@ void init_ahci()
 			continue;
 		}
 
-		// TODO(fkp): Stop command
-		
 		HBAPort& port = hbaMemorySpace.ports[i];
+		stop_port_command_engine(port);
 
 		// Rebases the current port's command list
 		port.commandListBaseAddress = (u32) get_mapping(&commandListArray[i]);
@@ -88,7 +108,7 @@ void init_ahci()
 		port.fisBaseAddressUpper = 0;
 		memset(&fisArray[i], 0, fisArraySize);
 		
-		// TODO(fkp): Start command
+		start_port_command_engine(port);
 	}
 
 	log_info("Initialised AHCI controller.");

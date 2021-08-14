@@ -13,7 +13,17 @@ struct HBAPort
 	u32 fisBaseAddressUpper;
 	u32 interruptStatus;
 	u32 interruptEnable;
-	u32 commandAndStatus;
+	
+	struct
+	{
+		u32 start : 1;
+		u32 unused0 : 3;
+		u32 fisReceiveEnable : 1;
+		u32 unused1 : 9;
+		u32 fisReceiveRunning : 1;
+		u32 commandListRunning : 1;
+		u32 unused2 : 16;
+	} commandAndStatus;
 	
 	u32 reserved0;
 	
