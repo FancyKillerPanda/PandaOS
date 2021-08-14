@@ -191,3 +191,17 @@ void* allocate_virtual_range(usize size, void* virtualAddress, void* physicalAdd
 
 	return virtualAddress;
 }
+
+void* get_mapping(void* virtualAddressPtr)
+{
+	u32 virtualAddress = (u32) virtualAddressPtr;
+	u32 offset = virtualAddress & 0xfff;
+	u32 alignedVirtualAddress = virtualAddress - offset;
+
+	u32 indexIntoPageDirectory = get_index_into_page_directory((void*) alignedVirtualAddress);
+	PageTable pageTable = get_page_table(indexIntoPageDirectory);
+	PageTableEntry& pageTableEntry = get_page_table_entry(pageTable, (void*) alignedVirtualAddress);
+
+	u32 physicalAddress = (pageTableEntry & 0xfffff000) + offset;
+	return (void*) physicalAddress;
+}

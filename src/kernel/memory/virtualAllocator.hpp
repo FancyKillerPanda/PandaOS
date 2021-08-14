@@ -13,4 +13,8 @@ void unmap_page_address(void* virtualAddress);
 // Returns the virtual address.
 void* allocate_virtual_range(usize size, void* virtualAddress = nullptr, void* physicalAddress = nullptr);
 
+// Returns the physical address that
+// this virtual address is mapped to.
+void* get_mapping(void* virtualAddress);
+
 #endif

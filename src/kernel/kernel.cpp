@@ -51,7 +51,11 @@ extern "C" void kmain(u32 bootloaderLinesPrinted, MemoryMap* memoryMap, VideoMod
 	init_ahci();
 
 	// Testing grounds
-	get_peripheral(0x01, 0x06);
+	printf("Mapping: %x\n", get_mapping((void*) (0xc0000000)));
+	printf("Mapping: %x\n", get_mapping((void*) (0xc0000010)));
+	printf("Mapping: %x\n", get_mapping((void*) (0xf0000000)));
+	printf("Mapping: %x\n", get_mapping((void*) (0xe0000000)));
+	printf("Mapping: %x\n", get_mapping((void*) (0xe0000ff0)));
 	
 	// The end...
 	log_info("\nFinished, now hanging...");
