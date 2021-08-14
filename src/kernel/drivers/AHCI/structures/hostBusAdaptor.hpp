@@ -63,7 +63,7 @@ struct HBAMemorySpace
 	HBACapability capability;
 	u32 globalHostControl;
 	u32 interruptStatus;
-	u32 portsUsed;
+	u32 portsImplemented;
 	u32 version;
 	u32 cccControl; // Command completion coalescing - control
 	u32 cccPorts; // Command completion coalescing - ports

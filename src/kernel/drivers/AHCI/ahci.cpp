@@ -13,7 +13,25 @@ void init_ahci()
 	// Gets the AHCI base memory address
 	u32 bar5 = read_config_32(ahciController, BAR_5_OFFSET);
 	void* bar5Page = (void*) (bar5 & ~0xfff);
-	HBAMemorySpace* hbaMemorySpace = (HBAMemorySpace*) map_to_physical(bar5Page);
+	
+	// TODO(fkp): Mark as uncacheable
+	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) map_to_physical(bar5Page, 2);
+	HBACommandHeader** portCommandHeaderList = (HBACommandHeader**) map_to_physical();
 
-	printf("Ports used: %x\n", hbaMemorySpace->portsUsed);
+	// Iterates through the implemented ports
+	for (u8 i = 0; i < 32; i++)
+	{
+		if (!(hbaMemorySpace.portsImplemented & (1 << i)))
+		{
+			// The port is not implemented
+			continue;
+		}
+
+		// TODO(fkp): Stop command
+		
+		HBAPort& port = hbaMemorySpace.ports[i];
+		printf("Port: %x\n", port.commandListBaseAddress);
+
+		// TODO(fkp): Start command
+	}
 }
