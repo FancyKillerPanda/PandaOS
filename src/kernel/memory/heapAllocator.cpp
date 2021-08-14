@@ -40,11 +40,11 @@ void debug_print_free_regions_list()
 void init_heap_allocator()
 {
 	// Maps a single page where the list of free regions will go
-	allocate_virtual_range(freeRegionsList, PAGE_SIZE);
+	allocate_virtual_range(PAGE_SIZE, freeRegionsList);
 	memset(freeRegionsList, 0, PAGE_SIZE);
 
 	// Allocates the heap block
-	allocate_virtual_range((void*) HEAP_START, HEAP_SIZE);
+	allocate_virtual_range(HEAP_SIZE, (void*) HEAP_START);
 
 	// The heap block is currently the only free region
 	freeRegionsList[0] = FreeRegion { (void*) HEAP_START, HEAP_SIZE };

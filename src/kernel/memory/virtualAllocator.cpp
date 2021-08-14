@@ -149,29 +149,29 @@ void unmap_page_address(void* virtualAddress)
 	internal_map_unmap_page(virtualAddress, nullptr, false);
 }
 
-// TODO(fkp): We should maybe have this keep track of the physical
-// addresses it has mapped to, so if we get another request for the
-// same page we can just return that pointer.
-void* map_to_physical(void* physicalAddress, usize numberOfPages)
+void* get_usable_virtual_address(usize numberOfPages)
 {
 	static usize generalPurposeMemory = KERNEL_GENERAL_PURPOSE_MEMORY;
-	void* virtualAddress = (void*) generalPurposeMemory;
 	
-	allocate_virtual_range(virtualAddress, numberOfPages * PAGE_SIZE, physicalAddress);
+	void* virtualAddress = (void*) generalPurposeMemory;
 	generalPurposeMemory += numberOfPages * PAGE_SIZE;
 
 	return virtualAddress;
 }
 
-void allocate_virtual_range(void* virtualAddress, usize size, void* physicalAddress)
+void* allocate_virtual_range(usize size, void* virtualAddress, void* physicalAddress)
 {
-	if ((u32) virtualAddress & 0xfff)
+	u32 numberOfPages = ((size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
+
+	if (virtualAddress == nullptr)
+	{
+		virtualAddress = get_usable_virtual_address(numberOfPages);
+	}
+	else if ((u32) virtualAddress & 0xfff)
 	{
 		log_warning("Start of virtual range must be page aligned for allocation.");
-		return;
+		return nullptr;
 	}
-
-	u32 numberOfPages = ((size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1)) / PAGE_SIZE;
 
 	for (u32 i = 0; i < numberOfPages; i++)
 	{
@@ -188,4 +188,6 @@ void allocate_virtual_range(void* virtualAddress, usize size, void* physicalAddr
 		
 		map_page_address((u8*) virtualAddress + (i * PAGE_SIZE), page);
 	}
+
+	return virtualAddress;
 }

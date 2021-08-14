@@ -15,8 +15,9 @@ void init_ahci()
 	void* bar5Page = (void*) (bar5 & ~0xfff);
 	
 	// TODO(fkp): Mark as uncacheable
-	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) map_to_physical(bar5Page, 2);
-	HBACommandHeader** portCommandHeaderList = (HBACommandHeader**) map_to_physical();
+//	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) map_to_physical(bar5Page, 2);
+//	HBACommandHeader** portCommandHeaderList = (HBACommandHeader**) map_to_physical();
+	HBAMemorySpace& hbaMemorySpace = *(HBAMemorySpace*) allocate_virtual_range(2 * PAGE_SIZE, nullptr, bar5Page);
 
 	// Iterates through the implemented ports
 	for (u8 i = 0; i < 32; i++)

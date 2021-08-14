@@ -8,7 +8,8 @@ void init_video(VideoMode* videoMode)
 	videoInfo = *videoMode;
 
 	u32 framebufferSize = videoInfo.pitch * videoInfo.screenHeight;
-	allocate_virtual_range((void*) VIDEO_MEMORY, framebufferSize,
+	allocate_virtual_range(framebufferSize,
+						   (void*) VIDEO_MEMORY,
 						   (void*) videoInfo.framebufferPointer);
 
 	log_info("Video Mode: %d*%dpx (pitch: %d bytes), %d bits per pixel.",

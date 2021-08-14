@@ -8,9 +8,9 @@ void init_virtual_allocator();
 void map_page_address(void* virtualAddress, void* physicalAddress);
 void unmap_page_address(void* virtualAddress);
 
-// Maps some virtual address to a specified physical location
-void* map_to_physical(void* physicalAddress, usize numberOfPages = 1);
-
-void allocate_virtual_range(void* virtualAddress, usize size, void* physicalAddress = nullptr);
+// If the virtual or physical address is nullptr, it will be chosen to
+// be *something*.
+// Returns the virtual address.
+void* allocate_virtual_range(usize size, void* virtualAddress = nullptr, void* physicalAddress = nullptr);
 
 #endif
